@@ -17,69 +17,287 @@
   h4,
   h5,
   h6 {
-    @apply text-balance;
+    @apply text-balance font-black;
   }
 
   p {
-    @apply text-pretty;
+    @apply text-pretty text-2xl;
   }
 }
 
 @layer components {
   .prose {
-    @apply text-foreground text-base leading-7;
+    @apply text-foreground text-lg leading-[1.65rem] tracking-[0.3px];
     @apply [&>link[rel="stylesheet"]+*]:mt-0! [&>link[rel="stylesheet"]+*>*]:mt-0!;
 
-    :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply text-foreground/80 my-5;
+    :where(p):not(:where([class~='callout'], [class~='not-prose'], [class~='not-prose'] *)) {
+      @apply text-foreground/80 my-8;
+    }
+
+    .callout p {
+      /* margin-top: 0 !important; */
+      /* margin-bottom: 0 !important; */
+    }
+
+    title {
+      @apply bg-gradient-to-r from-[var(--tertiary)] to-[var(--primary)] bg-clip-text text-transparent;
     }
 
     :where(h1, h2, h3, h4, h5, h6):not(
         :where([class~='not-prose'], [class~='not-prose'] *)
       ) {
-      @apply text-foreground scroll-mt-32 font-medium xl:scroll-mt-20;
+      @apply text-foreground scroll-mt-32 font-black xl:scroll-mt-20 tracking-tight;
+      /* font-family: 'Handjet', ui-sans-serif, system-ui, sans-serif; */
+      position: relative;
     }
 
-    /* Don't use an <h1> in your posts, one is already generated in blog/[...id].astro */
+    /* H1 - Largest pixels, least width */
     :where(h1):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mt-8 mb-6 text-4xl;
+      @apply mt-4 mb-2 py-4 text-8xl font-bold leading-[4.5rem]; 
+      /* @apply bg-ring/40; */
+      padding-left: 2.5rem;
     }
 
+    :where(h1):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 1rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' fill='%23878787'%3E%3Crect x='0' y='0' width='4' height='4'/%3E%3Crect x='4' y='4' width='4' height='4'/%3E%3C/svg%3E");
+      background-size: 1rem 1rem;
+      background-repeat: repeat-y;
+      background-position: left top;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      filter: contrast(2);
+    }
+
+    /* H2 - Large pixels, small width */
     :where(h2):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mt-8 mb-4 text-2xl;
+      @apply mt-6 py-2 -mb-2 text-7xl leading-[3.75rem];
+      /* @apply bg-accent; */
+      padding-left: 1.8rem;
+    }
+
+    :where(h2):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0.65rem;
+      height: 100%;
+      background-color: var(--h2-bar);
+      @apply rounded-r-xl;
+    }
+
+    /* H3 - Medium pixels, medium width */
+    :where(h3):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply mt-6 py-1 -mb-2 text-5xl leading-[2.3rem] text-foreground/80;
+      padding-left: 3rem;
     }
 
     :where(h3):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mt-8 mb-4 text-xl;
+      position: relative;
+    }
+
+    :where(h3):not(:where([class~='not-prose'], [class~='not-prose'] *))::before,
+    :where(h3):not(:where([class~='not-prose'], [class~='not-prose'] *))::after {
+      content: '';
+      position: absolute;
+      width: 1.5rem;
+      height: 70%;
+      border-radius: 0.5rem;
+      z-index: 0;
+    }
+
+    :where(h3):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      left: 0.1rem;
+      top: 0.1rem;
+      background-color: var(--h3-bar);
+    }
+
+    :where(h3):not(:where([class~='not-prose'], [class~='not-prose'] *))::after {
+      left: 0.7rem;
+      top: 0.7rem;
+      background-color: var(--h3-bar);
+    }    
+
+
+    /* :where(h3):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 2rem;
+      height: 100%;
+      background-color: var(--h3-bar);
+      @apply rounded-r-lg;
+    } */
+
+    /* H4 - Smaller pixels, more width */
+    :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply mt-6 -mb-2 text-4xl leading-[2rem] text-foreground/65;
+      padding-left: 4.25rem;
     }
 
     :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mt-7 mb-3 text-lg;
+      position: relative;
     }
 
-    :where(h5, h6):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mt-5 mb-3;
+    :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *))::before,
+    :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *))::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2.25rem;
+      height: 90%;
+      border-radius: 0.5rem;
+      z-index: 0;
+    }
+
+    :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      left: 0.1rem;
+      background-color: var(--h4-bar);
+    }
+
+    :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *))::after {
+      left: 1.1rem;
+      background-color: var(--h4-bar);
+    }    
+
+    /* 
+    :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 4.5rem;
+      height: 90%;
+      background-color: var(--h4-bar);
+      @apply rounded-lg;
+      transform: translateY(-50%);
+    } */
+
+
+    /* :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      position: relative;
+      padding-left: 5.5rem;
+    }
+
+    :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4.5rem;
+      height: 100%;
+      transform: translateY(-50%);
+      border-radius: 0.5rem;
+      background-image: url("data:image/svg+xml,%3Csvg width='72' height='40' viewBox='0 0 72 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='0' y='4' width='50' height='16' rx='4' fill='%23000000' fill-opacity='0.16'/%3E%3Crect x='10' y='16' width='50' height='16' rx='4' fill='%23000000' fill-opacity='0.16'/%3E%3Crect x='20' y='28' width='50' height='16' rx='4' fill='%23000000' fill-opacity='0.16'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center;
+      fallback background-color if SVG fails
+      background-color: var(--h4-bar);
+    }     */
+    
+    :where(h5):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply mt-5 mb-3 text-2xl text-foreground/55 leading-[1.3rem] font-extrabold;
+    }
+
+    :where(h5):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      position: relative;
+      --h5-rect-width: 1.25rem;
+      --h5-rect-gap: 0.25rem;
+      --h5-bar-width: calc(4 * var(--h5-rect-width) + 3 * var(--h5-rect-gap));
+      padding-left: calc(var(--h5-bar-width) + 0.75rem);
+    }
+
+    :where(h5):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: var(--h5-bar-width);
+      height: 70%;
+      background:
+        linear-gradient(var(--h5-bar, #b6b6b6) 0 0) 0 0 / var(--h5-rect-width) 100% no-repeat,
+        linear-gradient(var(--h5-bar, #b6b6b6) 0 0) calc(var(--h5-rect-width) + var(--h5-rect-gap)) 0 / var(--h5-rect-width) 100% no-repeat,
+        linear-gradient(var(--h5-bar, #b6b6b6) 0 0) calc(2 * (var(--h5-rect-width) + var(--h5-rect-gap))) 0 / var(--h5-rect-width) 100% no-repeat,
+        linear-gradient(var(--h5-bar, #b6b6b6) 0 0) calc(3 * (var(--h5-rect-width) + var(--h5-rect-gap))) 0 / var(--h5-rect-width) 100% no-repeat;
+      border-radius: 0.25rem;
+      z-index: 0;
+      padding-right: 2rem;
+    }
+  
+   :where(h6):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply text-2xl text-foreground/45;
+      position: relative;
+      padding-left: 8.15rem;
+    }
+
+    :where(h6):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 7.5rem;
+      height: 40%;
+      background-color: var(--h6-bar);                                       
+      @apply rounded-lg;
+      transform: translateY(-50%);      
+    }
+
+/*
+    :where(h6):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply mt-5 mb-3 text-2xl font-semibold;
+      padding-left: 7rem;
+    }
+
+    :where(h6):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 6rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 10' fill='%23878787'%3E%3Crect x='0' y='0' width='1' height='1'/%3E%3Crect x='2' y='0' width='1' height='1'/%3E%3Crect x='4' y='0' width='1' height='1'/%3E%3Crect x='6' y='0' width='1' height='1'/%3E%3Crect x='8' y='0' width='1' height='1'/%3E%3Crect x='10' y='0' width='1' height='1'/%3E%3Crect x='12' y='0' width='1' height='1'/%3E%3Crect x='14' y='0' width='1' height='1'/%3E%3Crect x='16' y='0' width='1' height='1'/%3E%3Crect x='18' y='0' width='1' height='1'/%3E%3Crect x='1' y='1' width='1' height='1'/%3E%3Crect x='19' y='1' width='1' height='1'/%3E%3C/svg%3E");
+      background-size: 0.15rem 0.05rem;
+      background-repeat: repeat;
+      background-position: left top;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      filter: contrast(2);
+    }
+*/
+
+
+    :where(strong):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply font-bold;
     }
 
     :where(a):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply text-foreground decoration-muted-foreground hover:decoration-foreground font-medium break-words underline underline-offset-[3px] transition-colors;
-    }
-
-    :where(strong):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply text-foreground font-medium;
+      /* @apply text-secondary-foreground bg-border decoration-muted-foreground hover:text-foreground hover:decoration-foreground font-medium break-words underline underline-offset-[3px] transition-colors; */
+      @apply text-link decoration-slightly-muted hover:decoration-link break-words underline underline-offset-[3px] transition-colors p-[2.5px] duration-0;
+      text-decoration-thickness: 0.14rem;
     }
 
     :where(ul):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply marker:text-foreground/30 my-5 ml-6 list-disc [&>li]:mt-2;
+      @apply marker:text-foreground/30 my-5 ml-6 list-disc [&>li]:mt-4;
     }
 
     :where(ol):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply marker:text-foreground/30 my-5 ml-6 list-decimal [&>li]:mt-2;
+      @apply text-2xl marker:text-foreground/30 my-5 ml-6 list-decimal [&>li]:mt-4;
       @apply [&[type='A']]:list-[upper-alpha] [&[type='I']]:list-[upper-roman] [&[type='a']]:list-[lower-alpha] [&[type='i']]:list-[lower-roman];
     }
 
     :where(li):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply text-foreground/80 pl-2 [&>p]:my-0;
+      @apply text-2xl text-foreground/80 pl-2 [&>p]:my-0;
     }
 
     :where(ul ul, ol ol, ul ol, ol ul):not(
@@ -88,8 +306,14 @@
       @apply marker:text-foreground/30 my-2 ml-6;
     }
 
+    :where(s, del, .strikethrough):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply text-muted-foreground;
+      text-decoration-thickness: 0.15rem;
+      text-decoration-color: var(--secondary-foreground);
+    }    
+
     :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply bg-muted/50 text-foreground relative rounded-sm px-[0.3rem] py-[0.2rem] text-sm font-medium break-words;
+      @apply bg-muted/50 text-foreground relative rounded-sm px-[0.3rem] py-[0.2rem] font-medium break-words;
       @apply [&>span[data-line='']>*]:text-(--shiki-light) dark:[&>span[data-line='']>*]:text-(--shiki-dark);
     }
 
@@ -103,17 +327,76 @@
       @apply my-8 border-t;
     }
 
+    .footnotes::before {
+      content: "Footnotes";
+      display: block;
+      font-size: 2.25rem;
+      font-weight: light;
+      color: var(--ring);
+      margin-bottom: 0.75em;
+    }
+
+    .footnotes p {
+      @apply text-[1rem];
+    }
+
+    :where(img):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply rounded-xl;
+    }
+
     :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mx-auto my-6 block max-w-fit overflow-x-auto text-sm;
+      @apply mx-auto my-6 text-sm;
+      display: table;
+      width: 100%;
+      table-layout: auto;
+      text-align: start;
+      margin-top: 0em;
+      margin-bottom: 0em;
+      font-size: 1.05rem;
+      min-width: 100%;
     }
 
     :where(thead):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       @apply border-muted-foreground/30 border-b;
+      position: sticky;
+      top: 0;
+      background-color: hsl(var(--background));
+      z-index: 1;
+    }
+
+    :where(td):not(:where([class~='not-prose'], [class~='not-prose'] *)),
+    :where(th):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      line-height: 1.05;
+      word-wrap: break-word;
+    }
+
+    table {
+      text-indent: 0;
+      border-color: inherit;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: min(70vh, 600px);
+      width: 100%;
+      margin: 0 -1em;
+      padding-top: 0em;
+      padding-bottom: 0em;
+      padding-left: 1em;
+      padding-right: 1em;
+    }
+
+    .dark table thead {
+      background-color: hsl(var(--background));
     }
 
     :where(th):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       @apply px-4 py-2 font-medium;
       @apply text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+      line-height: 1.05;
     }
 
     :where(tr):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
@@ -121,8 +404,9 @@
     }
 
     :where(td):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply text-foreground/80 small fix-margin px-4 py-2 align-top break-words;
+      @apply text-foreground/80 fix-margin px-4 py-2 align-top break-words;
       @apply text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+      line-height: 1.05;
     }
 
     :where(img, video, figure, .expressive-code):not(
@@ -140,7 +424,7 @@
     }
 
     :where(kbd):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply text-foreground bg-muted rounded-md border px-2 py-1 text-xs font-medium;
+      @apply text-foreground bg-muted rounded-lg border px-2 py-1 text-xs font-medium;
     }
 
     :where(.katex-display):not(
@@ -148,6 +432,12 @@
       ) {
       @apply text-foreground/80 my-6 overflow-x-auto overflow-y-hidden py-2 tracking-normal;
     }
+  }
+
+  .marquee {
+    @apply relative w-64 cursor-pointer overflow-hidden rounded-xl border p-4 -mb-6;
+    @apply border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05] active:bg-gray-950/[.1];
+    @apply dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15] dark:active:bg-gray-50/[.2];
   }
 }
 
@@ -157,4 +447,107 @@
 
 @utility small {
   @apply text-sm leading-6 [&_code]:text-xs [&_img,video,figure,details,blockquote,.katex-display,.expressive-code]:my-4! [&_li,ol]:mt-0 [&_p]:my-2! [&_ul]:my-0;
+}
+
+figcaption:not(.header) {
+  @apply text-base leading-tight ml-1 -mt-4 text-gray-400 dark:text-gray-400;
+}
+
+.heart-invert {
+  @apply inline-block filter invert dark:filter-none;
+}
+
+.hover-card {
+  @apply no-underline transition-all duration-200 ease-in-out rounded-lg;
+}
+
+/* Define CSS variables for box-shadow values */
+:root {
+  --box-shadow-small: 0px 0.1px 0.1px #e9e9e9, 0px 0.1px 0.1px #e8e8e8, 0.1px 0px 0px rgba(0, 0, 0, 0.06);
+  --box-shadow-large: 0px 2px 1px #e9e9e9, 0px 3px 1px #e8e8e8, 9px 14px 18px rgba(0, 0, 0, 0.06);
+  --translate-y-small: -2px;
+  --translate-y-large: -3px;
+}
+
+/* Apply the box-shadow and transform based on the container size */
+.hover-card:hover {
+  @apply z-10 bg-gradient-to-r from-white to-border border border-gray-100 shadow-lg;
+  box-shadow: var(--box-shadow-large);
+  transform: translateY(var(--translate-y-large));
+}
+
+/* Adjust box-shadow and transform for smaller containers */
+@media (max-width: 1px) {
+  .hover-card:hover {
+    box-shadow: var(--box-shadow-small);
+    transform: translateY(var(--translate-y-small));
+  }
+}
+
+.hover-card:active {
+  @apply bg-gray-200 border border-gray-400 transition-all duration-100 ease-in;
+}
+
+.hover-card.highlight {
+  @apply bg-yellow-100 border border-transparent;
+}
+
+.hover-card.highlight:hover {
+  @apply bg-gradient-to-r from-yellow-100 to-transparent border border-yellow-300 shadow-lg;
+  box-shadow: 0px 2px 1px 1px #fff394, 0px 3px 1px 1px #ffe770, 9px 14px 18px rgba(0, 0, 0, 0.06) !important;
+}
+
+.hover-card.highlight:active {
+  @apply bg-yellow-100 border border-yellow-300;
+}
+
+[data-theme='dark'] .hover-card:hover {
+  @apply bg-gradient-to-r from-gray-900/80 to-border border border-gray-700;
+  box-shadow: 0px 3px 2px #313131, 0px 3px 1px #3a3a3a, 9px 14px 18px rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme='dark'] .hover-card:active {
+  @apply bg-gray-800 border border-gray-600 transition-all duration-100 ease-in;
+}
+
+[data-theme='dark'] .hover-card.highlight {
+  @apply bg-yellow-900 border border-transparent;
+}
+
+[data-theme='dark'] .hover-card.highlight:hover {
+  @apply bg-gradient-to-r from-yellow-900 to-transparent border border-yellow-700;
+  box-shadow: 0px 2px 1px 1px #7a6f00, 0px 3px 1px 1px #8a7f00, 9px 14px 18px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme='dark'] .hover-card.highlight:active {
+  @apply bg-yellow-900 border border-yellow-700;
+}
+
+.handjet {
+  font-family: 'Handjet', ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.goodreads-user-updates {
+  @apply text-[16px] text-gray-900 dark:text-gray-200 leading-4;
+}
+
+.goodreads-button {
+  @apply border border-[#723c0c]/25 dark:border-[#fcf9e6]/25 bg-[#fcf9e6] dark:bg-[#723c0c]/60 text-[#723c0c] dark:text-[#fcf9e6] hover:bg-[#723c0c] dark:hover:bg-[#fcf9e6] hover:text-[#fcf9e6] dark:hover:text-[#723c0c] transition-colors duration-200 rounded px-1 inline leading-[1.5] align-baseline;
+  box-decoration-break: clone;
+  padding-right: 0.25em;
+  padding-left: 0.25em;
+}
+
+.goodreads-button-icon {
+  @apply w-4 h-4 mb-1 -mr-0.5 inline-block;
+}
+
+.goodreads-user-css {
+  @apply border border-[#723c0c]/25 dark:border-[#fcf9e6]/25 bg-[#fcf9e6] dark:bg-[#723c0c]/60 text-[#723c0c] dark:text-[#fcf9e6] hover:bg-[#723c0c] dark:hover:bg-[#fcf9e6] hover:text-[#fcf9e6] dark:hover:text-[#723c0c] transition-colors duration-200 rounded px-1;
+}
+
+.swup-progress-bar {
+  height: 3px;
+  mix-blend-mode: difference;
+  background-color: white;
 }

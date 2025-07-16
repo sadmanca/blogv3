@@ -1,0 +1,196 @@
+---
+import { Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
+
+type Book = {
+  data: {
+    id: string
+    title: string
+    shelves: string[]
+    date_read: string
+    rating: string
+    author_name: string
+    book_image_url: string
+    book_id: string
+  }
+}
+
+type Props = {
+  gridMarginTop?: number
+  titleMarginTop?: number
+  ratingMarginBottom?: number
+  filterYear?: number
+  filterTitles?: string[]
+}
+
+const {
+  gridMarginTop = 4,
+  titleMarginTop = 1,
+  ratingMarginBottom = 4,
+  filterYear,
+  filterTitles,
+} = Astro.props
+
+let books = await getCollection('goodreads_read_books')
+
+// Filter books by year if filterYear is provided
+if (filterYear) {
+  books = books.filter((book: Book) => {
+    const date = new Date(book.data.date_read)
+    return date.getUTCFullYear() === filterYear
+  })
+}
+
+// Filter books by title if filterTitles is provided
+if (filterTitles && filterTitles.length > 0) {
+  books = books.filter((book: Book) => filterTitles.includes(book.data.title))
+  // Sort books by the order of titles in filterTitles
+  books.sort(
+    (a: Book, b: Book) =>
+      filterTitles.indexOf(a.data.title) - filterTitles.indexOf(b.data.title),
+  )
+}
+
+// Sort books by date_read (latest first) if not filtering by titles
+if (!filterTitles || filterTitles.length === 0) {
+  books.sort((a: Book, b: Book) => {
+    if (!a.data.date_read || a.data.date_read[0] === '') return -1 // Place a at the top if date_read is missing
+    if (!b.data.date_read || b.data.date_read[0] === '') return 1 // Place b at the top if date_read is missing
+    const dateA = new Date(a.data.date_read)
+    const dateB = new Date(b.data.date_read)
+    return dateB.getTime() - dateA.getTime()
+  })
+}
+
+function formatDate(dateString: any) {
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+
+  const date = new Date(dateString)
+  const day = date.getUTCDate()
+  const month = monthNames[date.getUTCMonth()]
+  const year = date.getUTCFullYear()
+
+  return `${day} ${month} ${year}`
+}
+---
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    position: relative;
+    z-index: 1;
+  }
+  .zoomable-image {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+  .zoomable-image.loaded {
+    opacity: 1;
+  }
+</style>
+
+<div class={`mt-${gridMarginTop} goodreads`}>
+  <div
+    class="grid grid-cols-3 gap-2 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-7 xl:grid-cols-7"
+  >
+    {
+      books.map((book: Book) => (
+        <div class="flex flex-col items-center">
+          <a
+            href={`https://www.goodreads.com/book/show/${book.data.book_id}`}
+            class="h-36 w-24"
+            target="_blank"
+          >
+            <div class="hover-card relative h-full w-full">
+              <div
+                class="placeholder rounded-lg bg-gray-300 dark:bg-gray-800"
+                id={`placeholder-${book.data.book_id}`}
+              >
+                <div class="h-12 w-12 rounded-3xl bg-gray-200 dark:bg-gray-700" />
+              </div>
+              <Image
+                src={book.data.book_image_url}
+                alt={book.data.title}
+                class="zoomable-image h-full w-full rounded-md object-cover"
+                title={`${book.data.title}`}
+                width={101}
+                height={150}
+                onload={`document.getElementById('placeholder-${book.data.book_id}').classList.add('hidden'); this.classList.add('loaded');`}
+              />
+            </div>
+          </a>
+          <div class={`mt-${titleMarginTop} text-center`}>
+            <a
+              href={`https://www.goodreads.com/book/show/${book.data.book_id}`}
+              class="w-24 line-clamp-2 block text-xs font-semibold underline"
+              style="text-underline-offset: 2px;"
+              target="_blank"
+              title={`${book.data.title}`}
+            >
+              {book.data.title}
+            </a>
+            <span
+              class="w-24 mt-1 block truncate text-xs text-muted-foreground"
+              title={`${book.data.author_name}`}
+            >
+              {book.data.author_name}
+            </span>
+            {book.data.date_read[0] !== '' && (
+              <span
+                class="block text-xs text-muted-foreground"
+                title="Date read"
+              >
+                {formatDate(book.data.date_read)}
+              </span>
+            )}
+            <div
+              class={`mb-${ratingMarginBottom} flex items-center justify-center`}
+              title={`Rating given: ${book.data.rating}/5 stars`}
+            >
+              {Array.from({ length: 5 }, (_, i) => (
+                <svg
+                  class={`h-4 w-4 ${i < Number(book.data.rating) ? 'text-black-500 dark:text-white' : 'text-gray-200 dark:text-gray-700'}`}
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.84-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.174 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" />
+                </svg>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>

@@ -1,0 +1,310 @@
+---
+title: "Course reviews for upper-year UofT ECE courses"
+description: "What upper-year courses you should take as a UofT ECE student (and what to watch out for when planning on Magellan)."
+date: 2025-01-25
+slug: "uoft-ece-upper-year-course-reviews"
+tags: ['university', 'education', 'advice']
+image: './00-thumbnail.png'
+authors: ['sadman']
+---
+
+import Callout from '@/components/mdx/Callout.astro';
+import TraktGrid from '@/components/mdx/TraktGrid.astro';
+import { Image } from 'astro:assets';
+import { SITE } from '@/consts';
+
+I've taken a lot of courses from my time in UofT ECE (most of them were about software, some of them were not). If you're a budding ECE student (or someone in 3rd year) trying to figure out what courses to take (or perhaps when to take them), then you might find the following descriptions helpful for planning out the rest of your degree.
+
+## Who this page is for
+
+  - 2nd and 3rd year ECE students trying to figure out what courses they should take on Magellan
+  - 1st year ECE students and potential applicants trying to figure out what they can learn from their degree
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950">
+  **Disclaimer:** I'm a software guy, which means that when it comes to ECE courses at UofT my interests lie solely in areas 6 (computer software) and 5 (computer hardware and computer networks). 
+  
+  I've gone through almost all the area 6 courses and some of the area 5 courses so I can speak about them at length (along with some others), but if you're interested in more of the electrical and hardware side of things I strongly recommend reaching out to students who have taken those courses (on Discord, LinkedIn, on-campus) and learn from them firsthand about what they're like.
+</Callout>
+
+<hr/>
+
+## Courses
+
+- **Technical Courses**
+  - [ECE344 Operating Systems](#ece344-operating-systems)
+  - [ECE345 Algorithms & Data Structures](#ece345-algorithms--data-structures)
+  - [ECE302 Probability and Applications](#ece302-probability-and-applications)
+  - [CSC343 Introduction to Databases](#csc343-introduction-to-databases)
+  - [APS360 Artificial Intelligence Fundamentals](#aps360-artificial-intelligence-fundamentals)
+  - [ECE421 Introduction to Machine Learning](#ece421-introduction-to-machine-learning)
+  - [ECE568 Computer Security](#ece568-computer-security)
+  - [ECE326 Programming Languages](#ece326-programming-languages)
+  - [ECE419 Distributed Systems](#ece419-distributed-systems)
+  - [ECE444 Software Engineering](#ece444-software-engineering)
+- **Recommended HSS/CS/Natural Science Courses**
+  - [TEP444 Positive Psychology for Engineers](#tep444-positive-psychology-for-engineers)
+  - *...more to be added soon!*
+
+<hr/>
+
+## ECE344 Operating Systems
+
+### TL;DR
+
+ECE344 is probably my favourite course from all of undergrad. I learned a ton (as a software engineer it was invaluable), and I had an amazing time while doing so. The labs are more than fair (they're *satisfying* to do), and the current course coordinator (in the fall) Jon Eyolfson is the gold standard for teaching engineering/computer science courses (I don't think I've ever seen a RateMyProf rating as high as unanimously positive as Eyolfsons; he literally puts all his content, lecture recordings, labs, midterm/exam and all on his website, it's truly amazing). 
+
+### What you learn
+
+How operating systems (primarily Linux) work and are designed. Includes concepts like how an OS is able to run multiple applications (processes) at the same time, how applications can interact with OS, CPU scheduling, file systems, memory management, multithreading. 
+
+It's cool stuff, you might've touched on this content in some way or shape on the past, but you'll learn it all from first principles in ECE344 which is very nice because you get to build a bigger picture of how it all connects together. 
+
+### What you do
+
+In the labs you'll write code (in C) that either interfaces with the OS or acts as part of an OS, so the overall practical aspect is lower level than the pure application level coding you'll have done in APS105 Computer Fundamentals/ECE244 Programming Fundamentals/ECE297 Software Design and Communication but is higher level than the assembly you'd have written in ECE243 Computer Organization (which itself is one level higher than the Verilog written in ECE241 Digital Logic).
+
+### When to take it
+
+Take it in the fall when Jon Eyolfson is teaching. Ding Yuan coordinates the course in the winter, and his labs are waaay harder and longer than Eyolfson's labs in the fall. Not only that, but in the winter they're done in partners (labs are individual in the fall), they build off of each other so missing the deadline or screwing up for one lab will seriously hinder you for the next lab (labs in the fall are more or less self-contained, although the types of code you'll write in them will repeat), and if you're doing interviews for software internships for your PEY co-op then you'll be much better prepared having taken the course in the fall than in the winter (where you'll most likely land a position, good or not, before you even finish the course). Until such time as the course coordination changes again (and believe me, people will very clearly let you know what to do then), take ECE344 in the fall, especially if you're not a software guy, you do not to go through the pain of taking it in the winter when taking it in the fall is a so much better experience.
+
+<hr/>
+
+## ECE345 Algorithms & Data Structures
+
+### TL;DR
+
+ECE345 is far from my favourite course, but it's an important one if you're going to be working in the software (primarily for interviews, but obviously it comes in handy on the job). 
+
+### What you learn
+
+Basic discrete math for algorithmic analysis (time complexity and space efficiency), data structures, algorithms (graphs, greedy, dynamic programming). Basically your typical data structures and algorithms course, so you can learn from any of the resources on the internet (shout out to Abdul Bari). 
+
+Note that you won't actually be doing any coding in this course (other than the homework labs if you take it in the winter), rather you'll be writing pseudocode to describe algorithms (focusing on semantics instead of syntax).
+
+### What you do
+
+In the fall, you can expect biweekly homework assignments done in groups of 3. they're not overly complex, usually a mix of simple problems you can solve directly using the course concepts and slightly harder problems where you'll need to think for a bit in order to figure out what to do. other than that the course has practically no work, which is nice but does mean that it is easier to procrastinate on keeping up with the content (which you absolutely should be doing because the midterm and final are far from trivial, you need to know the course concepts and need to be actively practicing using them, solving those problems requires being able to recognize what concept you need to apply and how, which largely comes from said practice).
+
+### When to take it
+
+Take it in fall for the better lectures, overall better organization, and to help you prepare for software interviews. if you don't care about any of that and just want to take it to fulfill your kernel requirements then you'll be fine in the winter since the assessments stay largely the same, but the course is definitely better experienced in the fall. 
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950">
+  *A large number of people typically take ECE344, ECE345, and ECE302 together* (ECE302 largely so they can take ECE361 in the same or following semester). As someone who did the same thing, I can recommend it because it will mean you get to see a large part of your year's cohort in those courses and they are very sensible choices that set you up with the prequisites for taking some of the other more interesting courses.
+</Callout>
+
+<hr/>
+
+## ECE302 Probability and Applications
+
+### TL;DR
+
+ECE302 course with low workload, great lectures, lenient marking, and really-good-to-know content that makes it a must-have for all engineers, regardless of discipline.
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950">
+  **Fun fact:** One of Prof. Jonathon Rose's biggest regrets from his time as Chair of the ECE department at UofT was not pushing for ECE302 to be a mandatory course for engineering students. And I would agree, probability is ~~super cool~~ pretty important to have a solid foundation in regardless of your discipline.
+</Callout>
+
+### What you learn
+
+You learn all about probability theory and how to apply it. If you took those Waterloo math contests as a kid in elementary and high school, then you'll do seriously well because you start from the very basics concepts of probability (discrete probability, random variables, etc.) and gradually ramp up to more complex topics (joint, continuous, multi-variate probability distribution functions, etc.).
+
+This course has one of the best transitions as it ramps up from first principles to the core concepts you learn later in the term. Lectures with Prof. Parham Aarabi (he coordinates the course in the Fall) were an absolute pleasure, I'm a serial lecture skipper and even *I* attended all his lectures by virtue of how engaging they were (the guy even put in a 5 min break through his 1h lectures, how many profs do you know who do that?). In addition, there was a large emphasis on practice (and rightfully so), which is why lectures were full of opportunities to actually solve practice problems involving the concepts we just learned about in that very lecture, it's great.   
+
+### What you do
+
+On the topic of actual work to do, there was hardly any. Your mark on the course rests entirely on the two term tests worth 25% each (both really short) and the 50% final. And that's it, there's no other graded work. There are homework problems from the textbook assigned for practice (and tutorials are just an opportunity for you to get guided solutions to a selection of those assigned problems), but that's it. It's a fantastic course to take in a busy semester for that reason, and it has firmly cemented itself as one of my favorite courses in undergrad.
+
+### When to take it
+
+Course content is largely identical in both fall and winter (there are some slight differences in what content is emphasized in later chapters, but it's largely trivial with respect to what you need to study), so you're fine with taking this whenever. Of course, if you're interested in industries tangetially or directly related to networks (e.g. telecommunications, embedded networks, etc.) then taking this early on will come in handy for interviews
+
+<hr/>
+
+## CSC343 Introduction to Databases
+
+### TL;DR
+
+CSC343 is a great course for developing a solid foundation in relational databases, and I can highly recommend it. The content is interesting (if you learn SQL by yourself you will definitely not learn it to the same rigor as in this course), not too difficult, and it's also fairly easy to get a high mark so it's a nice GPA booster as well (ignore any older reviews on the internet calling the course "extremely bird", it's no longer that ridiculously easy but it's still on the easier side of things compared to other courses). Lectures are recorded, the homework assignments are tedious but not overly difficult, and the midterm/final have been the exact same format for the past decade so it's very easy to study for them.  
+
+### What you learn
+
+Relational algebra, querying and updating databases using SQL (PostgreSQL and psycopg2 in Python), database design (integrity constraints, normal forms), database system technology (querying processing, transaction management).
+
+### What you do
+
+A few homework assignments with a mix of writing relational algebra and Python/PotgreSQL code. The midterm and final for CSC343 are the easiest to study for because the format has stayed the same for the past decade or so and as a result there's a lot of practice material available (which means that studying for this course is almost trivial, excepting some slightly tricky concepts). There are some very good lecture notes by students that can be found by searching for CSC343 on GitHub and Google, I highly recommend using those because they're good enough that other than those you only really need to write notes for how to solve some specific types of problems (some using code from the homework assignments) and you'll be absolutely fine.
+
+### When to take it
+
+The course is virtually identical in both fall and winter, so you have the freedom of selecting which semester is best for you to take it. Some co-op positions (e.g. fullstack) will value experience with databases so it can be a handy course to have for interviews. For other positions it won't be of much value beyond being good to know.
+
+<hr/>
+
+## APS360 Artificial Intelligence Fundamentals
+
+### TL;DR
+
+I've taken this course but I'm getting really tired writing this post (these descriptions are not in chronological order) so I'll keep it short. You learn about high level machine learning concepts here (so the different types of models, hyperparameter tuning, loss and activation functions, etc). 
+
+The midterm and exam used to reuse questions a lot from previous years, but one of the previous profs caught a lot of flack because they reused way too much from a previous midterm (such that it really pissed off some students and caused them to complain) so they're of a totally new format as of last winter or so and as a result they can be quite brutal (the pre-curved midterm average this Fall was around 40%). Thankfully, there is a very healthy curve that brings marks back up to normal values, but this is something you should know (so you don't get lulled into a false sense of security from doing past assessments).
+
+There are some PyTorch labs in the course, done using Jupyter Notebooks running on Google Colab, but they're fairly simple and don't take long (you'll spend a fair few minutes waiting for models to train, but they go by fast because the labs are short). The bulk of your time in this course, however, will be spent on the course project, where you work in a team of 4 people to build, train, and test a machine learning model of your own. And trust me, reader, this thing takes ages. If you're just looking to get by in the course I recommend doing one of the listed project options, but you can also do your own thing with whatever idea your group proposes because having that project on your resume cna b very helpful for landing co-op positions. But yeah, you have to write a proposal and a final project report, and it takes a long time. Your experience in this course lives and dies based on how cooperative your group is, so I would recommend taking it with people you know (you'll probably be fine taking with strangers, but just make sure you're making consistent progress because the rushing the project is nothing something you want to be doing with 3-4 other courses in your schedule). 
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950">
+  APS360 is one of the few upper-year engineering courses that you can take in the summer, and I would highly recommend taking it then because it makes life a lot easier when you have the time to focus singularly on the project without having to deal with your other courses.
+</Callout>
+
+<hr/>
+
+## ECE421 Introduction to Machine Learning
+
+<Callout type="destructive" icon="lucide:alert-triangle">
+  I haven't taken this course yet, so I can only speak about what I've heard from others and what I've seen about the course posted online.
+</Callout>
+
+I don't have firsthand experience with ECE421 yet (it's slotted for my winter term of 4th year), but what I've heard from friends and other students is that out of all the courses on AI/ML this is probably the best organized. My limited understanding of what you learn in this course (from what little I've seen in the publicly posted lectures on YouTube) is that you basically learn the math (i.e. algorithms, models, and whatnot) behind high level machine learning concepts you were introduced to in APS360. Profs. Papernot and Khisti sound like great lecturers, the homework and labs are on the lighter side of things, and everyone I've spoken to were very happy with their final marks in the course. Sounds like a good one to take.
+
+<hr/>
+
+## ECE568 Computer Security
+
+### TL;DR
+
+There have been a lot of good things said about this course on the internet, but in my opinion it's just alright, it's not bad but it's also nothing exceptional. I would recommend taking it if you have the space and need a medium difficulty course, it's not too difficult to get a good mark but it does require that you spend the time to figure out buffer overflows.
+
+### What you learn
+
+How to identify security vulnerabilities and how they can be exploited (high level concepts as well as what you need to do in C code; this part is especially important for some of the "simpler" attacks like buffer overflows because they will 100% show up in some form in the midterm and final), how to defend against computer security attacks, cryptography and encryption (including over the web) with lots of acronyms you might have heard of but don't really know what they do in depth (e.g. MAC, SSL, CORS, MITM, federated identity, etc.), blockchain.
+
+### What you do
+
+Other than 4-5 labs that don't take too long, this course has practically no workload other than studying, it's really the first lab that takes the longest because you have to figure out how to use gdb to be able to see values on the stack (which is quite cool if you've never done it before) but you're not taught how to do and if this do you have to figure out on your own. In addition, the first labs are all about executing buffer overflow attacks on some short code samples (in C) and they take some critical thinking to figure out (the solution is always really short but getting there takes a while). The concepts used in lab 1 however (buffer overflow, format string, double-free attacks) are the most important out of all the labs (the others focus on a bit of web and application security, so you'll be working with Python and Javascript; the other labs are a lot simpler though, you're not writing more than a couple lines of code for any lab). But if you can get that down then you'll be totally fine, the midterm in Winter 2023 had a really high average and the final wasn't that bad either (final course average was a B+).
+
+### When to take it
+
+The course is virtually identical in both fall and winter, so you have the freedom of selecting which semester is best for you to take it. Some co-op positions (e.g. fullstack) will value experience with databases so it can be a handy course to have for interviews. For other positions it won't be of much value beyond being good to know.
+
+<hr/>
+
+## ECE326 Programming Languages
+
+### TL;DR
+
+This course is one of the least useful out of all those offered in area 6 (and I'm including that new quantum computing course and ECE444 too), I don't really recommend it because it's a mishmash of a bunch of different concepts in computing like functional programming, Haskell, Prolog, and some OOP. The positions where this comes in handy are a small minority of all those out there, and especially so if you're looking for co-op positions. Even if you've taken every single course in area 6. The only saving grace of this course (and why you might consider taking it) is that you can get a high mark in it fairly easily. Disclaimer though: no professor who's taught the course has stayed beyond a single semester for like the past 3 years (dear god, I have stories of this one prof named Subhendu Bhadra), so teaching ability is very much a variable thing (although you can probably expect it to be substandard). If you really want to learn the content in this course, google the syllabus, look at the notes, and just search up the content on YouTube. And take a different course in undegrad instead.
+
+<hr/>
+
+## ECE419 Distributed Systems
+
+### TL;DR
+
+The course was completely overhauled this year by Ashvin Goel after being practically identical for the past 15 years. You can find the new syllabus by googling the course, you'll be working with Go instead of Java now and instead doing a course-long project with 4 milestones you're simply working on labs.
+
+This was one of the most time-consuming courses in it's previous form, and knowing Goel's penchant for making really time-consuming courses (like he did for ECE454 before Jon Eyolfson took over), I would be wary of taking this course in a busy semester.
+
+### What this course used to be like in the past
+
+One of the most time-consuming courses in undergrad, the course primarily consisted of a semester-long project where you actually build a distributed database from scratch using Java in a team of 3.
+
+<Callout type="warning" icon="lucide:star">
+  Here's the project me and my team worked on for ECE419 in 2024: https://github.com/sadmanca/eagerDB
+  
+  The whole project thing in ECE419 was actually really cool (despite it being overwhelmingly time-consuming it was nice to have something to show for all of it), I think it's a real bummer Goel got rid of it when he overhauled the course.
+</Callout>
+
+Despite the project taking up practically 80% of your time in the course, it only consisted of 30-40% of your grade, and because it was so time-consuming it meant that you hardly had enough time to study for the midterm and exam (thankfully both were relatively straightforward, despite the midterm being an assessment on Quercus that you had to write in a computer lab, supervised and without any internet access except for access to course resources on Quercus). I can't stress enough how painfully time-consuming this course was, especially at the start of it when you're building the core foundation of your application.
+
+Another great thing about this course is that it gives you a chance to use what you learned about threads and file systems/data structures from ECE344 and networks (socket programming) from ECE361 in a decently-sized application. You don't get that from the biweekly labs in either course, so it's nice to get that experience so you can talk about in your interviews.
+
+<Callout type="info">
+  *Fun fact:* my manager from my internship in fall 2024 hired me *specifically* because of my project work from ECE419, which goes to show how helpful specialized courses can be for landing niche positions.
+</Callout>
+
+<hr/>
+
+## ECE444 Software Engineering
+
+<Callout type="destructive" icon="lucide:alert-triangle">
+  I haven't taken this course yet, so I can only speak about what I've heard from others and what I've seen about the course posted online.
+</Callout>
+
+ECE444 used to be a really easy course that had no midterm, no final, and practically no work; it was really easy to get a really high mark in it (it was a GPA booster). Unfortunately with the current fall professor, that's just not the case any more, which largely negates the entire point as to why you'd want to take the course.
+
+In general, what you learn about in ECE444 is more along the lines of product/project management for software projects more than actual software engineering (important, mind you, but definitely not as technical as you might expect from other area 6 software courses). You also touch on a lot of important topics like Docker, microservices, and design patterns (in fact one of the things you'll be doing in this course is actually creating and hopefully merging a PR to an open-source project on GitHub), but practically speaking now that the course isn't as bird as it used to be you're far better off learning about these topics online (in a more rigorous manner instead of just being told what they are).
+
+<Callout type="info">
+  You can also check out the 2020F course website for ECE444 to look at the lecture slides and lab assignments: https://www.eecg.utoronto.ca/~shuruiz/teaching/ECE444-2020F/
+</Callout>
+
+<hr/>
+
+### Recommended HSS/CS/Natural Science Courses
+
+- TEP444/TEP442
+- TEP343
+- ENT200
+- CIV220/CIV300
+
+## TEP444 Positive Psychology for Engineers
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950"> 
+**Note:** TEP444 (Fall/Summer) and TEP442 (Winter) are basically the same course with different labels (“happiness” vs. “leadership” themes). The structure, workload, and grading are all identical. Choose whichever fits your schedule.
+
+I don't mention TEP442 (for brevity), but rest assured everything that applies to TEP444 also applies to TEP442 (except of course for some reason TEP442 is less well-known, probably because it's course code isn't used for the summer course). 
+</Callout>
+
+### TL;DR
+
+Go to 3 in-person lectures, then meet up with your team once a week, write a reflection, and that's it (really, that's the entire course). Despite being a bird course, TEP444 is a surprisingly reflective and (lowkey) wholesome course. You’ll learn about concepts like happiness, self-awareness, and well-being, but more importantly, you’ll learn about yourself. You’re basically rewarded for introspection in the refelctions, and if you just do the weekly worksheets and put in the minimum team effort, you’re almost guaranteed an A-. That said, getting above an A- (i.e. ≥85) is actually pretty hard and will require a lot of thought, writing, and some luck with grading. Still, a fantastic GPA-saver in a busy term.
+
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950"> 
+**Note:** the way grading works in this course is that, for each weekly reflection assignment, there are 4-5 worksheets that each correspond to a letter grade (e.g. A/A+, A-, B+, B, C); for each assignment, you choose which worksheet you want to submit, and then based on how meaningful your writing was you'll either get the letter grade of the worksheet that you completed or something lower. 
+
+For the A/A+ worksheets, 9/10 times you'll just get an A- despite your effort because there's a *lot* of competition amongst students to get that A/A+ (as for why, I'm not sure, maybe they're 4.0 GPA-ers; personally my philosophy is that this course is a really good way to get a decent mark for minimal effort, I think it's foolish to try to get the highest possible mark by also putting in loads of effort). 
+
+For the other worksheets, you'll pretty much always get exactly whatever letter grade the worksheet corresponds to unless it's obvious you put little to no effort in the worksheet. 
+</Callout>
+
+<Callout type="flag"> 
+**What do the weekly worksheet assignments consist of?** 
+
+The worksheets are just a set of questions to reflect on your weekly experiences and meetings with your team. The way they work is that the B worksheet contains all of the questions in the C worksheet, the B+ worksheet contains all of the questions in the B and C worksheet, and so on and so forth. 
+
+The questions are very open-ended (e.g.), so you have lots of freedom in how you can structure your responses (which also means that the grading rubric is vague as heck and you'll get graded based on how "meaningful" your reflections are). 
+
+One thing to note is that just because you put a ton of effort into writing a reflection, that doesn't necessarily translate to an A/A+ (but will most likely land you an A-, it's just for that A/A+ you're competing with everyone else gunning for the same mark).
+</Callout>
+
+### What you learn
+
+Not that much in terms of content, but that’s the point. TEP444 is all about reflection. You’ll be engaging with weekly themes related to happiness, engineering identity, and personal growth. Think mindfulness, teamwork, values, etc. The only “academic” part of the course is writing about your thoughts on those topics after doing a weekly activity with your group.
+
+It’s surprisingly helpful in developing soft skills, things you rarely get a chance to slow down and think about in engineering. Whether or not that’s your vibe, it’s still an easy A- if you just go through the motions.
+
+### What you do
+
+Each week, you meet with your team (can be in person or async if that's a provided option for that week, which it only was for 2 weeks back when I took the course in 2023), do some kind of activity (you can actually do something fun like go out to a park, or just make it up... no one checks, except for requiring a team photo from the meeting in your weekly submission), and then write a reflection worksheet. These reflections are where all of your mark comes from (part of it is also how much the prof likes you). The prof grades based on how “deep” and “meaningful” your insights are (yes, it’s subjective), so it helps to get a bit poetic.
+
+There are only 3 actual lectures at the start of the term (technically speaking only the 3rd is “mandatory” since you form your teams then, but you will want/*need* to go for the earlier ones because the activities you do in them will be referenced in later worksheets), and possibly one more in the last week. Other than that, it’s all self-directed.
+
+In the summer version, the course runs over just 2 months instead of 4, so you’re doing ~2 assignments per week instead of one, but the content and expectations are the same. Slightly more condensed, but still totally doable.
+
+You’ll probably spend around 5–6 hours total per week: ~2–3 hours meeting/doing the activity and ~3 hours writing your reflection. If you’re just aiming for a low A-range grade, that’s all you really need.
+
+### When to take it
+
+Take it in the summer if you can; it’s easier to focus on the weekly work without the distraction of other courses, and the condensed format means it’s over faster. Plus, it’s one of the rare courses that’s actually fun to do when you’re not stressed out.
+
+In Fall/Winter, it's still very manageable, just slightly more drawn out. Just be aware: this course fills up fast on Acorn *in every semester*, so you’ll need to smash that enroll button the second your enrollment window opens. Like, be on Acorn and start clicking before the clock hits the hour. Seriously, if you've never enrolled in a course on Acorn, I cannot stress enough that TEP444 fills up in seconds.
+
+If you’re okay with settling for an A-, it’s a bird. If you’re gunning for 90+, be prepared to grind (and compete with grad students and others aiming for the same).
+
+<Callout type="destructive">
+  *This section is currently under construction!*
+
+  I have lots to say about these courses but the Magellan deadline is tonight and I need to get this post out for students to see, so I'll update the descriptions for these non-ECE courses at a later date.
+
+  Students will have to enroll in non-ECE courses on Acorn over the summer anyways, so there's still plenty of time to think about to take.
+</Callout>

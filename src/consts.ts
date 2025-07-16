@@ -1,14 +1,14 @@
 import type { IconMap, SocialLink, Site } from '@/types'
 
 export const SITE: Site = {
-  title: 'astro-erudite',
+  title: 'Sadman Hossain',
   description:
-    'astro-erudite is a opinionated, unstyled blogging template—built with Astro, Tailwind, and shadcn/ui.',
-  href: 'https://astro-erudite.vercel.app',
-  author: 'jktrn',
+    'Sometimes boring explorations into a world of software and beyond.',
+  href: process.env.NODE_ENV === 'development' ? 'http://localhost:1234' : 'https://sadman.ca',
+  author: 'sadman',
   locale: 'en-US',
-  featuredPostCount: 2,
-  postsPerPage: 3,
+  featuredPostCount: 5,
+  postsPerPage: 15,
 }
 
 export const NAV_LINKS: SocialLink[] = [
@@ -17,26 +17,38 @@ export const NAV_LINKS: SocialLink[] = [
     label: 'blog',
   },
   {
-    href: '/authors',
-    label: 'authors',
+    href: '/tags',
+    label: 'tags',
+  },
+  {
+    href: '/projects',
+    label: 'projects',
   },
   {
     href: '/about',
     label: 'about',
   },
+  {
+    href: '/uses',
+    label: 'uses',
+  },
+  {
+    href: '/reading',
+    label: 'reading',
+  },
 ]
 
 export const SOCIAL_LINKS: SocialLink[] = [
   {
-    href: 'https://github.com/jktrn',
+    href: 'https://www.linkedin.com/in/sadmanca',
+    label: 'LinkedIn',
+  },
+  {
+    href: 'https://github.com/sadmanca',
     label: 'GitHub',
   },
   {
-    href: 'https://twitter.com/enscry',
-    label: 'Twitter',
-  },
-  {
-    href: 'mailto:jason@enscribe.dev',
+    href: 'mailto:sadman.hossain@mail.utoronto.ca',
     label: 'Email',
   },
   {
@@ -48,8 +60,19 @@ export const SOCIAL_LINKS: SocialLink[] = [
 export const ICON_MAP: IconMap = {
   Website: 'lucide:globe',
   GitHub: 'lucide:github',
-  LinkedIn: 'lucide:linkedin',
+  LinkedIn: 'tabler:brand-linkedin-filled',
   Twitter: 'lucide:twitter',
   Email: 'lucide:mail',
   RSS: 'lucide:rss',
 }
+
+export const FEATURED_PROJECTS = [
+  'blog/blog',
+  'eagerdb/eagerdb',
+  'pey-2023-dashboard/pey-2023-dashboard',
+  'astro-loader-goodreads/astro-loader-goodreads',
+  'fricdl/fricdl',
+  'libstreetmap/libstreetmap',
+  'work-study-2025-summer/work-study-2025-summer',
+  'work-study-2024/work-study-2024',
+];

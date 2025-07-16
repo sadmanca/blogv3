@@ -1,0 +1,465 @@
+---
+title: "How to use Goodreads data in Astro"
+description: "Using the Astro Content Loader API to get data from Goodreads bookshelves and dynamically build Goodreads components in Astro."
+date: 2025-02-09
+slug: "how-to-use-goodreads-data-in-astro"
+tags: ['astro', 'goodreads', 'code', 'webdev', 'software-showcase']
+image: './00-thumbnail.jpg'
+authors: ['sadman']
+---
+
+import Callout from '@/components/mdx/Callout.astro';
+import TraktGrid from '@/components/mdx/TraktGrid.astro';
+import CodeToggle from '@/components/mdx/CodeToggle.astro';
+import GoodreadsGrid from '@/components/mdx/GoodreadsGrid.astro';
+
+import { Code } from 'astro-expressive-code/components';
+import rssInBrowserFull from './rss-in-browser-full.jpg';
+import sadmanRss from './sadman-rss.xml?raw';
+
+import goodreadsUnstyledImg from './goodreads-unstyled.jpg';
+import goodreadsTailwindImg from './goodreads-tailwind.jpg';
+import goodreadsUnstyled from './.goodreads-unstyled.astro?raw';
+import goodreadsTailwind from './.goodreads-tailwind.astro?raw';
+import goodreadsGrid from './.GoodreadsGrid.astro?raw';
+
+import schema from './schema.ts?raw';
+
+import { Image } from 'astro:assets';
+import { SITE } from '@/consts';
+
+## **First order of business: an alternative to the Goodreads API**
+
+It's a bummer that [Goodreads retired their API](https://www.goodreads.com/api) back in 2020. 
+
+Thankfully, Goodreads provides RSS feeds for each user shelf (also called a list), which means you can programmatically access data for all your books on Goodreads without having to rely on manually [requesting a copy of your all data](https://help.goodreads.com/s/article/How-do-I-get-a-copy-of-my-data-from-Goodreads) every so often (or some other hacky way of retrieving your data).
+
+And best of all, we can use the sweet new [Astro Content Loader API](https://docs.astro.build/en/reference/content-loader-reference/) to handle retrieval and caching of said data from Goodreads — so we can simplify the whole development experience and focus on actually using the data in our Astro site (instead of worrying about how to retrieve it).
+
+Here's how.
+
+<Callout type="warning">
+  **Note:** your site needs to [be on Astro 5.x to be able to use the Content Loader API](https://docs.astro.build/en/guides/upgrade-to/v5/#legacy-v20-content-collections-api).
+
+  **If you're still on Astro 4.x and below**, you can still retrieve the data using plain JavaScript (I've included [a section on that](#using-plain-javascript-to-retrieve-goodreads-data) near the end of this post) and then pass it to your components as props, but the Content Loader API is a much more elegant solution for handling data fetching and caching in Astro (so upgrading is recommended!).
+</Callout>
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950">
+  If you're curious about what's possible with the Astro Content Loader API and Goodreads RSS feeds, check out the following pages on my blog that use the exact same setup as described in this post:
+  - [/reading](/reading) -- where I list my recently read books; and
+  - [What I read in 2024](/blog/what-i-read-in-2024) -- where I showcase my favourite books from the last year.
+</Callout>
+
+## Goodreads RSS feeds
+
+You can find the RSS feed that Goodreads generates for each user shelf in one of two ways:
+
+1. Scroll to the bottom on the list page and click on the little orange RSS icon to open the feed in a new tab with the url in the address bar (or just right-click on the icon and copy the url); or
+2. If you already have the url for the Goodreads shelf (e.g. https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=read), then you can simply append  `_rss` to the `list` text in the url to get the RSS feed.
+
+```txt frame="none" ins="_rss" wrap=false showLineNumbers=false
+https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=read
+https://www.goodreads.com/review/list_rss/152185079-sadman-hossain?shelf=read
+```
+
+<Callout type="info">
+  While Goodreads includes the user name in the list url, it only uses the account number preceding the name so the part of the url with the user name (e.g. `-sadman-hossain`) can be safely discarded. 
+  
+  ```txt frame="none" del="-sadman-hossain" wrap=true showLineNumbers=false
+  https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=read
+  https://www.goodreads.com/review/list_rss/152185079?shelf=read
+  ```
+
+  <div class="h-4">
+  </div>
+</Callout>
+
+### How Goodreads list urls work
+
+The way list urls (and by corollary, RSS feed urls) work in Goodreads is that there is a base url for every user that points to their ***All*** bookshelf using their account number. The ***All*** bookshelf, as you can imagine, contains all the books stored in all of that user's bookshelves.
+- e.g. my ***All*** bookshelf url is: <br/>https://www.goodreads.com/review/list/152185079-sadman-hossain.
+
+Every other bookshelf for a user (i.e. ***Read***, ***Currently Reading***, custom shelves) uses the same base url as the ***All*** bookshelf and then appends a suffix to the url like so: `...?shelf=<SHELF-NAME>`. 
+
+This is nice because it means all you need to programmatically create urls for Goodreads bookshelves is the account number and any custom shelf names (the `read`, `currently-reading`, and `want-to-read` shelves are standard across all accounts) for a user.
+
+```txt frame="none" wrap=false ins=/shelf=.*/ del={"\'All\' bookshelf": 1-2} ins={"Standard bookshelves": 4-7}  {"Custom bookshelves": 9-12}
+.
+https://www.goodreads.com/review/list/152185079-sadman-hossain
+
+
+https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=read
+https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=currently-reading
+https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=want-to-read
+
+
+https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=paused
+https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=software
+...
+```
+
+<Callout type="info">
+  I mention this little tidbit about Goodreads list urls because I once mistakenly removed the `...?shelf=read` suffix from the base url of the Goodreads component on my blog's [/reading](/reading) page (which is supposed to only show my recently read books), and I was very confused at the results (which included books I hadn't even read) until I took a closer look at the urls.
+</Callout>
+
+### Data schema
+
+RSS feeds are just urls to raw XML files, so you can open them up in your browser and easily see how the data is stored and in what tags.
+
+Of course, Goodreads RSS feeds use no stylesheets whatsoever, so parsing through the unformatted text is unwieldy.
+
+  <figure class="flex-1 m-0">
+    <Image src={rssInBrowserFull} alt="Goodreads RSS Feed formatting in FireFox" class="zoom-image" />
+    <figcaption>Goodreads RSS Feed formatting in FireFox</figcaption>
+  </figure>
+
+Run the XML code through a formatter and now we can get a better look at the data in the feed. In addition to the title and description of the bookshelf (at the very top of the XML file, hidden but revealable in the code snippet below), you can see that there's actually a fair amount of data for each book in the list:
+
+export const mark = new RegExp("<(?!\\/?(a|br)|\\/|!).*?>", "gm");
+
+<Code code={sadmanRss} lang="xml" title="rss.xml" collapse="1-20, 63-9999999" mark={mark} wrap={false} />
+
+**How about that, huh?**
+
+This is more than enough to put together a Goodreads bookshelf on your blog (or just list your recently read books), which leads into the next part of this post: **loading Goodreads RSS data into Astro using the Content Loader API** (and using plain old javascript for those still on Astro 4.x, too).
+
+<hr/>
+
+## Astro Content Loader API
+
+### Quick introduction
+
+In a nutshell, Astro's Content Loader API allows you to fetch (and, this is the cool part, cache) data from whereever you want. It can be a local source (like all a bunch of `.mdx` files in a folder in your codebase) or an external source (like data retrieved from an API, or in our case, from a file url).
+
+### Using the Content Loader API
+
+Using the Content Loader API in your Astro project is actually really simple; you just need to:
+1. Write some code to define the [content collection](https://docs.astro.build/en/guides/content-collections) (which will store the data retrieved from your local or external source) in your project's [content collection config file](https://docs.astro.build/en/guides/content-collections/#the-collection-config-file) (usually `src/content.config.ts` or `src/content/config.ts`); and then 
+2. Use the data from your new content collection however you want in your Astro components or pages (similar to how you may already be doing with `.mdx` files for your blog posts or other web pages).
+
+For your content collection, you will need to:
+- use `defineCollection()` to define the collection (and its source, local or external), which itself will...
+  - ...have a `loader` object (defines how to retrieve and parse the data).
+  - ...have an optional `schema` (defines data types and validation rules for the data).
+- use `getCollection()` to load the collection and its data into your Astro component or page.
+
+<Callout type="warning">
+While having a `schema` for your loader is optional, it's recommended (and helpful) because it will raise errors if the data retrieved from the source doesn't match the schema you've defined.
+</Callout>
+
+<Callout type="info">
+  Astro uses Zod for all schema declaration and validation, so you can use the `z` object from the `astro` package to define your schema. 
+  
+  For more information on Zod, check out the [Zod documentation](https://zod.dev).
+</Callout>
+
+You can define the loader directly within your content collection as an async function returning an array of entries. This simplifies data loading and storage, as the data store in Astro is cleared and reloaded each time the loader runs (without you having to manually deal with caching). 
+
+<Callout type="info">
+  For a more detailed overview, take a look at the official Astro documentation on the [Content Loader API](https://docs.astro.build/en/reference/content-loader-reference/).
+</Callout>
+
+### Defining the content collection for Goodreads
+
+For this post, I'll just show you how to define a content collection for a single Goodreads RSS feed (since that's what I'm using for my blog), but you can easily extend this to include multiple feeds (e.g. for multiple users or multiple shelves) by adding more entries to the `content` object in the content collection config file.
+
+To start off, we'll need the `xml2js` package to parse the XML data from the Goodreads RSS feed into a JavaScript object. You can install it using npm by running:
+
+```bash showLineNumbers=false
+npm install xml2js
+```
+
+Now, let's define the content collection for the Goodreads RSS feed:
+
+```ts wrap=false {"I've used a limited schema below, but you can add more tags from the XML above": 9-18} {"1.": 10} {"2.": 20-39} {"Export the new Goodreads collection to use it in your Astro project": 44-48} ins={"Goodreads XML uses lots of arrays, even for single value fields, so you can just retrieve the first value": 25-36} del="defineCollection" del="xml2js" ins="[0]" ins="GOODREADS_URL" "goodreads_read_books"
+// src/content.config.ts
+import { defineCollection, z } from 'astro';
+import xml2js from 'xml2js'
+
+const GOODREADS_URL = `https://www.goodreads.com/review/list_rss/152185079-sadman-hossain?shelf=read`
+
+const goodreads_read_books = defineCollection({
+
+
+  schema: z.object({
+    id: z.string(),
+    title: z.string(),
+    date_read: z.string(),
+    rating: z.string(),
+    author_name: z.string(),
+    book_image_url: z.string(),
+    book_id: z.string(),
+  }),
+
+  loader: async () => {
+    const response = await fetch(GOODREADS_URL);
+    const data = await response.text();
+    const result = await xml2js.parseStringPromise(data);
+
+
+    const goodreads_read_books = result.rss.channel[0].item.map((item: any) => {
+      return {
+        id: item.book_id[0],
+        title: item.title[0],
+        date_read: item.user_read_at[0],
+        rating: item.user_rating[0],
+        author_name: item.author_name[0],
+        book_image_url: item.book_image_url[0],
+        book_id: item.book_id[0],
+      };
+    });
+
+    return goodreads_read_books;
+  }
+});
+
+...
+
+
+export const collections = { 
+  goodreads_read_books,
+  ...
+}
+
+```
+
+<Callout type="info">
+  Instead of storing your Goodreads RSS feed url directly in the content collection config file, you can store it in a separate file (e.g. `src/consts.ts`) and then import it into the content collection config file. 
+  
+  This way, you can easily change the url without having to modify the content collection config file.
+
+  ```ts wrap=true title="src/consts.ts" ins="GOODREADS_URL" showLineNumbers=false
+  ...
+
+  export const GOODREADS_URL = `https://www.goodreads.com/review/list_rss/152185079-sadman-hossain?shelf=read`
+
+  ...
+  ```
+  
+  <div class="h-2"></div>
+
+  ```ts wrap=true title="src/content.config.ts" ins="GOODREADS_URL" showLineNumbers=false
+  import { GOODREADS_URL } from './consts.ts'
+
+  ...
+  ```
+  <div class="h-4"></div>
+</Callout>
+
+<Callout type="destructive">
+  Note: **the RSS feed for a Goodreads shelf will only include the last 100 books added to that shelf.** This basically means that if you have more than 100 books in a shelf, you won't be able to retrieve all of them using a single RSS feed.
+
+  You can, however, **create multiple shelves** (e.g. `read-2025`, `read-2026`, etc.) **and then retrieve the RSS feed for each shelf** to get all your books. 
+  
+  The beauty of Astro's Content Loader API is that *you can define a single content collection that has a loader object fetching from each of these shelves*, so you only need to reference a single collection when you're using that data in your components or pages.
+</Callout>
+
+## Using the Goodreads collection in your Astro components
+
+### Unstyled
+
+Now that you've defined the content collection for the Goodreads RSS feed, you can use it by defining it in the frontmatter of your Astro components or pages.
+
+<Callout type="info">
+  The Goodreads collection data is an array of objects, so you can use the `map()` function to iterate over the data and display each book in the list.   
+</Callout>
+
+export const markGoodreadsUnstyled = new RegExp("book\\.data\\.\\w+", "gm");
+
+<div class="flex flex-col sm:flex-row gap-4">
+  <Code class="w-full sm:w-3/4" 
+    code={goodreadsUnstyled} 
+    lang="astro" 
+    title="src/components/goodreads-unstyled.astro" 
+    del="getCollection" ins={markGoodreadsUnstyled} mark={{ range: "5, 10-17" }} wrap={false} 
+  />
+
+  <div class="flex flex-col md:flex-row gap-4 my-6">
+    <figure class="flex-1 m-0">
+      <Image src={goodreadsUnstyledImg} alt="Using the Goodreads collection data in a component (unstyled)" class="zoom-image"/>
+      <figcaption>Using the Goodreads collection data in a component (unstyled)</figcaption>
+    </figure>
+  </div>
+</div>
+
+
+### Styling with Tailwind CSS
+
+Add some basic Tailwind CSS classes to style the component and you're on the road to building something that looks really good (for surprisingly little effort).
+
+export const markGoodreadsTailwind = new RegExp('class="[^"]*"', 'gm');
+
+<figure>
+  <div class="mb-4">
+    <CodeToggle class="ml-1"
+      code={goodreadsTailwind} 
+      lang="astro" 
+      title="src/components/goodreads-tailwind.astro" 
+      wrap={false} 
+      mark={markGoodreadsTailwind}
+    />
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-4 my-6">
+    <figure class="flex-1 m-0">
+      <Image src={goodreadsTailwindImg} alt="Goodreads collection data (styled using Tailwind)" class="zoom-image" />
+      <figcaption>Goodreads collection data (styled using Tailwind)</figcaption>
+    </figure>
+  </div>
+</figure>
+
+The Goodreads component I built for my blog is a bit more complex than the one above (it includes filtering and sorting functionality; I explain how that's implemented in the [next section](#filtering--sorting-collection-entries)), but the basic idea is the same: now that the data has been stored in the content collection, you can use it in your Astro components and pages however you want.
+
+<div class="mb-6">
+  <CodeToggle
+    code={goodreadsGrid} 
+    lang="astro" 
+    title="src/components/mdx/GoodreadsGrid.astro" 
+    wrap={false}
+    mark={markGoodreadsTailwind}
+    ins={markGoodreadsUnstyled}
+    collapse="1-121, 181-9999999"
+  />
+</div>
+
+<GoodreadsGrid
+  gridMarginTop={0}
+  titleMarginTop={0}
+  ratingMarginBottom={1}
+  filterTitles={[
+    'Project Hail Mary',
+    'Wool Omnibus (Silo, #1)',
+    'Shift (Silo, #2)',
+    'Dust (Silo, #3)',
+    'A Little Hatred (The Age of Madness, #1)',
+    'The Trouble with Peace (The Age of Madness, #2)',
+    'The Wisdom of Crowds (The Age of Madness, #3)',
+    'Recursion',
+    'Dark Matter',
+    'You Like It Darker',
+    'Slow Horses (Slough House, #1)',
+    "The Handmaid’s Tale (The Handmaid's Tale, #1)",
+    '1984',
+    'Fahrenheit 451',
+  ]}
+/>
+
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950">
+  You can use a similar content loader setup to retrieve data from other sources (like APIs) too. 
+
+  I reused a large portion of the code above to create a similar component for my [trakt.tv](https://trakt.tv) data (on my watched movies and TV shows) and it was a breeze to set up.
+
+  - [What I watched in 2024](/blog/what-i-watched-in-2024) -- my favourite movies and TV shows of 2024 (and others).
+</Callout>
+
+<hr/>
+
+### Filtering & sorting collection entries 
+
+The content collection we created with Goodreads books is just an array of objects, so you can  use the `filter()` function to filter out books based on certain criteria (e.g. only show books that you rated 5 stars or read in the current year) or the `sort()` function to sort the books based on certain criteria (e.g. sort by descending rating or date read).
+
+Here's what I use in the [`GoodreadsGrid.astro`](https://github.com/sadmanca/blogv2/blob/main/src/components/mdx/GoodreadsGrid.astro) component on my Astro site to:
+- filter books by a list of provided titles (i.e. only show books that are in the list of titles provided in the `filterTitles` prop);
+- sort the books by descending date read (i.e. show the most recently read books first); and
+- transform the date read value from the Goodreads RSS feed into a more readable format (e.g. to `Jan 31, 2025`).
+
+export const markGoodreadsData = new RegExp("\\w+\\.data\\.\\w+", "gm");
+export const markFilters = new RegExp("\\b(filterTitles|filterYear)\\b", "gi");
+export const markSortAndFilter = new RegExp("\\b(sort|filter)\\b", "gi");
+
+<Code
+  code={goodreadsGrid} 
+  lang="astro" 
+  title="src/components/mdx/GoodreadsGrid.astro" 
+  wrap={false}
+  mark={markGoodreadsData}
+  ins={markSortAndFilter}
+  del={markFilters}
+  collapse="1-16, 90-9999999"
+/>
+
+<hr/>
+
+## Retrieving Goodreads data without the Content Loader API
+
+If you're still on Astro 4.x and below, you can't use the Content Loader API to retrieve data from Goodreads, but you can still use JavaScript to fetch the data and then pass it to your components as props. 
+
+```astro title="src/components/mdx/GoodreadsGrid.astro" wrap=false del="fetch" del={3-16, 19} del={"I added a timeout & retry logic for fetching data to minimize any errors":8} mark={"Same code as when using the Content Loader API": 21-32}
+import xml2js from 'xml2js'
+
+const TIMEOUT = 200000; // Set timeout to 200 seconds
+const REQUEST_DELAY = 500;
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+const fetchWithTimeout = async (url: string, options = {}, timeout = TIMEOUT) => {
+  await delay(REQUEST_DELAY);
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  const response = await fetch(url, { ...options, signal: controller.signal });
+  clearTimeout(id);
+  return response;
+};
+
+const GOODREADS_URL = import.meta.env.GOODREADS_URL;
+const response = await fetchWithTimeout(GOODREADS_URL);
+
+
+const data = await response.text()
+const result = await xml2js.parseStringPromise(data)
+let books = result.rss.channel[0].item.map((item: any) => {
+  return {
+    title: item.title[0],
+    shelves: item.user_shelves,
+    date_read: item.user_read_at,
+    rating: item.user_rating[0],
+    author_name: item.author_name,
+    book_image_url: book_image_url[0],
+    book_id: item.book_id[0],
+  }
+})
+
+...
+```
+
+<Callout type="warning">
+  This is actually what I used to do before I upgraded to Astro 5.x and started using the Content Loader API, but it was a bit of a pain to use sometimes because it meant that **whenever I ran `npm run dev` I had to wait for the data to be fetched after *every single change* on my site.** Because the data fetching was done in the component itself, it was re-fetched every time the component was re-rendered. 
+
+  While that's not a big deal (beyond being poor practice) since it was just retrieving and parsing an XML file, it was *faaar* more painful when I tried to use the same approach for loading data using APIs with rate limits (which often broke components while I was trying to test them in dev). In fact, that was the catalyst for me to upgrade to Astro 5.x and start using the Content Loader API.
+</Callout>
+
+<hr/>
+
+## Why you can't use the Astro feed loader to fetch Goodreads data
+
+While the [`@ascorbic/feed-loader`](https://github.com/ascorbic/astro-loaders/tree/main/packages/feed) package does allow you to load data from RSS feeds similar to how we did above, the package has a *very* limited schema that does not allow for the kind of complex data retrieval and parsing that we need to do for Goodreads data (which results in most of the fields in the Goodreads RSS feed being ignored and little actual data being retrieved).
+
+export const colon = new RegExp("\\w+:", "gm");
+
+<Code code={schema} lang="ts" title="astro-loaders/packages/feed/src/schema.ts" collapse="1-34, 54-9999999" mark={mark} wrap={false} />
+
+<CodeToggle showSourceText="Show XML Code for Goodreads RSS Feed" hideSourceText="Hide XML Code for Goodreads RSS Feed" code={sadmanRss} lang="xml" title="rss.xml" collapse="1-20, 63-9999999" mark={mark} wrap={false} />
+
+<hr/> 
+
+## Closing notes
+
+It's incredible how much you can do with the Astro Content Loader API and a little bit of creativity. I'm really glad that Goodreads provides RSS feeds for their bookshelves because otherwise I feel like there's really no other easy way of accessing your data programmatically (short of exporting your data, which would be a massive pain to do on a regular basis).
+
+I've been tracking my read (and want-to-read) books on Goodreads since early 2023 (ever since I got my hands on an ereader), and it's really nice to be able to display them on my blog so that I can share my experiences with others (as you might have concluded, I absolutely love reading). 
+
+I've been looking for a way to do this for a while now, and it's been disappointing scouring the web and searching using terms like `"react goodreads component"` or `"astro goodreads component"` and coming up with nothing particularly helpful, so I'm really happy with what has been made possible by the Astro team.
+
+### What's next?
+
+I already use a Goodreads component on my blog's [/reading](/reading) page to show my recently read books, and I also used it extensively in my ["What I read in 2024"](/blog/what-i-read-in-2024) post to showcase my favourite books from the last year.
+
+I thought I already knew a lot about the Content Loader API, but from taking another look at the docs while writing this post I notice that there's a couple of features I haven't used yet (like [object loaders](https://docs.astro.build/en/reference/content-loader-reference/#object-loaders) to control how long to cache data), so I'm excited to optimize how I use the Content Loader API on my site even more and see what else I can get up to with it in the future.
+
+<Callout type="info" icon="lucide:heart" iconColor="pink-950 dark:pink-100" classes="border-pink-950/100 bg-pink-100 dark:border-pink-100/100 dark:bg-pink-950">
+  Special thanks to the following posts for introducing me to the idea of using Goodreads RSS feeds to retrieve data and helping me figure out how to set this all up:
+  - [Using Goodreads Data in Eleventy](https://www.raymondcamden.com/2023/06/08/using-goodreads-data-in-eleventy-update) -- Raymond Camden
+  - [Custom Goodreads Bookshelf Rendering in Astro](https://isak.me/blog/rendering-goodreads-bookshelves-in-astro) -- Isak Solheim
+</Callout>

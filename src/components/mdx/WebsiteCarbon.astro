@@ -1,0 +1,55 @@
+---
+interface Props {
+  co2?: string;
+  percentage?: string;
+}
+
+const { co2 = "-", percentage = "" } = Astro.props;
+
+const dict = {
+  en: {
+    p1: "of",
+    p2: "view",
+    p3: "Cleaner than",
+    p4: "Dirtier than",
+    p5: "of pages tested",
+  },
+  fr: {
+    p1: "de",
+    p2: "vue",
+    p3: "Page web plus légère que",
+    p4: "Page web plus lourde que",
+    p5: "des pages testées",
+  },
+};
+
+const ps = dict.en;
+---
+
+<div class="text-xs text-center text-gray-800 dark:text-gray-200">
+  <div class="inline-flex items-center justify-center">
+    <a
+      class="inline-flex items-center justify-center text-gray-800 dark:text-gray-200 border border-[#02ffb4] border-2 border-r-0 dark:border-[#02ffb4] bg-white dark:bg-gray-800 rounded-l-md px-2 py-1"
+      target="_blank"
+      rel="noopener noreferrer"
+      href={`https://www.websitecarbon.com/website/sadman.ca`}
+    >
+      {co2}g {ps.p1} CO<sub>2</sub>/{ps.p2}
+    </a>
+    <a
+      class="inline-flex items-center justify-center text-white bg-[#0e129e] dark:bg-[#02ffb4] dark:text-gray-800 font-black border border-2 border-[#0e129e] dark:border-[#02ffb4] rounded-r-md px-2 py-1"
+      target="_blank"
+      rel="noopener noreferrer"
+      href="https://websitecarbon.com"
+    >
+      Website Carbon
+    </a>
+  </div>
+  <span class="block mt-1 text-gray-500/80 dark:text-gray-500">
+    {percentage
+      ? parseInt(percentage) > 50
+        ? `${ps.p3} ${percentage}% ${ps.p5}`
+        : `${ps.p4} ${percentage}% ${ps.p5}`
+      : ""}
+  </span>
+</div>

@@ -1,0 +1,15 @@
+---
+---
+
+<div class="timeline-container my-8">  
+  <div class="timeline relative">
+    <slot />
+  </div>
+</div>
+
+<style>
+  /* Hide the line extending below the last timeline entry */
+  .timeline > :last-child .timeline-entry > div:nth-child(2) {
+    display: none;
+  }
+</style>

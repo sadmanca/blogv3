@@ -128,7 +128,7 @@ const calloutConfig = {
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
-const calloutVariants = cva('relative px-4 py-3 my-6 border-l-4 text-sm', {
+const calloutVariants = cva('relative px-4 py-3 my-6 border-l-4 text-lg', {
   variants: {
     variant: Object.fromEntries(
       Object.entries(calloutConfig).map(([key, config]) => [key, config.style]),

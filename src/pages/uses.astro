@@ -1,0 +1,124 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Link from '@/components/Link.astro'
+import PageHead from '@/components/PageHead.astro'
+import ProjectCard from '@/components/ProjectCard.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllProjects } from '@/lib/data-utils'
+
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="Uses" />
+  <Breadcrumbs items={[{ label: 'Uses', icon: 'lucide:laptop' }]} />
+
+  <section>
+    <div class="min-w-full">
+      <h1 class="text-6xl font-black"> Uses</h1>
+      <div class="prose mb-8 text-2xl">
+        <p>
+          <b>I use a lot of things.</b> Here are some of them. 
+          <br/>
+          Inspired by <a href="https://uses.tech/">uses.tech</a>.
+        </p>
+        <hr/>
+        <p>Last modified: <b>4 Jan 2025</b></p>
+        <h3>
+          At my desk
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://www.acer.com/us-en/laptops/swift/swift-3-amd">Acer Swift 3</a>, laptop for personal use</li>
+          <li><a href="https://www.microsoft.com/en-in/surface/devices/surface-laptop-5">Surface Laptop 5</a>, laptop for work</li>
+          <li><a href="https://www.jlab.com/products/jbuds-lux-anc-headphones-graphite">JLab JBuds Lux</a>, over-ear noise-cancelling headphones</li>
+          <li><a href="https://www.logitech.com/en-us/products/mice/m720-triathlon">Logitech Triathlon</a>, wireless mouse</li>
+          <li><a href="https://www.logitech.com/en-us/products/keyboards/signature-slim-k950-keyboard">Logitech Signature Slim K950</a>, wireless keyboard</li>
+          <li><a href="https://www.ikea.com/us/en/p/micke-desk-white-80213074/">Ikea MICKE</a>, desk</li>
+          <li><a href="https://www.ikea.com/gb/en/p/flintan-office-chair-with-armrests-beige-s79424464/">Ikea FLINTAN (beige)</a>, office chair</li>
+          <li><a href="https://www.ikea.com/gb/en/p/harte-led-work-lamp-white-silver-colour-10527247/">Ikea HÅRTE</a>, LED work lamp</li>
+        </ul>
+        <h3>
+          Next to my desk
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://www.ikea.com/us/en/p/kvissle-wall-magazine-rack-white-90198030/">Ikea KVISSLE</a>, wall magazine rack</li>
+          <li><a href="https://www.ikea.com/gb/en/p/uppatvind-air-purifier-50498224/">Ikea UPPÅTVIND</a>, air purifier</li>
+        </ul>
+        <h3>
+          In my pocket
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://www.samsung.com/us/smartphones/galaxy-a52-5g/">Samsung Galaxy A52 5G</a>, everyday smartphone</li>
+          <li><a href="https://us.kobobooks.com/products/kobo-nia">Kobo Nia</a>, basic ereader</li>
+          <li><a href="https://www.jlab.com/products/go-air-pop-true-wireless-earbuds-black">JLab Buds Go Air Pop</a>, in-ear everyday headphones (wireless)</li>
+          <li><a href="https://www.jlab.com/products/jbuds2-signature-earbuds-black">JLab JBuds2 Signature</a>, in-ear everyday headphones (wired)</li>
+          <li>A basic wallet (brown), I have absolutely no idea where or when I got it</li>
+        </ul>
+        <hr/>
+        <h2>
+          On my laptop
+        </h2>
+        <h3>
+          Productivity
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://www.mozilla.org/en-US/firefox/">Firefox</a>, the developer's browser</li>
+          <li><a href="https://www.gpsoft.com.au/">Directory Opus</a>, everything File Explorer should have been</li>
+          <li><a href="https://obsidian.md/">Obsidian</a>, personal notes</li>
+          <li><a href="https://www.autohotkey.com/">AutoHotKey</a>, scripting language for keyboard shortcuts (and more)</li>
+        </ul>
+        <h3>
+          Coding
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://code.visualstudio.com/">Visual Studio Code</a>, code editor</li>
+          <li><a href="https://cudatext.github.io/">Cudatext</a>, super-fast text editor</li>
+          <li><a href="https://mridgers.github.io/clink/">Clink</a>, Bash-style command line editing for cmd.exe (command prompt)</li>
+          <li><a href="">Command Prompt</a>, terminal for Windows (simple but fast)</li>
+        </ul>
+        <h3>
+          File Management
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://www.gpsoft.com.au/">Directory Opus</a>, everything File Explorer should have been</li>
+          <li><a href="https://diskanalyzer.com/">WizTree</a>, disk space analyzer</li>
+          <li><a href="https://localsend.org/">LocalSend</a>, cross-platform file sharing tool</li>
+          <li><a href="https://www.resilio.com/sync/">Resilio Sync</a>, file sync tool</li>
+          <li><a href="https://www.bulkrenameutility.co.uk/">Bulk Rename Utility</a>, file batch renaming utility</li>
+          <li><a href="https://github.com/moudey/Shell">NileSoft Shell</a>, Windows context menu customizer</li>
+          <li><a href="https://pdfsam.org/pdfsam-basic/">PDFSam Basic</a>, multi-purpose PDF utility (split, merge, rotate, mix, and extract pages)</li>
+          <li><a href="https://www.pdfgear.com/">PDFgear</a>, PDF editing utility</li>
+        </ul>
+        <h3>
+          Office
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://drive.google.com/">Google Drive</a>, office suite and personal storage</li>
+          <li><a href="https://zoom.us/">Zoom</a>, online meetings</li>
+        </ul>
+        <h3>
+          Security
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://ente.io/auth/">Ente Auth</a>, open source 2FA authenticator</li>
+          <li><a href="https://bitwarden.com/">Bitwarden</a>, password manager</li>
+        </ul>
+        <h3>
+          Media
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://spotify.com">Spotify</a>, music player</li>
+          <li><a href="https://www.videolan.org/vlc/">VLC</a>, video player</li>
+        </ul>
+        <h3>
+          Communication
+        </h3>
+        <ul class="list-disc" style="margin-left: 2rem;">
+          <li><a href="https://www.microsoft.com/en-us/microsoft-teams/group-chat-software">Microsoft Teams</a>, talking to colleagues</li>
+          <li><a href="https://discord.com/">Discord</a>, talking to friends</li>
+          <li><a href="https://www.messenger.com/">Messenger</a>, talking to family</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</Layout>

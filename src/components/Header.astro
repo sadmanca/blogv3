@@ -5,6 +5,9 @@ import MobileMenu from '@/components/ui/mobile-menu'
 import { NAV_LINKS, SITE } from '@/consts'
 import { Image } from 'astro:assets'
 import logo from '../../public/static/logo.svg'
+
+const { url } = Astro
+const currentPath = url.pathname
 ---
 
 <header transition:persist>

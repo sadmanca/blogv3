@@ -1,0 +1,76 @@
+---
+title: "What I watched in 2024"
+description: "My favourite TV shows and movies of 2024 (and others)."
+date: 2024-12-31
+slug: "what-i-watched-in-2024"
+tags: ['reviews', 'movies', 'tv']
+image: './00-thumbnail.png'
+authors: ['sadman']
+---
+
+import Callout from '@/components/mdx/Callout.astro';
+import TraktGrid from '@/components/mdx/TraktGrid.astro';
+import { Image } from 'astro:assets';
+import { SITE } from '@/consts';
+
+## My favourite TV shows of 2024
+
+<TraktGrid
+  type='shows'
+  filterTitles={[
+    'The Thick of It',
+    'Veep',
+    'The Penguin',
+    'Psych',
+    'Fallout',
+    'My Adventures with Superman',
+    '',
+  ]}
+/>
+
+<hr/>
+
+## My favourite movies of 2024
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950">
+  I watch (and rewatch) a *lot* of movies, so for fairness I'm only singling out movies that I watched for the first time this year.
+</Callout>
+
+<TraktGrid
+  type='movies'
+  filterTitles={[
+    'In the Loop',
+    'Boy Kills World',
+    'The Fall Guy',
+    'Hit Man',
+    'Sicario',
+    'The Guard',
+    'Scent of a Woman',
+  ]}
+/>
+
+<hr/>
+
+## Everything (else) I watched this year
+
+<Callout type="info" classes="border-grey-950/100 bg-grey-100 dark:border-grey-100/100 dark:bg-grey-950">
+  **Note:** TV shows I haven't finished yet remain unrated (even though I've often seen enough to be able to give a rating, I like to wait until I watch the very final episode before doing so).
+  
+  Any movies left unrated are because I forgot to rate them 😅
+</Callout>
+
+### TV shows
+
+<TraktGrid
+  filterYear={2024}
+  type='shows'
+/>
+
+<hr/>
+
+### Movies
+
+<TraktGrid
+  filterYear={2024}
+  type='movies'
+/>

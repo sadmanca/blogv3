@@ -1,0 +1,74 @@
+---
+import xml2js from "xml2js";
+
+const GOODREADS_URL = import.meta.env.GOODREADS_URL;
+
+const response = await fetch(GOODREADS_URL);
+const data = await response.text();
+const result = await xml2js.parseStringPromise(data);
+
+const books = result.rss.channel[0].item.map((item: any) => {
+  return {
+    title: item.title[0],
+    shelves: item.user_shelves,
+    date_read: item.user_read_at,
+    rating: item.user_rating[0],
+    author_name: item.author_name,
+    book_image_url: item.book_image_url[0],
+    book_id: item.book_id[0],
+  };
+});
+
+books.sort((a: any, b: any) => {
+  const dateA = new Date(a.date_read);
+  const dateB = new Date(b.date_read);
+  return dateB.getTime() - dateA.getTime();
+})
+
+function formatDate(dateString: any) {
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  const date = new Date(dateString);
+  const day = date.getUTCDate();
+  const month = monthNames[date.getUTCMonth()];
+  const year = date.getUTCFullYear();
+
+  return `${day} ${month} ${year}`;
+}
+---
+
+<div class="goodreads">
+    <ul class="flex flex-col gap-2">
+    {books.map((book: any) => (
+        <li class="flex gap-2">
+        <a
+            href={`https://www.goodreads.com/book/show/${book.book_id}`}
+            class="w-64 truncate"
+        >
+            {book.title}
+        </a>
+        <span class="text-gray-700 w-32 truncate" class="block">
+            {book.author_name}
+        </span>
+        {book.date_read[0] !== "" && (
+            <span class="text-gray-700 w-32">
+            {formatDate(book.date_read)}
+            </span>
+        )}
+        </li>
+    ))}
+    </ul>
+</div>

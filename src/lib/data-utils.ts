@@ -1,3 +1,4 @@
+import { FEATURED_PROJECTS } from '@/consts'
 import { getCollection, render, type CollectionEntry } from 'astro:content'
 import { readingTime, calculateWordCountFromHtml } from '@/lib/utils'
 
@@ -23,11 +24,15 @@ export async function getAllPostsAndSubposts(): Promise<
 
 export async function getAllProjects(): Promise<CollectionEntry<'projects'>[]> {
   const projects = await getCollection('projects')
+  // Sort so FEATURED_PROJECTS come first, in order
   return projects.sort((a, b) => {
-    const dateA = a.data.startDate?.getTime() || 0
-    const dateB = b.data.startDate?.getTime() || 0
-    return dateB - dateA
-  })
+    const aIndex = FEATURED_PROJECTS.indexOf(a.id);
+    const bIndex = FEATURED_PROJECTS.indexOf(b.id);
+    if (aIndex === -1 && bIndex === -1) return 0;
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
+  });
 }
 
 export async function getAllTags(): Promise<Map<string, number>> {

@@ -1,0 +1,230 @@
+---
+import { Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
+import { Icon } from 'astro-icon/components'
+
+type TraktItem = {
+  data: {
+    id: string
+    title: string
+    rating: number
+    year: number
+    last_watched_at: string
+    poster: string
+    imdb: string
+  }
+}
+
+const {
+  gridMarginTop = 5,
+  titleMarginTop = 0,
+  ratingMarginBottom = 1,
+  filterYear,
+  filterTitles = [],
+  type = 'movies',
+} = Astro.props
+
+let items: TraktItem[] = []
+
+if (type == 'shows') {
+  items = await getCollection(`trakt_watched_shows`)
+} else {
+  items = await getCollection(`trakt_watched_movies`)
+}
+
+if (filterYear) {
+  items = items.filter(
+    (item) =>
+      new Date(item.data.last_watched_at).getFullYear() === filterYear,
+  )
+}
+
+if (filterTitles.length > 0) {
+  items = items.filter((item) => filterTitles.includes(item.data.title))
+}
+
+items.sort(
+  (a, b) =>
+    new Date(b.data.last_watched_at).getTime() -
+    new Date(a.data.last_watched_at).getTime(),
+)
+
+function formatDate(dateString: any) {
+  if (!dateString) return "—";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "—";
+
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+
+  const day = date.getUTCDate()
+  const month = monthNames[date.getUTCMonth()]
+  const year = date.getUTCFullYear()
+
+  return `${day} ${month} ${year}`
+}
+---
+
+<style>
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    position: relative;
+    z-index: 1;
+  }
+  .zoomable-image {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+  .zoomable-image.loaded {
+    opacity: 1;
+  }
+</style>
+
+<div class={`mt-${gridMarginTop} trakt`}>
+  <div
+    class="grid grid-cols-3 gap-2 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-7 xl:grid-cols-7"
+  >
+    {
+      items.map((item: TraktItem) => (
+        <div class="flex flex-col items-center group">
+          <a
+            href={`https://www.imdb.com/title/${item.data.imdb}`}
+            class="h-36 w-24"
+            target="_blank"
+          >
+            <div class="relative h-full w-full transform transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-130 origin-bottom z-10 group-hover:z-11">
+              <div
+                class="placeholder rounded-lg bg-gray-200 dark:bg-gray-900"
+                id={`placeholder-${item.data.imdb}`}
+              >
+                <div class="h-12 w-12 rounded-xl flex items-center justify-center ">
+                  <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
+                </div>
+              </div>
+              <Image
+                src={item.data.poster}
+                alt={item.data.title}
+                class="mt-0 zoomable-image h-full w-full rounded-md object-cover"
+                title={`${item.data.title}`}
+                width={101}
+                height={150}
+                onload={`document.getElementById('placeholder-${item.data.imdb}').classList.add('hidden'); this.classList.add('loaded');`}
+              />
+            </div>
+          </a>
+          <div class={`mt-${titleMarginTop} text-center`}>
+            <a
+              href={`https://www.imdb.com/title/${item.data.imdb}`}
+              class="line-clamp-3 block w-27 text-sm font-bold underline leading-tight"
+              style="text-underline-offset: 2px;"
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`${item.data.title}`}
+            >
+              {item.data.title} ({item.data.year})
+            </a>
+            <span
+              class="block text-sm text-muted-foreground leading-tight"
+              title="Last Watched"
+            >
+              Last Watched:
+              <br />
+              {formatDate(item.data.last_watched_at)}
+            </span>
+            <div
+              class={`mb-${ratingMarginBottom} flex items-center justify-center`}
+              title={`Rating given: ${item.data.rating}/10`}
+            >
+              {Array.from({ length: 5 }, (_, i) => {
+                const fullStars = Math.floor(item.data.rating / 2)
+                const hasHalfStar = item.data.rating % 2 >= 1
+                const isFullStar = i < fullStars
+                const isHalfStar = i === fullStars && hasHalfStar
+
+                return (
+                  <div class="relative h-4 w-4">
+                    {/* Full star */}
+                    {isFullStar && (
+                      <svg
+                        class="text-black-500 absolute h-full w-full dark:text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.84-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.174 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" />
+                      </svg>
+                    )}
+
+                    {/* Half star */}
+                    {isHalfStar && (
+                      <>
+                        {/* Left half */}
+                        <svg
+                          class="text-black-500 absolute h-full w-full dark:text-white"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          style="clip-path: inset(0 50% 0 0);"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.84-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.174 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" />
+                        </svg>
+                        {/* Right half */}
+                        <svg
+                          class="absolute h-full w-full text-gray-200 dark:text-gray-700"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          style="clip-path: inset(0 0 0 50%);"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.84-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.174 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" />
+                        </svg>
+                      </>
+                    )}
+
+                    {/* Empty star */}
+                    {!isFullStar && !isHalfStar && (
+                      <svg
+                        class="absolute h-full w-full text-gray-200 dark:text-gray-700"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.163c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.84-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.174 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" />
+                      </svg>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>

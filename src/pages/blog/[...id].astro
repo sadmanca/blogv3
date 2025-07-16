@@ -58,6 +58,29 @@ const combinedReadingTime =
 const tocSections = await getTOCSections(currentPostId)
 ---
 
+<style>
+  .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    position: relative;
+    z-index: 1;
+  }
+  .zoomable-image {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  }
+  .zoomable-image.loaded {
+    opacity: 1;
+  }
+</style>
+
 <Layout>
   <PostHead slot="head" post={post} />
   {
@@ -110,24 +133,40 @@ const tocSections = await getTOCSections(currentPostId)
 
     {
       post.data.image && (
-        <Image
+      <div class="relative col-span-full mx-auto w-full max-w-[300px]" style="padding-left: 0 !important; padding-right: 0!important;">
+        <div
+          class="aspect-[300/157.5] placeholder rounded-xl bg-gray-200 dark:bg-gray-900 absolute top-0 left-0 w-full h-full"
+          id={`placeholder-${post.data.title}`}
+        >
+          <div class="w-full h-full rounded-xl bg-gray-200 dark:bg-gray-900 flex items-center justify-center">
+            <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
+          </div>
+        </div>
+        <Image 
           src={post.data.image}
           alt={post.data.title}
-          width={1200}
-          height={630}
-          class="col-span-full mx-auto w-full max-w-5xl object-cover"
+          width={300}
+          height={157.5}
+          class="zoomable-image w-full h-full object-cover rounded-xl absolute top-0 left-0"
+          loading="lazy"
+          style="border-radius: 0.75rem !important;"
+          onload={`document.getElementById('placeholder-${post.data.title}').classList.add('hidden'); this.classList.add('loaded');`}
         />
+      </div>
       )
     }
 
     <section class="col-start-2 flex flex-col gap-y-6 text-center">
       <div class="flex flex-col">
         <h1
-          class="mb-2 scroll-mt-31 text-3xl leading-tight font-medium sm:text-4xl"
+          class="mb-2 scroll-mt-31 text-6xl leading-none font-black sm:text-4xl"
           id="post-title"
         >
           {post.data.title}
         </h1>
+        <span class="text-primary bg-ring/30 lg:rounded-full rounded-xl text-lg font-normal leading-6 mx-14 px-6 py-3 mb-4">
+          {post.data.description}
+        </span>        
 
         <div
           class="text-muted-foreground divide-border mb-4 flex flex-col items-center justify-center divide-y text-xs sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 sm:text-sm"
@@ -200,9 +239,9 @@ const tocSections = await getTOCSections(currentPostId)
               post.data.tags.map((tag) => (
                 <a
                   href={`/tags/${tag}`}
-                  class={badgeVariants({ variant: 'secondary' })}
+                  class={badgeVariants({ variant: 'muted' })}
                 >
-                  <Icon name="lucide:hash" class="size-3" />
+                  {/* <Icon name="lucide:hash" class="size-3" /> */}
                   {tag}
                 </a>
               ))

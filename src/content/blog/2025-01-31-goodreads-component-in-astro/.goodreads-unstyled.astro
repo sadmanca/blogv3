@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content'
+import Layout from '@/layouts/Layout.astro';
+
+const books = await getCollection('goodreads_read_books')
+---
+
+<Layout title="Goodreads Books" description="A list of books I've recently read from Goodreads.">
+  <ul>
+    {books.map((book) => (
+      <li>
+        <h2>{book.data.title}</h2>
+        <p>Author: {book.data.author_name}</p>
+        <p>Rating: {book.data.rating}</p>
+        <p>Date Read: {book.data.date_read}</p>
+        <img src={book.data.book_image_url} alt={book.data.title} />
+      </li>
+    ))}
+  </ul>
+</Layout>

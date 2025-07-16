@@ -1,0 +1,21 @@
+---
+name: "Sadman Hossain"
+full_name: 'Sadman Hossain'
+pronouns: 'he/him'
+avatar: '/static/profile.jpg'
+bio: '4th year Computer Engineering student at the University of Toronto. Likes reading (a lot).'
+website: 'https://sadman.ca'
+github: 'https://github.com/sadmanca'
+linkedin: 'https://www.linkedin.com/in/sadmanca'
+twitter: 'https://twitter.com/sadmanca'
+bluesky: 'https://bsky.app/profile/sadman.ca'
+threads: 'https://www.threads.net/@sadman.ca'
+mastodon: 'https://mastodon.social/@sadmanca'
+pixelfed: 'https://pixelfed.social/sadman.ca'
+instagram: 'https://www.instagram.com/sadman.ca'
+spotify: 'https://open.spotify.com/user/31jmi6y2ziu62idgkgub6w6zs62q'
+lastfm: 'https://www.last.fm/user/sadmanca'
+goodreads: 'https://www.goodreads.com/sadmanca'
+mail: 'sadman.hossain@mail.utoronto.ca'
+slug: 'sadman'
+---

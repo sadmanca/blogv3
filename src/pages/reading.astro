@@ -1,0 +1,49 @@
+---
+import AuthorCard from '@/components/AuthorCard.astro'
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Link from '@/components/Link.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+
+import GoodreadsGrid from '@/components/mdx/GoodreadsGrid.astro';
+import GoodreadsUserUpdates from '@/components/mdx/GoodreadsUserUpdates.astro';
+---
+
+<Layout class="max-w-5xl">
+  <PageHead slot="head" title="Reading" />
+  <Breadcrumbs items={[{ label: 'Reading', icon: 'lucide:book' }]} />
+  <h1 class="text-6xl font-black"> Reading </h1>
+
+  <section>
+    <div class="lg:flex lg:gap-4">
+      <div class="lg:w-1/4">
+        <h2 class="text-xl font-semibold text-gray-600 mb-3">
+          <a
+            href="https://www.goodreads.com/user/show/152185079-sadman-hossain"
+            target="_blank"
+            class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium border bg-[#f9f6f2] text-[#723c0c] border-[#723c0c]/25 dark:bg-[#723c0c] dark:text-[#f9f6f2] dark:border-[#f9f6f2]/25 relative transition-transform transform hover:opacity-70"
+          >
+            <span class="absolute left-2 h-2 w-2 rounded-full bg-[#723c0c] dark:bg-[#f9f6f2] animate-ping duration-1400"></span>
+            <span class="absolute left-2 h-2 w-2 rounded-full bg-[#723c0c] dark:bg-[#f9f6f2]"></span>
+            <span class="ml-[10px]">Goodreads Activity</span>
+          </a>
+        </h2>
+        <GoodreadsUserUpdates limit={10} />
+      </div>
+      <div class="lg:w-3/4 mt-8 lg:mt-0">
+        <h2 class="text-2xl font-bold">
+          <a
+            href="https://www.goodreads.com/review/list/152185079-sadman-hossain?shelf=read&sort=date_read&order=d"
+            target="_blank"
+            class="inline-flex items-center px-3 py-0.5 rounded-full text-md font-medium border bg-[#723c0c] text-[#f9f6f2] border-[#f9f6f2]/25 dark:bg-[#f9f6f2] dark:text-[#723c0c] dark:border-[#723c0c]/25 relative transition-transform transform hover:opacity-70"
+          >
+          Goodreads: Latest Reads
+          </a>
+        </h2>
+        <GoodreadsGrid titleMarginTop={1} />
+      </div>
+    </div>
+
+
+  </section>
+</Layout>

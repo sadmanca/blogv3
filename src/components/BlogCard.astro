@@ -25,8 +25,31 @@ const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
 ---
 
+<style>
+  .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    position: relative;
+    z-index: 1;
+  }
+  .zoomable-image {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+  }
+  .zoomable-image.loaded {
+    opacity: 1;
+  }
+</style>
+
 <div
-  class="hover:bg-secondary/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out"
+  class="hover:bg-secondary/50 hover-card rounded-xl border p-3 transition-colors duration-300 ease-in-out"
 >
   <Link
     href={`/${entry.collection}/${entry.id}`}
@@ -34,24 +57,47 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
   >
     {
       entry.data.image && (
-        <div class="max-w-3xs sm:shrink-0">
+      <div class="relative max-w-[200px] sm:flex-shrink-0 relative">
+          <div
+            class="placeholder rounded-xl bg-gray-200 dark:bg-gray-900"
+            id={`placeholder-${entry.id}`}
+          >
+            <div class="h-[105px] w-[200px] rounded-xl bg-gray-200 dark:bg-gray-900 flex items-center justify-center ">
+              <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
+            </div>
+          </div>
           <Image
             src={entry.data.image}
             alt={entry.data.title}
             width={1200}
             height={630}
-            class="object-cover"
+            class="zoomable-image object-cover rounded-xl absolute top-0 left-0"
+            loading="lazy"
+            onload={`this.classList.add('loaded');`}
           />
         </div>
       )
     }
 
     <div class="grow">
-      <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
-      <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
+      <h3 class="text-xl font-extrabold leading-none mb-1">{entry.data.title}</h3>
+      <p class="text-muted-foreground mb-1 text-sm font-medium leading-tight">{entry.data.description}</p>
+
+      {
+        entry.data.tags && (
+          <div class="flex flex-wrap gap-2">
+            {entry.data.tags.map((tag) => (
+              <Badge variant="muted" className="flex items-center gap-x-1">
+                {/* <Icon name="lucide:hash" class="size-3" /> */}
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )
+      }
 
       <div
-        class="text-muted-foreground mb-2 flex flex-wrap items-center gap-x-2 text-xs"
+        class="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-2 text-xs"
       >
         {
           authors.length > 0 && (
@@ -87,19 +133,6 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
           )
         }
       </div>
-
-      {
-        entry.data.tags && (
-          <div class="flex flex-wrap gap-2">
-            {entry.data.tags.map((tag) => (
-              <Badge variant="secondary" className="flex items-center gap-x-1">
-                <Icon name="lucide:hash" class="size-3" />
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
-      }
     </div>
   </Link>
 </div>

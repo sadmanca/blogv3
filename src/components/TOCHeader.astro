@@ -247,7 +247,7 @@ const { headings } = Astro.props
           .map((heading) => heading.textContent!.trim())
 
         if (activeTexts.length > 0) {
-          textToShow = activeTexts.join(', ')
+          textToShow = activeTexts.join(' · ')
         }
       }
 

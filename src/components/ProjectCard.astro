@@ -14,7 +14,7 @@ const { project } = Astro.props
 ---
 
 <div
-  class="hover:bg-secondary/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out"
+  class="hover:bg-secondary/50 hover-card rounded-xl border p-4 transition-colors duration-300 ease-in-out"
 >
   <Link
     href={project.data.link}
@@ -23,19 +23,29 @@ const { project } = Astro.props
   >
     {
       project.data.image && (
-        <div class="max-w-3xs sm:shrink-0">
+      <div class="relative max-w-[200px] sm:flex-shrink-0 relative">
+          <div
+            class="placeholder rounded-xl bg-gray-200 dark:bg-gray-900"
+            id={`placeholder-${project.data.title}`}
+          >
+            <div class="h-[105px] w-[200px] rounded-xl bg-gray-200 dark:bg-gray-900 flex items-center justify-center ">
+              <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
+            </div>
+          </div>
           <Image
             src={project.data.image}
             alt={project.data.name}
             width={1200}
             height={630}
-            class="object-cover"
+            class="zoomable-image object-cover rounded-xl absolute top-0 left-0"
+            loading="lazy"
+            onload={`this.classList.add('loaded');`}
           />
         </div>
       )
     }
     <div class="grow">
-      <h3 class="mb-1 text-lg font-medium">
+      <h3 class="mb-1 text-2xl leading-[1.5rem] font-black">
         {project.data.name}
       </h3>
       <p class="text-muted-foreground mb-2 text-sm">

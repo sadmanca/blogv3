@@ -1,0 +1,55 @@
+---
+import { Icon } from 'astro-icon/components'
+
+interface Props {
+  type?: 'default' | 'info' | 'warning' | 'flag' | 'destructive'
+  icon?: string
+  iconColor?: string
+  classes?: string
+}
+
+const { type = 'default', icon: customIcon, iconColor: customIconColor, classes: customClasses } = Astro.props
+
+const typeMapping = {
+  default: {
+    icon: 'lucide:lightbulb',
+    classes: 'bg-primary/20',
+    iconColor: 'text-blue-700 dark:text-blue-600',
+  },
+  info: {
+    icon: 'lucide:info',
+    classes: 'bg-secondary/50',
+    iconColor: 'text-blue-700 dark:text-blue-600',
+  },
+  warning: {
+    icon: 'lucide:alert-triangle',
+    classes:
+      'border-yellow-600/100 bg-yellow-100/40 dark:border-yellow-400/100 dark:bg-yellow-900/40',
+    iconColor: 'text-yellow-700 dark:text-yellow-400',
+  },
+  flag: {
+    icon: 'lucide:flag',
+    classes: 'bg-primary/20 justify-center',
+    iconColor: 'text-primary/20',
+  },
+  destructive: {
+    icon: 'lucide:alert-octagon',
+    classes: 'border-red-700/100 bg-red-100/70 dark:border-red-400/100 dark:bg-red-900/40',
+    iconColor: 'text-red-700 dark:text-red-400',
+  },
+}
+
+const { icon, classes, iconColor } = typeMapping[type]
+const finalIcon = customIcon || icon
+const finalClasses = customClasses || classes
+const finalIconColor = customIconColor || iconColor
+---
+
+<div class={`relative my-6 flex gap-4 rounded-xl border-2 p-4 ${finalClasses}`}>
+  <span class="text-md pointer-events-none select-none relative" style="top: 18px;">
+    <Icon name={finalIcon} size={27} class={finalIconColor} />
+  </span>
+  <div class="-my-4 callout prose-code:break-all">
+    <slot />
+  </div>
+</div>
