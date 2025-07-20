@@ -49,7 +49,7 @@ export default function Banner({ type, text, link }: BannerProps) {
 
   return (
     <div
-      className={`bg-foreground/80 text-background px-2 py-1 relative transform transition-transform duration-500 ${
+      className={`bg-secondary/80 text-foreground px-2 py-1 relative transform transition-transform duration-500 ${
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
@@ -57,6 +57,11 @@ export default function Banner({ type, text, link }: BannerProps) {
         <a 
           href={link} 
           className="flex items-center group"
+          onClick={() => {
+            localStorage.setItem("bannerClosed", "true");
+            setIsVisible(false);
+            setTimeout(() => setShouldRender(false), 500);
+          }}
         >
           <span className="relative flex items-center">
             <span className="h-1 w-1 bg-red-500 rounded-full animate-ping duration-2000"></span>

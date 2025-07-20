@@ -23,7 +23,7 @@ const { class: className } = Astro.props
   <body>
     <div class="flex h-fit min-h-screen flex-col gap-y-6 font-sans">
       <div
-        class="bg-background/80 sticky top-0 z-50 divide-y backdrop-blur-sm xl:divide-none"
+        class="sticky top-0 z-50 divide-y xl:divide-none"
       >
         <Header />
         <slot name="subposts-navigation" />
@@ -35,6 +35,8 @@ const { class: className } = Astro.props
         </div>
       </main>
       <Footer />
+    <div aria-hidden="true" class="pointer-events-none fixed inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-b from-transparent to-[var(--background))] dark:bg-gradient-to-b dark:from-transparent dark:to-[var(--background))]"></div>
     </div>
+    <div class="mb-4"/>
   </body>
 </html>
