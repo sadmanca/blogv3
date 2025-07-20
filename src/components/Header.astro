@@ -3,19 +3,36 @@ import Link from '@/components/Link.astro'
 import ThemeToggle from '@/components/ThemeToggle.astro'
 import MobileMenu from '@/components/ui/mobile-menu'
 import { NAV_LINKS, SITE } from '@/consts'
-import { Image } from 'astro:assets'
-import logo from '../../public/static/logo.svg'
+import Banner from '@/components/ui/banner.tsx'
+import { type CollectionEntry, getCollection } from 'astro:content';
+import { getAllPosts } from '@/lib/data-utils'
 
 const { url } = Astro
 const currentPath = url.pathname
+
+const allPosts = await getAllPosts()
+const latestPost = allPosts.length > 0 ? allPosts[0] : null
 ---
 
-<header transition:persist>
+<header
+  class="sticky top-0 left-0 w-full z-50 bg-background/50 backdrop-blur-lg"
+  transition:persist
+  >
+  {latestPost && (
+    <Banner
+      client:only="react"
+      type={`Latest post: `}
+      text={`${latestPost.data.title}`}
+      link={`/posts/${latestPost.id}`}
+    />
+  )}  
   <div
     class="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3"
   >
-    <Link href="/" class="flex shrink-0 items-center justify-center gap-3">
-      <Image src={logo} alt="Logo" class="size-5 sm:size-6" />
+    <Link href="/" class="flex shrink-0 items-center justify-center gap-2">
+      <svg width="30" height="30" viewBox="0 0 30 30" class="size-6">
+        <circle cx="15" cy="15" r="15" fill="#6854ff" />
+      </svg>
       <span class="hidden h-full text-lg font-medium min-[300px]:block"
         >{SITE.title}</span
       >

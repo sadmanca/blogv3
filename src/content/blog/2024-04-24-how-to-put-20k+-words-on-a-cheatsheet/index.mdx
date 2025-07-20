@@ -19,7 +19,7 @@ import latexsheet from './latexsheet.tex?raw';
 
 **Picture it.** You're finally in that type of course that allows you to put *whatever* you want on your cheatsheet for the exam, no requirement to have handwritten it on your tablet or (god forbid) using a physical pen on a physical piece of paper, just free reign to type all of it up and copy-paste images to your heart's content. As an engineering student, such a scenario appears rarely, but when it does, it is oh-so-sweet.
 
-Except... when the opportunity does arise, it's usually for a course where the lecture content rivals some textbooks in just the sheer amount of concepts covered (typically 1k+ slides over the course of a semester, with each slide as dense and filled to the brim with testable content as any other). Which leads to the question: ***what's the best way of writing out everything you can reasonably put down on a single sheet of paper (double-sided, of course)?***
+Except... when the opportunity does arise, it's usually for a course where the lecture content rivals some textbooks in just the sheer amount of concepts covered (typically 1k+ slides over the course of a semester, with each slide as dense and filled to the brim with testable content as any other). Which leads to the question: **what's the best way of writing out everything you can reasonably put down on a single sheet of paper (double-sided, of course)?**
 
 The answer is surprisingly simple. But to get there, there's 3 things we need to consider: the medium (*how* to write your cheatsheet), the message (*what* to write on it), and the machine (*how* to print it such that everything remains readable).
 
@@ -30,7 +30,7 @@ The answer is surprisingly simple. But to get there, there's 3 things we need to
 import fullpage from './01-fullpage.jpg'
 import zoomed from './01-zoomed.jpg'
 
-<div class="flex flex-col md:flex-row gap-4 my-6">
+<div class="wide-img flex flex-col md:flex-row gap-4 my-6">
   <figure class="flex-1 m-0">
     <Image src={fullpage} alt="Full page view of cheatsheet" class="zoom-image" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/01-fullpage.jpg"/>
     <figcaption>Full page view of cheatsheet</figcaption>
@@ -86,7 +86,7 @@ import latexsheet0 from './latexsheet-0.jpg'
 import latexsheet1 from './latexsheet-1.jpg'
 import typst2 from './02-typst.jpg'
 
-<div class="flex flex-col md:flex-row gap-4 my-6">
+<div class="wide-img flex flex-col md:flex-row gap-4 my-6">
   <figure class="flex-1 m-0">
     <Image src={latexsheet0} alt="Front page: sample LaTeX cheatsheet" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/latexsheet-0.png" class="zoom-image" />
     <figcaption>Front page: sample LaTeX cheatsheet</figcaption>
@@ -97,8 +97,7 @@ import typst2 from './02-typst.jpg'
     <figcaption>Back page: sample LaTeX cheatsheet</figcaption>
   </figure>
 </div>
-
-*Source: [https://wch.github.io/latexsheet](https://wch.github.io/latexsheet)*
+<figcaption>*Source: [https://wch.github.io/latexsheet](https://wch.github.io/latexsheet)*</figcaption>
 
 <Code 
   code={latexsheet} 
@@ -125,7 +124,7 @@ And what's brilliant about all of this, is that the Typst team have been generou
 import typst from './02-typst.jpg'
 import overleaf from './02-overleaf.jpg'
 
-<div class="flex flex-col md:flex-row gap-4 my-6">
+<div class="wide-img flex flex-col md:flex-row gap-4 my-6">
   <figure class="flex-1 m-0">
     <Image src={typst} alt="Landing page: Typst" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/02-typst.jpg" class="zoom-image" />
     <figcaption>Landing page: [Typst](https://typst.app)</figcaption>
@@ -159,14 +158,17 @@ As someone who's been writing cheatsheets over half a decade now, I've made this
 
 import ece241 from './03-ece241.jpg'
 
-<div class="flex items-center flex-col md:flex-row gap-3 my-6">
-  <div class="flex-1 m-0 md:w-2/3">
+<div class="relative">
+  <p>
     For a good example at what not to do, consider my cheatsheet for an [introductory digital logics course](https://engineering.calendar.utoronto.ca/course/ece241h1) from my second year of university. I can hardly distinguish the different groups of concepts amongst all the differently sized blocks of diagrams mixed in with text, and I was the one who wrote the entire darn thing, I can only imagine how you, dear reader, must feel looking at this spagetthi gobble of a cheatsheet.
 
     It's a prime example of what not to do when trying to make a cheatsheet that's both dense and readable. But despite all that, it's still what I walked into the exam with, and it was good enough that I got a decent grade on the exam (which really goes to show that all that matters is that you can read it, not that it's the most readable thing in the world).
-
-  </div>
-  <figure class="flex-1 m-0 md:w-1/3">
+  </p>
+  <figure class="absolute -top-8 -right-[280px] w-[260px] max-w-[40vw] md:block hidden">
+    <Image src={ece241} alt="My cheatsheet for an introductory digital logics course" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/03-ece241.jpg" class="zoom-image" />
+    <figcaption>My cheatsheet for an introductory digital logics course ([ECE241 Digital Systems](https://engineering.calendar.utoronto.ca/course/ece241h1)).</figcaption>
+  </figure>
+  <figure class="w-full mt-4 md:hidden">
     <Image src={ece241} alt="My cheatsheet for an introductory digital logics course" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/03-ece241.jpg" class="zoom-image" />
     <figcaption>My cheatsheet for an introductory digital logics course ([ECE241 Digital Systems](https://engineering.calendar.utoronto.ca/course/ece241h1)).</figcaption>
   </figure>  
@@ -203,7 +205,6 @@ To see the whole project in action, take a look at [typst.app/project/rbJ15a29M2
 [^somedifs]: Note that there are some minute differences between the code linked here and the overview below for clarity purposes.
 
 <figure>
-
 ```ansi showLineNumbers=false
 📁cheatsheet/
 ├── 📁fonts/
@@ -212,9 +213,7 @@ To see the whole project in action, take a look at [typst.app/project/rbJ15a29M2
 ├── content.typ
 └── lazy.typ
 ```
-<figcaption>
-The project structure for the cheatsheet, with the main content split into 2 separate files (`content.typ` and `lazy.typ`; the latter file is for when I got, as it is written, lazy and simply began copy-pasting text from lecture slides) and the content formatting specified within the `aidsheet.typ` file.
-</figcaption>
+<figcaption> The project structure for the cheatsheet, with the main content split into 2 separate files (`content.typ` and `lazy.typ`; the latter file is for when I got, as it is written, lazy and simply began copy-pasting text from lecture slides) and the content formatting specified within the `aidsheet.typ` file. </figcaption>
 </figure>
 
 First order of business before we get to the task of structuring our content: the page layout.
@@ -243,15 +242,10 @@ Programmability is one of Typst's strong suits, and so it's good practice to set
 ```
 <br/>
 ```typ title="content.typ" {"TIP: Typst supports lots of variable types for formatting":3-7}
-...
-
-
 #let img_width = 70%
 #let font_size = 3.6pt
 #let line_spacing = 0.2em
 #let main_color = purple.lighten(20%).transparentize(20%)
-
-...
 ```
 
 Add another couple hundred lines of formatting code (using alias for headers, bolded text, math, highlights, and more), along with a couple thousand lines of actual cheatsheet content, and you find yourself staring at what can only be described as a marvel of modern (text) engineering.

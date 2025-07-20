@@ -24,6 +24,32 @@ import SocialIcons from './SocialIcons.astro'
         </p>        
       </p>
     </div>
+    
+    <!-- Webring widget -->
+    <div
+      class="mx-auto w-fit max-w-xl flex items-center justify-center gap-2 p-1 px-4 rounded-lg border bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
+    >
+      <a
+        href="https://webring.skule.ca/#https://sadman.ca?nav=prev"
+        class="text-gray-800 text-lg hover:text-gray-500 dark:text-gray-200 dark:hover:text-gray-400"
+      >←</a>
+      <a
+        href="https://webring.skule.ca/#https://sadman.ca"
+        target="_blank"
+      >
+        <img
+          src="https://webring.ayanali.net/img/icon.svg"
+          alt="UofT Webring SKULE Website Phone Book"
+          class="w-4 h-4 filter dark:invert"
+        />
+      </a>
+      <a
+        href="https://webring.skule.ca/#https://sadman.ca?nav=next"
+        class="text-gray-800 text-lg hover:text-gray-500 dark:text-gray-200 dark:hover:text-gray-400"
+      >→</a>
+    </div>
+    
     <SocialIcons links={SOCIAL_LINKS} />
   </div>
+
 </footer>

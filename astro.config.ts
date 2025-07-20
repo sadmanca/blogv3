@@ -83,4 +83,21 @@ export default defineConfig({
     ],
     remarkPlugins: [remarkMath, remarkEmoji],
   },
+  redirects: {
+    "/posts/[...slug]": "/blog/[...slug]",
+    "/post/[...slug]": "/blog/[...slug]",
+
+    '/categories': '/tags',
+    '/archives': '/blog',
+
+    '/magellan-101/': '/posts/uoft-ece-upper-year-course-reviews/',
+
+    '/uoft-pey-coop-jobs-2023': '/uoft-pey-coop-jobs-2023.html',
+    '/uoft-work-study-2025': '/uoft-work-study-2025-summer.html',
+    '/uoft-work-study-jobs-2025': '/uoft-work-study-2025-summer.html',
+    '/uoft-work-study-2024': '/uoft-work-study-2024.html',
+    '/uoft-work-study-jobs-2024': '/uoft-work-study-2024.html',
+    '/work-study': '/uoft-work-study-2024.html',
+    '/uoft-work-study': '/uoft-work-study-2024.html',    
+  },
 })

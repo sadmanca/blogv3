@@ -139,9 +139,10 @@ function formatDate(dateString: any) {
   }
 </style>
 
-<div class={`mt-${gridMarginTop} goodreads`}>
+<div class={`mt-${gridMarginTop} goodreads wide-img`}>
   <div
-    class="grid grid-cols-3 gap-2 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-7 xl:grid-cols-7"
+    class="grid gap-2"
+    style="grid-template-columns: repeat(auto-fit, minmax(5.75rem, 1fr));"
   >
     {
       books.map((book) => (

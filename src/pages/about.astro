@@ -6,6 +6,8 @@ import PageHead from '@/components/PageHead.astro'
 import Layout from '@/layouts/Layout.astro'
 import { getAllAuthors } from '@/lib/data-utils'
 
+import AboutContent from '@/content/about/about.mdx';
+
 const authors = await getAllAuthors()
 ---
 
@@ -15,27 +17,27 @@ const authors = await getAllAuthors()
 
   <section>
     <div class="min-w-full">
-      <div class="prose mb-8">
-        <h1 class="mb-4 text-6xl font-black"> Who is Sadman Hossain?</h1>
-        <p class="mt-0">
-          A question for some to ponder and few to know.
-        </p>
-      </div>
-
     {
       authors.length > 0 ? (
         <ul class="flex flex-col gap-4">
-          {authors.map((author) => (
-            <li>
-              <AuthorCard author={author} />
-            </li>
-          ))}
+          {
+            authors
+              // .filter((author) => author.id === "sadman")
+              .map((author) => (
+                <li>
+                  <AuthorCard author={author} />
+                </li>
+              ))
+          }
         </ul>
       ) : (
-        <p class="text-muted-foreground text-center">No authors found.</p>
+        <br/>
       )
     }      
+    </div>
 
+    <div class="prose max-w-xl mt-8 mb-8">
+      <AboutContent />
     </div>
   </section>
 </Layout>

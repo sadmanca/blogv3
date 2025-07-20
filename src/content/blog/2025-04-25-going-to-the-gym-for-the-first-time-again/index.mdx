@@ -79,7 +79,7 @@ I walked to the gym, got my little card to scan in, and then I was in. *And it w
 
 import gym from './images/gym.jpg';
 
-<figure>
+<figure class="wide-img">
   <Image src={gym} alt="The fitness/weight room at my local city community centre." class="zoom-image" data-zoom-src="/blog/2025-04-25-going-to-the-gym-for-the-first-time-again/images/gym.jpg" />
   <figcaption>The fitness/weight room at my local city community centre.</figcaption>
 </figure>
@@ -98,19 +98,15 @@ The endorphin rush is truly incredible. I was a little sweaty (not too much thou
 
 import hevyWorkout from './images/hevy-app-screenshot.jpg';
 
-<div class="flex flex-col md:flex-row items-start gap-6 my-6">
-  <div class="flex-1">
-    <p>
-      Part of the reason why I wanted to go to the gym again was because I also wanted to track my workouts using this swanky new app I found: <a href="https://hevy.com">Hevy</a>. The thing that really attracted me to it was their <a href="https://api.hevyapp.com/docs/">public REST API</a>, which means that I can integrate my workouts and progress on <a href="https://sadman.ca">sadman.ca</a>. I love tracking what I do (including [what I read](https://sadman.ca/blog/what-i-read-in-2024) and [what I watch](https://sadman.ca/blog/what-i-watched-in-2024)), so this was a match made in heaven.
-    </p>
-    <p>
+<div class="relative">
+  <p>
+    Part of the reason why I wanted to go to the gym again was because I also wanted to track my workouts using this swanky new app I found: <a href="https://hevy.com">Hevy</a>. The thing that really attracted me to it was their <a href="https://api.hevyapp.com/docs/">public REST API</a>, which means that I can integrate my workouts and progress on <a href="https://sadman.ca">sadman.ca</a>. I love tracking what I do (including [what I read](https://sadman.ca/blog/what-i-read-in-2024) and [what I watch](https://sadman.ca/blog/what-i-watched-in-2024)), so this was a match made in heaven.
+
       If I had some more time on my hands, I would've built <em>something</em> to embed my first workout below. But I took a look at the API docs and Hevy deserves a post of its own (and I don't have the time to do that right now). 
       
-      So I'll just leave you here with a screenshot of my first workout.
-    </p>
-  </div>
-
-  <figure class="flex-1 flex flex-col items-center">
+      So I'll just leave you here with a screenshot of my first workout.    
+  </p>
+  <figure class="absolute -top-8 -right-[280px] w-[260px] max-w-[40vw] md:block hidden">
     <Image 
       src={hevyWorkout} 
       alt="A screenshot from today's workout tracked in Hevy" 
@@ -118,10 +114,18 @@ import hevyWorkout from './images/hevy-app-screenshot.jpg';
       data-zoom-src="/blog/2025-04-25-going-to-the-gym-for-the-first-time-again/images/hevy-app-screenshot.png" 
       height={500}
     />
-    <figcaption class="text-center text-sm text-gray-500 mt-2">
-      A screenshot from today's workout tracked in <a href="https://hevy.com">Hevy</a>
-    </figcaption>
+    <figcaption> A screenshot from today's workout tracked in <a href="https://hevy.com">Hevy</a> </figcaption>
   </figure>
+  <figure class="w-full mt-4 md:hidden">
+    <Image 
+      src={hevyWorkout} 
+      alt="A screenshot from today's workout tracked in Hevy" 
+      class="zoom-image" 
+      data-zoom-src="/blog/2025-04-25-going-to-the-gym-for-the-first-time-again/images/hevy-app-screenshot.png" 
+      height={500}
+    />
+    <figcaption> A screenshot from today's workout tracked in <a href="https://hevy.com">Hevy</a> </figcaption>
+  </figure> 
 </div>
 
 ## A message to everybody who wants to go to the gym

@@ -34,11 +34,6 @@
       @apply text-foreground/80 my-8;
     }
 
-    .callout p {
-      /* margin-top: 0 !important; */
-      /* margin-bottom: 0 !important; */
-    }
-
     title {
       @apply bg-gradient-to-r from-[var(--tertiary)] to-[var(--primary)] bg-clip-text text-transparent;
     }
@@ -55,10 +50,10 @@
     :where(h1):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       @apply mt-4 mb-2 py-4 text-8xl font-bold leading-[4.5rem]; 
       /* @apply bg-ring/40; */
-      padding-left: 2.5rem;
+      /* padding-left: 2.5rem; */
     }
 
-    :where(h1):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
+    /* :where(h1):not(:where([class~='not-prose'], [class~='not-prose'] *))::before {
       content: '';
       position: absolute;
       left: 0;
@@ -73,7 +68,7 @@
       image-rendering: -moz-crisp-edges;
       image-rendering: crisp-edges;
       filter: contrast(2);
-    }
+    } */
 
     /* H2 - Large pixels, small width */
     :where(h2):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
@@ -309,7 +304,7 @@
     :where(s, del, .strikethrough):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       @apply text-muted-foreground;
       text-decoration-thickness: 0.15rem;
-      text-decoration-color: var(--secondary-foreground);
+      text-decoration-color: var(--primary);
     }    
 
     :where(code):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
@@ -347,7 +342,7 @@
     :where(table):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       @apply mx-auto my-6 text-sm;
       display: table;
-      width: 100%;
+      /* width: 100%; */
       table-layout: auto;
       text-align: start;
       margin-top: 0em;
@@ -360,7 +355,7 @@
       @apply border-muted-foreground/30 border-b;
       position: sticky;
       top: 0;
-      background-color: hsl(var(--background));
+      background-color: var(--background);
       z-index: 1;
     }
 
@@ -374,14 +369,13 @@
       text-indent: 0;
       border-color: inherit;
       border-collapse: collapse;
-      width: 100%;
     }
 
     .table-container {
       overflow-x: auto;
       overflow-y: auto;
-      max-height: min(70vh, 600px);
-      width: 100%;
+      max-height: min(70vh, 300px);
+      /* width: 100%; */
       margin: 0 -1em;
       padding-top: 0em;
       padding-bottom: 0em;
@@ -390,7 +384,7 @@
     }
 
     .dark table thead {
-      background-color: hsl(var(--background));
+      background-color: var(--background);
     }
 
     :where(th):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
@@ -413,6 +407,10 @@
         :where([class~='not-prose'], [class~='not-prose'] *)
       ) {
       @apply mx-auto my-6;
+    }
+
+    :where(.expressive-code, .wide-img, .table-container, table, .asciicast):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
+      @apply w-[130%] ml-[0%] max-w-full sm:max-w-2xl md:max-w-3xl;
     }
 
     :where(pre):not(:where([class~='not-prose'], [class~='not-prose'] *)) {

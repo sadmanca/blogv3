@@ -43,7 +43,20 @@ SELECT * FROM JobPostings LIMIT 5;
 
 ## Scraping job posting data
 
+<div class="relative">
+  <p>
 The UofT PEY Co-op job board itself is located behind a login portal at [https://www.uoftengcareerportal.ca/notLoggedIn](https://www.uoftengcareerportal.ca/notLoggedIn). To get in, you need to:
+
+  </p>
+  <figure class="absolute -top-8 -right-[280px] w-[260px] max-w-[40vw] md:block hidden">
+    <Image src={peyLoginImage} alt="The PEY job board login portal" class="zoom-image wide-img" />
+    <figcaption>The PEY job board login portal</figcaption>
+  </figure>
+  <figure class="w-full mt-4 md:hidden">
+    <Image src={peyLoginImage} alt="The PEY job board login portal" class="zoom-image wide-img" />
+    <figcaption>The PEY job board login portal</figcaption>
+  </figure>  
+</div>
 
 1. be a student at UofT (to have valid login credentials);
 2. be enrolled in the PEY Co-op program; and
@@ -51,18 +64,11 @@ The UofT PEY Co-op job board itself is located behind a login portal at [https:/
 
 All of which means that unless you're a keen student in your second year who's opted in to get access and do your PEY early, you're either in your third year or you don't have access to the job portal. As an engineering student who's just finished their third year (at the time of writing), I've had privileged access for 8 months and counting, and I've been able to save data on every single job posted on the portal since the very first day I've had access (I came prepared).
 
-<div class="flex text-center flex-col md:flex-row gap-4 my-6">
-  <figure class="flex-1 m-0">
-    <Image src={peyLoginImage} alt="The PEY job board login portal" class="zoom-image" />
-    <figcaption>The PEY job board login portal at [uoftengcareerportal.ca/notLoggedIn](https://www.uoftengcareerportal.ca/notLoggedIn)</figcaption>
-  </figure>
-</div>
-
 ### What you can expect from the job board
 
 The [landing page](https://uoftengcareerportal.ca/myAccount/internship/postings.htm) for the PEY Co-op job board has the same look as the one for all the cross-institutional job boards at UofT's [Career Learning Network (CLNx)](https://clnx.utoronto.ca/myAccount/dashboard.htm) and uses the same organization of elements and processes for browsing, searching for, and applying to job postings, so if you're a UofT student who's used CLNx in the past (e.g. for applying to work study positions) then you already know what it's like to experience using the PEY job board (from what I've seen on Reddit, I'm pretty sure WaterlooWorks uses the same frontend as well).
 
-<div class="flex flex-col md:flex-row gap-4 my-6">
+<div class="wide-img flex flex-col md:flex-row gap-4 my-6">
   <figure class="flex-1 m-0">
     <Image src={a2} alt="The PEY Co-op job board landing page (Job Postings)" class="zoom-image" data-zoom-src="/blog/2024-05-22-analyzing-pey-postings-part-1/01-pey-landing-page.jpg" />
     <figcaption>The PEY Co-op job board landing page (Job Postings)</figcaption>
@@ -76,7 +82,7 @@ The [landing page](https://uoftengcareerportal.ca/myAccount/internship/postings.
 
 import viewedjobs from './01-pey-viewed.jpg';
 
-<div class="flex flex-col md:flex-row gap-4 my-6">
+<div class="wide-img flex flex-col md:flex-row gap-4 my-6">
   <figure class="flex-1 m-0">
     <Image src={viewedjobs} alt="Viewed jobs (Viewed)" class="zoom-image" data-zoom-src="/blog/2024-05-22-analyzing-pey-postings-part-1/01-pey-viewed.jpg" />
     <figcaption>Viewed jobs (Viewed)</figcaption>
@@ -151,7 +157,7 @@ By <kbd>Ctrl</kbd>-clicking on every single job posting shown behind `New Postin
 import isitworth from './is_it_worth_the_time.png';
 import automation from './automation.png';
 
-<div class="flex flex-col md:flex-row gap-4 my-6">
+<div class="wide-img flex flex-col md:flex-row gap-4 my-6">
   <figure class="flex-1 m-0">
     <Image src={isitworth} alt="xkcd: 'Is It Worth the Time?'" class="zoom-image" data-zoom-src="/blog/2024-05-22-analyzing-pey-postings-part-1/is_it_worth_the_time.png" />
     <figcaption>xkcd: ['Is It Worth the Time?'](https://xkcd.com/1205/)</figcaption>
@@ -293,9 +299,7 @@ Division:: Computer Science
 Website:: https://cerebras.net/
 Length of Workterm:: FLEXIBLE PEY Co-op: 12-16 months (range)
 ```
-  <figcaption>
-  Output of the parse.py script for the Cerebras job posting.
-  </figcaption>
+  <figcaption> Output of the parse.py script for the Cerebras job posting. </figcaption>
 </figure>
 
 #### Finetuning data extraction
@@ -649,8 +653,6 @@ FROM JobPosting
 GROUP BY company
 ORDER BY num_postings DESC;
 ```
-
-<div class="h-5"></div>
 
 <div class="table-container">
 | Company                                                   | Num Postings |
@@ -1034,8 +1036,6 @@ GROUP BY location
 ORDER BY num_postings DESC;
 ```
 
-<div class="h-5"></div>
-
 <div class="table-container">
 | Location                                                                 | Num Postings |
 |--------------------------------------------------------------------------|--------------|
@@ -1362,15 +1362,8 @@ WHERE title                LIKE '%mechatronic%'
    OR preferredDisciplines LIKE '%mechatronic%';
 ```
 
-<div class="h-5"></div>
+**num_mech_postings:** 87
 
-```txt showLineNumbers=false
-┌─────────────────────┐
-│  num_mech_postings  │
-│─────────────────────│
-│  87                 │
-└─────────────────────┘
-```
 ---
 
 #### What does a job for a mechatronics position look like?
@@ -1387,8 +1380,6 @@ WHERE title                LIKE '%mechatronic%'
    OR preferredDisciplines LIKE '%mechatronic%'
 LIMIT 1;
 ```
-
-<div class="h-5"></div>
 
 <div class="table-container">
 | id    | postingDate | title                     | company             | companyDivision | companyWebsite                                           | location          | locationType | numPositions | salary                               | startDate  | endDate    | function    |
