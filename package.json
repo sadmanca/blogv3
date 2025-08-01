@@ -23,7 +23,7 @@
     "@expressive-code/plugin-line-numbers": "^0.40.2",
     "@iconify-json/lucide": "^1.2.26",
     "@iconify-json/tabler": "^1.2.19",
-    "@swup/astro": "^1.6.0",
+    "@swup/astro": "^1.7.0",
     "@tailwindcss/vite": "^4.0.7",
     "@types/react": "^19.1.8",
     "@types/react-dom": "19.1.0",
