@@ -83,8 +83,21 @@ const isDev = import.meta.env.DEV; // true when in development mode
         </div>
       </main>
       <Footer />
-    <div aria-hidden="true" class="pointer-events-none fixed inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-b from-transparent to-[var(--background))] dark:bg-gradient-to-b dark:from-transparent dark:to-[var(--background))]"></div>
+    <div aria-hidden="true" class="z-20 pointer-events-none fixed inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-b from-transparent to-[var(--background))] dark:bg-gradient-to-b dark:from-transparent dark:to-[var(--background))]"></div>
     </div>
     <div class="mb-4"/>
+    <script>
+      function hideMobileTOC() {
+        const tocContainer = document.getElementById('mobile-toc-container');
+        if (tocContainer && !window.location.pathname.startsWith('/blog/')) {
+          tocContainer.style.display = 'none';
+        } else if (tocContainer) {
+          tocContainer.style.display = '';
+        }
+      }
+
+      document.addEventListener('astro:after-swap', hideMobileTOC);
+      document.addEventListener('astro:page-load', hideMobileTOC);
+  </script>
   </body>
 </html>
