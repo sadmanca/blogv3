@@ -1,0 +1,195 @@
+---
+import Link from '@/components/Link.astro'
+import { NAV_LINKS } from '@/consts'
+import { Laptop, Book } from 'lucide-react'
+---
+
+<div class="more-dropdown transition-all duration-1500 ease-in-out">
+  <div class="flex items-center">
+    <Link
+      href="#"
+      class="more-dropdown-link group px-0 py-0 capitalize text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer bg-transparent border-none flex items-center ml-2 text-sm"
+      data-href="/uses"
+      data-label="Uses"
+    >
+      <span class="more-dropdown-text transition-all duration-300 ease-in-out">More</span>
+    </Link>
+    
+    <button
+      class="more-dropdown-trigger group px-0 py-0 text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer bg-transparent border-none ml-1"
+      title="Show all options"
+      aria-expanded="false"
+      aria-haspopup="true"
+    >
+      <svg class="size-4" style="margin-top: 2.5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6,9 12,15 18,9"></polyline>
+      </svg>
+    </button>
+  </div>
+
+  <div class="more-dropdown-content bg-background border rounded-md shadow-md p-1 min-w-[8rem] hidden absolute right-0 top-full mt-1 z-50">
+    <div class="more-dropdown-item">
+      <Link
+        href="/uses"
+        class="flex items-center transition-colors duration-300 ease-in-out hover:decoration-foreground hover:cursor-pointer px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground w-full"
+      >
+        <Laptop className="mr-2 size-5" />
+        Uses
+      </Link>
+    </div>
+    <div class="more-dropdown-item">
+      <Link
+        href="/reading"
+        class="flex items-center transition-colors duration-300 ease-in-out hover:decoration-foreground hover:cursor-pointer px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground w-full"
+      >
+        <Book className="mr-2 size-5" />
+        Reading
+      </Link>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simple dropdown functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const dropdown = document.querySelector('.more-dropdown');
+    const trigger = dropdown?.querySelector('.more-dropdown-trigger');
+    const content = dropdown?.querySelector('.more-dropdown-content');
+    const linkElement = dropdown?.querySelector('.more-dropdown-link');
+    const textElement = dropdown?.querySelector('.more-dropdown-text');
+    
+    if (!trigger || !content || !linkElement || !textElement) return;
+    
+    // Define the menu items for rotation
+    const menuItems = [
+      { label: 'More', href: '#' },
+      { label: 'Uses', href: '/uses' },
+      { label: 'Reading', href: '/reading' }
+    ];
+    
+    let currentIndex = 0;
+    
+    // Function to update the link text and href
+    const updateLink = () => {
+      const item = menuItems[currentIndex];
+      
+      // Measure new text width by creating a temporary element
+      const tempSpan = document.createElement('span');
+      tempSpan.style.visibility = 'hidden';
+      tempSpan.style.position = 'absolute';
+      tempSpan.style.fontSize = '0.875rem'; // text-sm
+      tempSpan.textContent = item.label;
+      document.body.appendChild(tempSpan);
+      const newWidth = tempSpan.offsetWidth;
+      document.body.removeChild(tempSpan);
+      
+      // Set the dropdown container width to animate smoothly
+      (dropdown as HTMLElement).style.width = `${newWidth + 30}px`; // for padding/margins
+      
+      // Add fade out animation
+      (textElement as HTMLElement).style.opacity = '0';
+      (textElement as HTMLElement).style.transform = 'translateX(5px)';
+      
+      setTimeout(() => {
+        textElement.textContent = item.label;
+        linkElement.setAttribute('href', item.href);
+        linkElement.setAttribute('data-href', item.href);
+        linkElement.setAttribute('data-label', item.label);
+        
+        // Add fade in animation
+        (textElement as HTMLElement).style.opacity = '1';
+        (textElement as HTMLElement).style.transform = 'translateX(0px)';
+      }, 150);
+    };
+    
+    // Rotate through menu items every 10 seconds
+    setInterval(() => {
+      currentIndex = (currentIndex + 1) % menuItems.length;
+      updateLink();
+    }, 10000);
+    
+    // Handle link clicks
+    linkElement.addEventListener('click', (e) => {
+      const href = linkElement.getAttribute('data-href');
+      const label = linkElement.getAttribute('data-label');
+      
+      // If it's "More" or no specific href, show dropdown instead
+      if (href === '#' || label === 'More') {
+        e.preventDefault();
+        const isOpen = content.classList.contains('block');
+        
+        if (isOpen) {
+          content.classList.add('hidden');
+          content.classList.remove('block');
+          trigger.setAttribute('aria-expanded', 'false');
+        } else {
+          content.classList.remove('hidden');
+          content.classList.add('block');
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+      }
+      // Otherwise, let the link navigate normally
+    });
+    
+    // Handle dropdown trigger clicks (chevron)
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const isOpen = content.classList.contains('block');
+      
+      if (isOpen) {
+        content.classList.add('hidden');
+        content.classList.remove('block');
+        trigger.setAttribute('aria-expanded', 'false');
+      } else {
+        content.classList.remove('hidden');
+        content.classList.add('block');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!dropdown?.contains(e.target as Node)) {
+        content.classList.add('hidden');
+        content.classList.remove('block');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+    
+    // Close dropdown when clicking on any dropdown item
+    const dropdownItems = dropdown?.querySelectorAll('.more-dropdown-item a');
+    dropdownItems?.forEach(item => {
+      item.addEventListener('click', () => {
+        content.classList.add('hidden');
+        content.classList.remove('block');
+        trigger.setAttribute('aria-expanded', 'false');
+      });
+    });
+    
+    // Close dropdown on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        content.classList.add('hidden');
+        content.classList.remove('block');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+</script>
+
+<style>
+  .more-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .more-dropdown-content {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 0.25rem;
+    z-index: 50;
+  }
+</style>

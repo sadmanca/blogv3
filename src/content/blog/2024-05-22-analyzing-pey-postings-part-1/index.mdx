@@ -9,6 +9,7 @@ authors: ['sadman']
 ---
 
 import Callout from '@/components/mdx/Callout.astro';
+import { Icon } from 'astro-icon/components';
 import { Image } from 'astro:assets';
 
 import peyLoginImage from './01-01-pey-login.png';
@@ -19,7 +20,7 @@ import a4 from './02-pey-old-posting.jpg';
 import a5 from './02-pey-sample-posting.jpg';
 
 import { Code } from 'astro-expressive-code/components';
-import sampleHtml from './ML Developer.html?raw'
+import sampleHtml from './ML Developer-sample.html?raw';
 
 ## UofT PEY Co-op
 
@@ -48,7 +49,7 @@ SELECT * FROM JobPostings LIMIT 5;
 The UofT PEY Co-op job board itself is located behind a login portal at [https://www.uoftengcareerportal.ca/notLoggedIn](https://www.uoftengcareerportal.ca/notLoggedIn). To get in, you need to:
 
   </p>
-  <figure class="absolute -top-8 -right-[280px] w-[260px] max-w-[40vw] md:block hidden">
+  <figure class="absolute z-1 -top-8 -right-[280px] w-[260px] max-w-[40vw] md:block hidden">
     <Image src={peyLoginImage} alt="The PEY job board login portal" class="zoom-image wide-img" />
     <figcaption>The PEY job board login portal</figcaption>
   </figure>
@@ -191,7 +192,7 @@ If it were just a single page, I could use something like [Microsoft Edge's Smar
 The HTML code for each job posting page doesn't have the best formatting...
 
 <figure>
-<Code code={sampleHtml} lang="html" title="Job ID 43628 UofT Engineering...Job Postings (9_18_2023 12_52_04 AM).html" collapse="17-999999" />
+<Code code={sampleHtml} lang="html" title="Job ID 43628 UofT Engineering...Job Postings (9_18_2023 12_52_04 AM).html" />
   <figcaption> The page for the Cerebras position above has 3506 empty lines with only 809 lines dedicated to actual code, and the HTML code on non-empty lines isn't exactly the most pleasing to read. </figcaption>
 </figure>
 
@@ -398,7 +399,7 @@ SQLite sits right there in the sweet middle spot between raw data formats (like 
 
 And the fact that SQLite is a single file on disk means that sharing the finely extracted and processed data is a lot easier too, which is important for me because I want future PEY co-op students to learn what they can from the dataset and better set their expectations for what to expect from program (and I hope the data helps prospective UofT students better make their admission decisions as well).
 
-Most importantly, SQLite is serverless (unlike PostgreSQL or MySQL), which saves me a lot of headache and setup[^especially] for this relatively small-scale project (especially since `sqlite3` is built into Python's standard library!).
+Most importantly, SQLite is serverless (unlike PostgreSQL or MySQL), which saves me a lot of headache and setup for this relatively small-scale project (especially since `sqlite3` is built into Python's standard library!).
 
 #### Pipelining data from ~2k HTML files to a single SQLite DB
 

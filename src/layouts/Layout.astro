@@ -5,6 +5,7 @@ import '@/styles/typography.css'
 import Footer from '@/components/Footer.astro'
 import Head from '@/components/Head.astro'
 import Header from '@/components/Header.astro'
+import MediumZoom from '@/components/MediumZoom.astro'
 import { SITE } from '@/consts'
 import { cn } from '@/lib/utils'
 
@@ -13,10 +14,57 @@ interface Props {
 }
 
 const { class: className } = Astro.props
+
+const isDev = import.meta.env.DEV; // true when in development mode
 ---
 
 <!doctype html>
 <html class="bg-background text-foreground" lang={SITE.locale}>
+  <!-- Google tag (gtag.js) -->
+  {!isDev && (
+    <script is:inline>
+      // Function to load Google Analytics
+      function loadGoogleAnalytics() {
+        if (document.querySelector('script[data-ga-loaded="true"]')) return;
+        
+        // Create the GTM script
+        const gtmScript = document.createElement('script');
+        gtmScript.src = "https://www.googletagmanager.com/gtag/js?id=G-Q095PB1G6R";
+        gtmScript.async = true;
+        gtmScript.dataset.gaLoaded = "true";
+        
+        // Create the initialization script
+        const inlineScript = document.createElement('script');
+        inlineScript.textContent = `
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag("js", new Date());
+          gtag("config", "G-Q095PB1G6R");
+        `;
+        
+        // Append scripts to the document
+        document.head.appendChild(gtmScript);
+        document.head.appendChild(inlineScript);
+      }
+
+      // Load GA after the page becomes interactive
+      document.addEventListener('DOMContentLoaded', function() {
+        // Use requestIdleCallback for modern browsers, or setTimeout as fallback
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => loadGoogleAnalytics());
+        } else {
+          setTimeout(loadGoogleAnalytics, 1000);
+        }
+      });
+      
+      // Ensure GA loads with Astro view transitions
+      document.addEventListener('astro:page-load', loadGoogleAnalytics);
+    </script>
+  )}
+  <!-- End Google tag (gtag.js) -->
+  <MediumZoom />  
   <Head>
     <slot name="head" />
   </Head>

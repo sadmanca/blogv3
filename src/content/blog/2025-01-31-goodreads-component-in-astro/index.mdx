@@ -15,7 +15,7 @@ import GoodreadsGrid from '@/components/mdx/GoodreadsGrid.astro';
 
 import { Code } from 'astro-expressive-code/components';
 import rssInBrowserFull from './rss-in-browser-full.jpg';
-import sadmanRss from './sadman-rss.xml?raw';
+import sadmanRss from './sadman-rss-sample.xml?raw';
 
 import goodreadsUnstyledImg from './goodreads-unstyled.jpg';
 import goodreadsTailwindImg from './goodreads-tailwind.jpg';
@@ -117,7 +117,7 @@ Run the XML code through a formatter and now we can get a better look at the dat
 
 export const mark = new RegExp("<(?!\\/?(a|br)|\\/|!).*?>", "gm");
 
-<Code code={sadmanRss} lang="xml" title="rss.xml" collapse="1-20, 63-9999999" mark={mark} wrap={false} />
+<Code code={sadmanRss} lang="xml" title="rss.xml" collapse="1-20" mark={mark} wrap={false} />
 
 **How about that, huh?**
 
@@ -290,15 +290,13 @@ Add some basic Tailwind CSS classes to style the component and you're on the roa
 export const markGoodreadsTailwind = new RegExp('class="[^"]*"', 'gm');
 
 <figure>
-  <div class="mb-4">
-    <CodeToggle class="ml-1"
-      code={goodreadsTailwind} 
-      lang="astro" 
-      title="src/components/goodreads-tailwind.astro" 
-      wrap={false} 
-      mark={markGoodreadsTailwind}
-    />
-  </div>
+  <CodeToggle class="ml-1"
+    code={goodreadsTailwind} 
+    lang="astro" 
+    title="src/components/goodreads-tailwind.astro" 
+    wrap={false} 
+    mark={markGoodreadsTailwind}
+  />
 
   <div class="flex flex-col md:flex-row gap-4 my-6">
     <figure class="flex-1 m-0">

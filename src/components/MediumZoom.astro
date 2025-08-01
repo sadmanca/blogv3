@@ -1,0 +1,98 @@
+---
+---
+
+<script>
+    // Import the medium-zoom library
+    import mediumZoom from 'medium-zoom';
+
+    // Use a module pattern to prevent duplicate instances
+    (function() {
+      // Track initialization state
+      let isInitialized = false;
+      let currentZoomInstances: any[] = [];
+      
+      // Main initialization function
+      function initZoom() {
+        console.log('Initializing zoom');
+        
+        // Aggressively clean up ALL previous instances
+        cleanupAllZoom();
+        
+        // Find all zoom images
+        const images = document.querySelectorAll('.zoom-image');
+        if (!images || images.length === 0) {
+          console.log('No zoom images found');
+          return;
+        }
+        
+        console.log(`Creating zoom for ${images.length} images`);
+        
+        // Create a single new instance for this page
+        try {
+          const zoom = mediumZoom(images, {
+            margin: window.innerWidth < 768 ? 0 : 20,
+            background: 'none',
+            scrollOffset: 40,
+            // container: { // Optional: custom container dimensions
+            //   width: window.innerWidth,
+            //   height: window.innerHeight,
+            //   top: 0,
+            //   bottom: 0,
+            //   left: 0,
+            //   right: 0,
+            // },
+          });
+          
+          // Add to our tracking array
+          currentZoomInstances.push(zoom);
+        } catch (e) {
+          console.error('Failed to initialize zoom:', e);
+        }
+      }
+      
+      // Thorough cleanup function
+      function cleanupAllZoom() {
+        console.log('Cleaning up ALL zoom instances');
+        
+        // Detach all tracked instances
+        currentZoomInstances.forEach(instance => {
+          try {
+            instance.detach();
+          } catch (e) {}
+        });
+        currentZoomInstances = [];
+        
+        // Remove all overlay elements
+        document.querySelectorAll('.medium-zoom-overlay').forEach(el => {
+          document.body.removeChild(el);
+        });
+        
+        // Reset all zoom images
+        document.querySelectorAll('.medium-zoom-image').forEach(img => {
+          img.classList.remove('medium-zoom-image');
+          img.removeAttribute('data-zoom-src');
+          (img as HTMLElement).style.transform = '';
+        });
+      }
+      
+      // Set up one-time event listeners
+      if (!isInitialized) {
+        isInitialized = true;
+        
+        // Initial page load
+        if (document.readyState === "loading") {
+          document.addEventListener('DOMContentLoaded', initZoom);
+        } else {
+          initZoom();
+        }
+        
+        // Swup and Astro navigation events
+        document.addEventListener('swup:content:replaced', initZoom);
+        document.addEventListener('astro:page-load', initZoom);
+        
+        // Clean up before navigation
+        document.addEventListener('swup:will-replace-content', cleanupAllZoom);
+        document.addEventListener('astro:before-swap', cleanupAllZoom);
+      }
+    })();
+  </script>

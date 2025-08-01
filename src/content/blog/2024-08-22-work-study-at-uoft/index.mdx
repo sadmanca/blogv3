@@ -18,15 +18,19 @@ import d2 from './04-zoom-in.jpg';
 ## A better way to view work study job postings at UofT
 
 <Callout type="info" classes="border-blue-950/100 bg-blue-100 dark:border-blue-100/100 dark:bg-blue-950 -mb-4 wide-img">
-  **There’s an easier to view work study jobs for this year** and you can check it out at **<a href={`${SITE.SITEURL}/uoft-work-study-2024.html`}>sadman.ca/uoft-work-study-2024</a>** (preview below).
+  **There’s an easier way to view work study jobs for the 2024 academic year** and you can check it out at **<a href={`${SITE.href}/uoft-work-study-2024.html`} target="_blank" rel="noopener noreferrer">sadman.ca/uoft-work-study-2024</a>**!
 </Callout>
 
 <div class="wide-img flex flex-col md:flex-row gap-4 my-6">
   <figure class="flex-1 m-0">
     <Image src={d1} alt="Redesigned UofT work study job postings dashboard" class="zoom-image" data-zoom-src="/blog/2024-08-22-work-study-at-uoft/04-new-work-study-job-dashboard.jpg" />
-    <figcaption>Redesigned UofT work study job postings dashboard at <a href="https://sadman.ca/uoft-work-study-2024">sadman.ca/uoft-work-study-2024</a></figcaption>
+    <figcaption>Redesigned UofT work study job postings dashboard at <a href="https://sadman.ca/uoft-work-study-2024" target="_blank" rel="noopener noreferrer">sadman.ca/uoft-work-study-2024</a></figcaption>
   </figure>
 </div>
+
+<Callout type="info" icon="lucide:star" classes="border-yellow-950/100 bg-yellow-100 dark:border-yellow-100/100 dark:bg-yellow-950">
+  You can also **view work study job postings for 2025 summer** at **<a href={`${SITE.href}/uoft-work-study-2025-summer.html`} target="_blank" rel="noopener noreferrer">sadman.ca/uoft-work-study-2025-summer</a>**.
+</Callout>
 
 <Callout type="flag">
   If you're interested in applying to work study jobs right now ~~*(applications are still open!)*~~ or want to explore what jobs are posted so you can better prepare in the future, then try taking a look (and let me know what you think!).
@@ -208,7 +212,7 @@ So with all of those considerations at hand, it's safe to say it would be nice i
 I've been procrastinating on doing anything about it for the longest time though, so this summer I decided to make the most of those thoughts and design a brand-new easier-to-navigate dashboard to display the work study job postings that are visible on the official CLNx job portal right now (that is, for the 2024-2025 fall/winter semester).
 
 <Callout type="info" classes="border-blue-950/100 bg-blue-100 dark:border-blue-100/100 dark:bg-blue-950 wide-img">
-  **The dashboard is live and you can view it at <a href={`${SITE.SITEURL}/uoft-work-study-2024.html`}>sadman.ca/uoft-work-study-2024</a>**.
+  **The dashboard is live and you can view it at <a href={`${SITE.href}/uoft-work-study-2024.html`} target="_blank" rel="noopener noreferrer">sadman.ca/uoft-work-study-2024</a>**.
 </Callout>
 
 <figure>
@@ -218,7 +222,7 @@ I've been procrastinating on doing anything about it for the longest time though
 
 <figure>
   <Image src={d2} alt="Zoomed-in view of redesigned UofT work study job postings dashboard" class="zoom-image wide-img" data-zoom-src="/blog/2024-08-22-work-study-at-uoft/04-zoom-in.png" />
-  <figcaption>Zoomed-in view of redesigned UofT work study job postings dashboard at <a href="https://sadman.ca/uoft-work-study-2024">sadman.ca/uoft-work-study-2024</a></  figcaption>
+  <figcaption>Zoomed-in view of redesigned UofT work study job postings dashboard at <a href="https://sadman.ca/uoft-work-study-2024" target="_blank" rel="noopener noreferrer">sadman.ca/uoft-work-study-2024</a></  figcaption>
 </figure>
 
 I'll save the technical details for a future post; the gist of backend behind it is that *the raw data was scraped from the CLNx job board* and is displayed on using the incredibly performant [AG Grid library](https://www.ag-grid.com/) (with some additional customization by myself). And in many ways, **it's a lot easier to use for browsing job postings than CLNx.**

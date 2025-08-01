@@ -47,7 +47,7 @@ export default defineConfig({
       reloadScripts: true,
       debug: false,
       loadOnIdle: true,
-      globalInstance: false,
+      globalInstance: true,
     }),
   ],
   vite: {

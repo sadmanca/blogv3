@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <xhtml:meta xmlns:xhtml="http://www.w3.org/1999/xhtml" name="robots" content="noindex" />
+  <title>Sadman's bookshelf: read</title>
+  <copyright><![CDATA[Copyright (C) 2025 Goodreads Inc. All rights reserved.]]>
+  </copyright>
+  <link><![CDATA[https://www.goodreads.com/review/list_rss/152185079?shelf=read]]></link>
+  <atom:link href="https://www.goodreads.com/review/list_rss/152185079?shelf=read" rel="self" type="application/rss+xml"/>
+  <description><![CDATA[Sadman's bookshelf: read]]></description>
+  <language>en-US</language>
+  <lastBuildDate>Thu, 06 Feb 2025 17:56:54 -0800</lastBuildDate>
+  <ttl>60</ttl>
+  <image>
+    <title>Sadman's bookshelf: read</title>
+    <link><![CDATA[https://www.goodreads.com/review/list_rss/152185079?shelf=read]]></link>
+    <width>144</width>
+    <height>41</height>
+    <url>https://www.goodreads.com/images/layout/goodreads_logo_144.jpg</url>
+  </image>
+    
+<item>
+  <guid><![CDATA[https://www.goodreads.com/review/show/7284977737?utm_medium=api&utm_source=rss]]></guid>
+  <pubDate><![CDATA[Thu, 06 Feb 2025 17:56:54 -0800]]></pubDate>
+  <title><![CDATA[Joe Country (Slough House, #6)]]></title>
+  <link><![CDATA[https://www.goodreads.com/review/show/7284977737?utm_medium=api&utm_source=rss]]></link>
+  <book_id>123229152</book_id>
+  <book_image_url><![CDATA[https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1678625141l/123229152._SY75_.jpg]]></book_image_url>
+  <book_small_image_url><![CDATA[https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1678625141l/123229152._SY75_.jpg]]></book_small_image_url>
+  <book_medium_image_url><![CDATA[https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1678625141l/123229152._SX98_.jpg]]></book_medium_image_url>
+  <book_large_image_url><![CDATA[https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1678625141l/123229152._SY475_.jpg]]></book_large_image_url>
+  <book_description><![CDATA[If Spook Street is where spies live, Joe Country is where they go to die.<br /> <br />In Slough House, the London outpost for disgraced MI5 spies, memories are stirring, all of them bad. Catherine Standish is buying booze again, Louisa Guy is raking over the ashes of lost love, and new recruit Lech Wicinski, whose sins make him an outcast even among the slow horses, is determined to discover who destroyed his career, even if he tears his life apart in the process.<br /> <br />Meanwhile, in Regent’s Park, Diana Taverner’s tenure as First Desk is running into difficulties. If she’s going to make the Service fit for purpose, she might have to make deals with a familiar old devil . . .<br /> <br />And with winter taking its grip, Jackson Lamb would sooner be left brooding in peace, but even he can’t ignore the dried blood on his carpets. So when the man responsible for killing a slow horse breaks cover at last, Lamb sends the slow horses out to even the score.]]></book_description>
+  <book id="123229152">
+    <num_pages>337</num_pages>
+  </book>
+  <author_name>Mick Herron</author_name>
+  <isbn>1641291338</isbn>
+  <user_name>Sadman</user_name>
+  <user_rating>4</user_rating>
+  <user_read_at><![CDATA[Thu, 6 Feb 2025 00:00:00 +0000]]></user_read_at>
+  <user_date_added><![CDATA[Thu, 06 Feb 2025 17:56:54 -0800]]></user_date_added>
+  <user_date_created><![CDATA[Sun, 02 Feb 2025 19:28:54 -0800]]></user_date_created>
+  <user_shelves/>
+  <user_review/>
+  <average_rating>4.25</average_rating>
+  <book_published>2019</book_published>
+  <description>
+    <![CDATA[
+    <a href="https://www.goodreads.com/book/show/123229152-joe-country?utm_medium=api&amp;utm_source=rss"><img alt="Joe Country (Slough House, #6)" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1678625141l/123229152._SY75_.jpg" /></a><br/>
+                                    author: Mick Herron<br/>
+                                    name: Sadman<br/>
+                                    average rating: 4.25<br/>
+                                    book published: 2019<br/>
+                                    rating: 4<br/>
+                                    read at: 2025/02/06<br/>
+                                    date added: 2025/02/06<br/>
+                                    shelves: <br/>
+                                    review: <br/><br/>
+                                    ]]>
+  </description>
+</item>

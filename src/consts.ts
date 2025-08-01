@@ -62,9 +62,9 @@ export const FEATURED_PROJECTS = [
   'blog/blog',
   'eagerdb/eagerdb',
   'pey-2023-dashboard/pey-2023-dashboard',
+  'work-study-2025-summer/work-study-2025-summer',
+  'work-study-2024/work-study-2024',
   'astro-loader-goodreads/astro-loader-goodreads',
   'fricdl/fricdl',
   'libstreetmap/libstreetmap',
-  'work-study-2025-summer/work-study-2025-summer',
-  'work-study-2024/work-study-2024',
 ];

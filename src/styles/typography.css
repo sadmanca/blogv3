@@ -1,4 +1,5 @@
 @reference './global.css';
+@import 'medium-zoom/dist/style.css';
 
 @layer base {
   p,
@@ -278,7 +279,7 @@
 
     :where(a):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       /* @apply text-secondary-foreground bg-border decoration-muted-foreground hover:text-foreground hover:decoration-foreground font-medium break-words underline underline-offset-[3px] transition-colors; */
-      @apply text-link decoration-slightly-muted hover:decoration-link break-words underline underline-offset-[3px] transition-colors p-[2.5px] duration-0;
+      @apply text-link decoration-slightly-muted hover:decoration-link hover:bg-muted break-words underline underline-offset-[3px] transition-colors p-[2.5px] duration-200;
       text-decoration-thickness: 0.14rem;
     }
 
@@ -411,7 +412,7 @@
 
     :where(.expressive-code, .wide-img, .table-container, table, .asciicast):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       @apply w-[130%] ml-[0%] max-w-full sm:max-w-2xl md:max-w-3xl;
-    }
+    }    
 
     :where(pre):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       @apply max-h-[min(68vh,1000px)]! overflow-y-auto [&::-webkit-scrollbar-corner]:hidden;
@@ -548,4 +549,28 @@ figcaption:not(.header) {
   height: 3px;
   mix-blend-mode: difference;
   background-color: white;
+}
+
+.expressive-code figure.frame {
+  z-index: 20;
+}
+
+.medium-zoom-overlay {
+  background: rgba(0, 0, 0, 0.5) !important;
+  z-index: 51 !important;
+  transition: background 0s;
+}
+
+.medium-zoom-image {
+  z-index: 31 !important;
+  position: relative;
+}
+
+.medium-zoom-image--opened {
+  z-index: 52 !important;
+}
+
+.medium-zoom-image:hover:not(.medium-zoom-image--opened) {
+  background: var(--background);
+  opacity: 0.8;
 }

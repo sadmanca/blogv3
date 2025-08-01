@@ -32,12 +32,12 @@ import zoomed from './01-zoomed.jpg'
 
 <div class="wide-img flex flex-col md:flex-row gap-4 my-6">
   <figure class="flex-1 m-0">
-    <Image src={fullpage} alt="Full page view of cheatsheet" class="zoom-image" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/01-fullpage.jpg"/>
+    <Image src={fullpage} alt="Full page view of cheatsheet" class="zoom-image" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/01-fullpage.png"/>
     <figcaption>Full page view of cheatsheet</figcaption>
   </figure>
 
   <figure class="flex-1 m-0">
-    <Image src={zoomed} alt="Zoomed in view of cheatsheet" class="zoom-image" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/01-zoomed.jpg" />
+    <Image src={zoomed} alt="Zoomed in view of cheatsheet" class="zoom-image" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/01-zoomed.png" />
     <figcaption>Zoomed in view of cheatsheet</figcaption>
   </figure>
 </div>
@@ -103,8 +103,7 @@ import typst2 from './02-typst.jpg'
   code={latexsheet} 
   lang="tex" 
   title="latexsheet.tex" 
-  collapse="1-112, 157-999999" 
-  del={[{ label: "LaTeX is just faaar too verbose for comfort:", range: "114-130" }]} 
+  del={[{ label: "LaTeX is annoyingly verbose:", range: "1" }]} 
 />
 
 ---
@@ -164,7 +163,7 @@ import ece241 from './03-ece241.jpg'
 
     It's a prime example of what not to do when trying to make a cheatsheet that's both dense and readable. But despite all that, it's still what I walked into the exam with, and it was good enough that I got a decent grade on the exam (which really goes to show that all that matters is that you can read it, not that it's the most readable thing in the world).
   </p>
-  <figure class="absolute -top-8 -right-[280px] w-[260px] max-w-[40vw] md:block hidden">
+  <figure class="absolute z-1 -top-8 -right-[280px] w-[260px] max-w-[40vw] md:block hidden">
     <Image src={ece241} alt="My cheatsheet for an introductory digital logics course" data-zoom-src="/blog/2024-04-24-how-to-put-20k+-words-on-a-cheatsheet/03-ece241.jpg" class="zoom-image" />
     <figcaption>My cheatsheet for an introductory digital logics course ([ECE241 Digital Systems](https://engineering.calendar.utoronto.ca/course/ece241h1)).</figcaption>
   </figure>
@@ -241,7 +240,8 @@ Programmability is one of Typst's strong suits, and so it's good practice to set
 ...
 ```
 <br/>
-```typ title="content.typ" {"TIP: Typst supports lots of variable types for formatting":3-7}
+```typ title="content.typ" {"TIP: Typst supports lots of variable types for formatting":1}
+'
 #let img_width = 70%
 #let font_size = 3.6pt
 #let line_spacing = 0.2em

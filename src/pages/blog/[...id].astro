@@ -288,7 +288,7 @@ const tocSections = await getTOCSections(currentPostId)
   <Button
     variant="outline"
     size="icon"
-    className="group fixed right-8 bottom-8 z-50 hidden"
+    className="group fixed right-8 bottom-8 z-50 hidden cursor-pointer"
     id="scroll-to-top"
     title="Scroll to top"
     aria-label="Scroll to top"
@@ -300,18 +300,18 @@ const tocSections = await getTOCSections(currentPostId)
   </Button>
 
   <script>
-    document.addEventListener('astro:page-load', () => {
-      const scrollToTopButton = document.getElementById('scroll-to-top')
-      const footer = document.querySelector('footer')
+    function scrollToTop() {
+      const scrollToTopButton = document.getElementById('scroll-to-top');
+      const footer = document.querySelector('footer');
 
       if (scrollToTopButton && footer) {
         scrollToTopButton.addEventListener('click', () => {
-          window.scrollTo({ top: 0, behavior: 'smooth' })
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         })
 
         window.addEventListener('scroll', () => {
-          const footerRect = footer.getBoundingClientRect()
-          const isFooterVisible = footerRect.top <= window.innerHeight
+          const footerRect = footer.getBoundingClientRect();
+          const isFooterVisible = footerRect.top <= window.innerHeight;
 
           scrollToTopButton.classList.toggle(
             'hidden',
@@ -319,6 +319,16 @@ const tocSections = await getTOCSections(currentPostId)
           )
         })
       }
-    })
+    }
+
+    document.addEventListener('astro:page-load', scrollToTop);
+
+    function initMobileTOC() {
+      window.MobileTOCController.cleanup?.();
+      window.MobileTOCController.init();
+    }
+
+    document.addEventListener('astro:page-load', initMobileTOC);
+    document.addEventListener('astro:after-swap', initMobileTOC);    
   </script>
 </Layout>

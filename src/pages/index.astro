@@ -16,20 +16,20 @@ const blog = await getRecentPosts(SITE.featuredPostCount)
     <div class="rounded-lg border border-secondary/20 bg-foreground p-4">
       <div class="flex flex-col space-y-1.5 p-2">
         <h3 class="sr-only">Sadman Hossain</h3>
-        <p class="text-secondary text-lg leading-[0.85rem]">
+        <p class="text-secondary text-lg leading-[1.25rem]">
           <Link
             href={`${SITE.href}/about`}
-            class="@apply font-black text-secondary hover:text-ring break-words underline underline-offset-[3px] transition-colors p-[3px] pb-[6px] -mx-0.5 duration-0"
+            class="@apply font-bold text-secondary hover:text-ring break-words underline underline-offset-[3px] transition-colors duration-0"
           >
             Sadman Hossain
           </Link>
 
             is a software engineer who likes reading sci-fi & building scalable systems.  
-            Currently living in Toronto & working at&nbsp;
+            Currently living in Toronto & working at 
           <Link
             href="https://www.cppinvestments.com/"
             external
-            class="@apply text-secondary hover:text-ring break-words underline underline-offset-[3px] transition-colors p-[3px] pb-[6px] -mx-1.5 duration-0"
+            class="@apply font-bold text-secondary hover:text-ring break-words underline underline-offset-[3px] transition-colors duration-0"
           >
             CPP Investments
           </Link>

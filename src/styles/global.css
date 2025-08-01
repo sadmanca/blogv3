@@ -5,13 +5,13 @@
 
 @theme inline {
   --font-sans:
-    Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    Bricolage Grotesque, Inter Variable, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --font-mono:
     Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
   --font-heading:
-    Jersey25, ui-sans-serif, system-ui, sans-serif;
+    Bricolage Grotesque, ui-sans-serif, system-ui, sans-serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -93,6 +93,22 @@
 }
 
 @font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/fonts/BricolageGrotesque.woff2') format('woff2'),
+       url('/fonts/BricolageGrotesque.woff') format('woff'),
+       url('/fonts/BricolageGrotesque.ttf') format('truetype');
+}
+
+
+@font-face {
+  font-family: 'Inter Variable';
+  src: url('/fonts/InterVariable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Iosevka';
   src: url('/fonts/IosevkaFixedSS03-SemiBold.woff2') format('woff2');
   font-weight: normal;
@@ -106,13 +122,6 @@
   font-weight: normal;
   font-style: italic;
   font-display: swap;
-}
-
-@font-face {
-  font-family: 'Bricolage Grotesque';
-  src: url('/fonts/BricolageGrotesque.woff2') format('woff2'),
-       url('/fonts/BricolageGrotesque.woff') format('woff'),
-       url('/fonts/BricolageGrotesque.ttf') format('truetype');
 }
 
 :root {

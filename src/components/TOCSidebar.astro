@@ -143,6 +143,11 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
 }
 
 <script>
+  declare global {
+    interface Window {
+      TOCController: typeof TOCController;
+    }
+  }  
   const HEADER_OFFSET = 80
 
   class TOCState {
@@ -365,4 +370,6 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     TOCController.init()
   })
   document.addEventListener('astro:before-swap', () => TOCController.cleanup())
+
+  window.TOCController = TOCController;
 </script>
