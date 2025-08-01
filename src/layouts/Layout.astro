@@ -89,7 +89,9 @@ const isDev = import.meta.env.DEV; // true when in development mode
     <script>
       function hideMobileTOC() {
         const tocContainer = document.getElementById('mobile-toc-container');
-        if (tocContainer && !window.location.pathname.startsWith('/blog/')) {
+        // Matches: /blog, /blog/, /blog/2, /blog/2/
+        const blogListRegex = /^\/blog(\/(\d+)?\/?)?$/;
+        if (tocContainer && !blogListRegex.test(window.location.pathname)) {
           tocContainer.style.display = 'none';
         } else if (tocContainer) {
           tocContainer.style.display = '';
