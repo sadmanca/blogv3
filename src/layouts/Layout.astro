@@ -89,12 +89,23 @@ const isDev = import.meta.env.DEV; // true when in development mode
     <script>
       function hideMobileTOC() {
         const tocContainer = document.getElementById('mobile-toc-container');
-        // Matches: /blog, /blog/, /blog/2, /blog/2/
-        const blogListRegex = /^\/blog(\/(\d+)?\/?)?$/;
-        if (tocContainer && !blogListRegex.test(window.location.pathname)) {
-          tocContainer.style.display = 'none';
-        } else if (tocContainer) {
-          tocContainer.style.display = '';
+        const path = window.location.pathname;
+
+        // Matches /blog or /blog/ or /blog/123 or /blog/123/
+        const hideBlogListOrNumberRegex = /^\/blog(\/(\d+)\/?)?$/;
+
+        // Show TOC only if NOT blog listing/numbered page AND it's /blog/some-text or /about
+        const isAboutPage = path === "/about";
+        const isBlogTextPage = path.startsWith("/blog/") && !hideBlogListOrNumberRegex.test(path);
+
+        if (tocContainer) {
+          if (isAboutPage || isBlogTextPage) {
+            tocContainer.style.display = '';
+            console.log('Mobile TOC shown for blog post or about page');
+          } else {
+            tocContainer.style.display = 'none';
+            console.log('Mobile TOC hidden for blog list or numbered pages');
+          }
         }
       }
 

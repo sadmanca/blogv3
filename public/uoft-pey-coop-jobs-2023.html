@@ -29,13 +29,13 @@
   <!-- Preconnect to the font file origin -->
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <!-- Preload the Inter Tight font CSS -->
+  <!-- Preload the Bricolage Grotesque font CSS -->
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" />
 
-  <!-- Asynchronously load the Inter Tight font CSS -->
+  <!-- Asynchronously load the Bricolage Grotesque font CSS -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" media="print" onload="this.media='all'" />
 
-  <!-- Fallback: Load the Inter Tight font CSS synchronously if JavaScript is disabled -->
+  <!-- Fallback: Load the Bricolage Grotesque font CSS synchronously if JavaScript is disabled -->
   <noscript>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap" />
   </noscript>
@@ -52,15 +52,20 @@
   </noscript>
 
   <style>
+    :root {
+      --custom-heading-color: #212529;
+    }
+    [data-theme="dark"] {
+      --custom-heading-color: #fff;
+    }
+
     .ag-header-cell-label {
       white-space: normal; /* Allow text to wrap */
       overflow: hidden; /* Hide overflow text */
       text-overflow: ellipsis; /* Add ellipsis for overflow text */
       max-height: 3em; /* Limit header height to approximately 2 lines */
     }
-  </style>
 
-   <style>
     .cell-wrap-text {
       white-space: normal !important;
     }
@@ -111,7 +116,7 @@
       flex-direction: column; /* Stack elements vertically */
       height: 100vh; /* Full viewport height */
       margin: 0; /* Remove default margin */
-      font-family: 'Inter Tight', sans-serif;
+      font-family: 'Bricolage Grotesque', sans-serif;
     }
 
     /* Container for buttons */
@@ -207,7 +212,7 @@
   <body>
     <div id="buttonContainer" style="padding: 4px" class="d-flex justify-content-between align-items-center flex-wrap">
       <div class="d-flex justify-content-between align-items-center flex-wrap" style="padding: 4px;">
-        <h5 id='workStudyTitle' class="mb-0"><b>UofT PEY Co-op Jobs</b> (2023-2024 Fall/Winter)</h5>
+        <h5 id='workStudyTitle' class="mb-0" style="color: var(--custom-heading-color);"><b>UofT PEY Co-op Jobs</b> (2023-2024 Fall/Winter)</h5>
         <div class="d-flex justify-content-end">
           <span style="margin: 0 5px;"> </span>
           <button class="btn blog-btn btn-sm right-buttons" onclick="window.open('/', '_blank')">
@@ -259,8 +264,8 @@
           </button> -->
           <!-- <span style="margin: 0 2px;">|</span>
           <button id="toggleThemeButton" class="btn btn-outline-dark btn-sm" onclick="toggleTheme()">
-            <i class="fas fa-moon"></i> Dark Mode -->
-          </button>
+            <i class="fas fa-moon"></i> Dark Mode
+          </button> -->
         </div>
       </div>
     </div>
@@ -277,8 +282,8 @@
       const githubButton = document.getElementById('githubButton');
       const workStudyTitle = document.getElementById('workStudyTitle');
       const savedTheme = localStorage.getItem('theme');
-      const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const override = false;
+      let prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let override = false;
 
       // Listen for messages from the parent document
       window.addEventListener('message', function(event) {
@@ -286,46 +291,63 @@
           prefersDarkScheme = event.data.isDarkMode;
           override = true;
           // You can now use isDarkMode in your script
+          applyTheme(prefersDarkScheme ? 'dark' : 'light');
         }
       });
 
-      if (savedTheme) {
-          applyTheme(savedTheme);
-      } else if (prefersDarkScheme) {
-          applyTheme('dark');
-      } else {
-          applyTheme('light');
+      function setInitialTheme() {
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else if (prefersDarkScheme) {
+            applyTheme('dark');
+        } else {
+            applyTheme('light');
+        }
       }
 
-      toggleButton.addEventListener('click', toggleTheme);
+      setInitialTheme();
+
+      if (toggleButton) toggleButton.addEventListener('click', toggleTheme);
 
       function applyTheme(theme) {
           if (theme === 'dark') {
+              document.body.setAttribute('data-theme', 'dark');
               gridDiv.classList.remove('ag-theme-quartz');
               gridDiv.classList.add('ag-theme-quartz-dark');
               buttonContainer.style.backgroundColor = '#1c232e';
               document.body.style.backgroundColor = '#1c232e';
-              toggleButton.classList.remove('btn-outline-dark');
-              toggleButton.classList.add('btn-outline-light');
-              githubButton.classList.remove('btn-dark');
-              githubButton.classList.add('btn-light');
-              dataButton.classList.remove('btn-dark');
-              dataButton.classList.add('btn-light');
-              workStudyTitle.style.color = '#ffffff';
-              toggleButton.innerHTML = '<i class="fas fa-circle"></i> Light Mode';
+              if (toggleButton) {
+                toggleButton.classList.remove('btn-outline-dark');
+                toggleButton.classList.add('btn-outline-light');
+                toggleButton.innerHTML = '<i class="fas fa-circle"></i> Light Mode';
+              }
+              if (githubButton) {
+                githubButton.classList.remove('btn-dark');
+                githubButton.classList.add('btn-light');
+              }
+              if (dataButton) {
+                dataButton.classList.remove('btn-dark');
+                dataButton.classList.add('btn-light');
+              }
           } else {
+              document.body.setAttribute('data-theme', 'light');
               gridDiv.classList.remove('ag-theme-quartz-dark');
               gridDiv.classList.add('ag-theme-quartz');
               buttonContainer.style.backgroundColor = '#fff';
               document.body.style.backgroundColor = '#fff';
-              toggleButton.classList.remove('btn-outline-light');
-              toggleButton.classList.add('btn-outline-dark');
-              githubButton.classList.remove('btn-light');
-              githubButton.classList.add('btn-dark');
-              dataButton.classList.remove('btn-light');
-              dataButton.classList.add('btn-dark');
-              workStudyTitle.style.color = '#000000';
-              toggleButton.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+              if (toggleButton) {
+                toggleButton.classList.remove('btn-outline-light');
+                toggleButton.classList.add('btn-outline-dark');
+                toggleButton.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+              }
+              if (githubButton) {
+                githubButton.classList.remove('btn-light');
+                githubButton.classList.add('btn-dark');
+              }
+              if (dataButton) {
+                dataButton.classList.remove('btn-light');
+                dataButton.classList.add('btn-dark');
+              }
           }
           localStorage.setItem('theme', theme);
       }
