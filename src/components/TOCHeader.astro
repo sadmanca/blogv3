@@ -252,10 +252,17 @@ const { headings } = Astro.props
           .map((heading) => heading.textContent!.trim())
 
         if (activeTexts.length > 0) {
-          textToShow = activeTexts.join(' · ')
+          // If more than one section, style text after the first '·' as muted
+          if (activeTexts.length > 1) {
+            const first = activeTexts[0]
+            const rest = activeTexts.slice(1).join(' · ')
+            state.currentSectionText.innerHTML = `${first} <span class=\"text-muted-foreground\">· ${rest}</span>`
+          } else {
+            state.currentSectionText.textContent = activeTexts[0]
+          }
+          return
         }
       }
-
       state.currentSectionText.textContent = textToShow
     }
 
