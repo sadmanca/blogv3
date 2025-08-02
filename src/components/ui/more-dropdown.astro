@@ -96,8 +96,8 @@ const menuItems = [
         if (!textElement || !dropdown) return;
 
         // Fade out text
-        textElement.style.opacity = '0';
-        textElement.style.transform = 'translateX(5px)';
+        (textElement as HTMLElement).style.opacity = '0';
+        (textElement as HTMLElement).style.transform = 'translateX(5px)';
 
         // Measure new text width off-DOM
         const tempSpan = document.createElement('span');
@@ -112,7 +112,7 @@ const menuItems = [
         document.body.removeChild(tempSpan);
 
         // Animate dropdown container width
-        dropdown.style.width = `${newWidth + 32}px`; // +padding buffer
+        (dropdown as HTMLElement).style.width = `${newWidth + 32}px`; // +padding buffer
 
         setTimeout(() => {
           // Swap label text
@@ -133,8 +133,8 @@ const menuItems = [
 
           // Animate back in
           requestAnimationFrame(() => {
-            textElement.style.opacity = '1';
-            textElement.style.transform = 'translateX(0)';
+            (textElement as HTMLElement).style.opacity = '1';
+            (textElement as HTMLElement).style.transform = 'translateX(0)';
           });
         }, 300); // match duration of opacity transition
       };
