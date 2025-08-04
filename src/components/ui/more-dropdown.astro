@@ -2,51 +2,54 @@
 import Link from '@/components/Link.astro'
 import { Icon } from 'astro-icon/components'
 
+// Define menu items for easy maintenance and expansion
 const menuItems = [
   { label: 'Uses', href: '/uses', icon: 'lucide:laptop' },
   { label: 'Reading', href: '/reading', icon: 'lucide:book' },
   { label: 'PEY', href: '/blog/pey-coop-jobs-at-uoft', icon: 'lucide:briefcase' },
   { label: 'Work Study', href: '/blog/work-study-at-uoft', icon: 'lucide:school' },
-];
+]
 ---
 
-<div class="more-dropdown inline-flex items-center transition-[width] duration-[1s] ease-in-out">
+<div class="relative inline-block ml-2">
   <div class="flex items-center">
-    <a
-      class="more-dropdown-link group px-0 py-0 capitalize text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer bg-transparent border-none flex items-center ml-2 text-sm"
-      data-href="/uses"
-      data-label="Uses"
-      tabindex="0"
-      role="button"
-      aria-haspopup="true"
-      aria-expanded="false"
+    <!-- Text container with fixed width for smooth transitions -->
+    <a 
+      id="random-link"
+      href="/uses" 
+      class="text-container text-sm capitalize text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer overflow-hidden"
     >
-      <span
-        class="more-dropdown-text block transition-opacity transition-transform duration-[1s] ease-in-out whitespace-nowrap"
-      >
-        More
-      </span>
+      <!-- Current visible text -->
+      <span id="current-text" class="inline-block whitespace-nowrap">More</span>
+      
+      <!-- Next text (initially hidden) -->
+      <span id="next-text" class="absolute left-0 top-0 opacity-0 whitespace-nowrap">More</span>
     </a>
-    <button
-      class="more-dropdown-trigger group px-0 py-0 text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer bg-transparent border-none ml-1"
-      title="Show all options"
+    
+    <!-- Separate chevron icon for dropdown -->
+    <button 
+      type="button" 
+      id="more-dropdown-trigger"
+      class="ml-1 text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer flex-shrink-0"
+      aria-haspopup="true" 
       aria-expanded="false"
-      aria-haspopup="true"
     >
-      <svg class="size-4" style="margin-top: 2.5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6,9 12,15 18,9"></polyline>
-      </svg>
+      <Icon name="lucide:chevron-down" class="size-4 transition-transform duration-300" style="margin-top: 2.5px;" />
     </button>
   </div>
 
-  <div class="more-dropdown-content bg-background border rounded-md shadow-md p-1 min-w-[8rem] hidden absolute right-0 top-full mt-1 z-50">
+  <!-- Dropdown Menu -->
+  <div 
+    id="more-dropdown-content"
+    class="dropdown-menu absolute right-0 mt-1 z-50 min-w-[8rem] origin-top-right rounded-md bg-background border shadow-md p-1 invisible opacity-0 scale-95 -translate-y-2"
+  >
     {menuItems.map(item => (
-      <div class="more-dropdown-item" tabindex="-1">
-        <Link
+      <div class="block">
+        <Link 
           href={item.href}
-          class="flex items-center transition-colors duration-[3s] ease-in-out hover:decoration-foreground hover:cursor-pointer px-2 py-1.5 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground w-full"
+          class="flex items-center transition-colors duration-300 ease-in-out hover:bg-accent hover:text-accent-foreground px-2 py-1.5 text-sm rounded-sm w-full"
         >
-          {item.icon && <Icon name={item.icon} class="mr-2 size-4" />}
+          <Icon name={item.icon} class="mr-2 size-4" />
           {item.label}
         </Link>
       </div>
@@ -54,185 +57,171 @@ const menuItems = [
   </div>
 </div>
 
+<style>
+  .text-container {
+    position: relative;
+    display: inline-block;
+    width: 3em; /* Initial width */
+    transition: width 0.5s ease-in-out;
+  }
+
+  #current-text, #next-text {
+    transition: opacity 0.25s ease;
+  }
+
+  .dropdown-menu {
+    transition: 
+      opacity 0.2s ease, 
+      transform 0.2s ease, 
+      visibility 0.2s ease;
+    pointer-events: none;
+  }
+  
+  .dropdown-menu.active {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0) scale(100%);
+    pointer-events: auto;
+  }
+
+  #more-dropdown-trigger[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+</style>
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const dropdown = document.querySelector('.more-dropdown');
-    const trigger = dropdown?.querySelector('.more-dropdown-trigger');
-    const content = dropdown?.querySelector('.more-dropdown-content');
-    const linkElement = dropdown?.querySelector('.more-dropdown-link');
-    const textElement = dropdown?.querySelector('.more-dropdown-text');
-    if (!trigger || !content || !linkElement || !textElement) return;
-
-    // Use menuItems order for dropdown, but randomize navbar rotation order
-    const menuLabels = ['More', ...Array.from(content.querySelectorAll('.more-dropdown-item a')).map(a => a.textContent?.trim() ?? '')];
-    // For navbar rotation, randomize the order except 'More'
-    function shuffle<T>(array: T[]): T[] {
-      let currentIndex = array.length, randomIndex;
-      while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    const trigger = document.getElementById('more-dropdown-trigger');
+    const content = document.getElementById('more-dropdown-content');
+    const currentText = document.getElementById('current-text');
+    const nextText = document.getElementById('next-text');
+    const randomLink = document.getElementById('random-link');
+    
+    // Enable transitions on all header elements
+    document.querySelectorAll('header *').forEach(el => {
+      if (el instanceof HTMLElement) {
+        el.style.transition = el.style.transition + ', width 0.5s ease-in-out, margin 0.5s ease-in-out';
       }
-      return array;
+    });
+    
+    const menuItems = [
+      { label: 'Uses', href: '/uses', icon: 'lucide:laptop' },
+      { label: 'Reading', href: '/reading', icon: 'lucide:book' },
+      { label: 'PEY', href: '/blog/pey-coop-jobs-at-uoft', icon: 'lucide:briefcase' },
+      { label: 'Work Study', href: '/blog/work-study-at-uoft', icon: 'lucide:school' },
+    ];
+    
+    let currentIndex = -1;
+    let isChanging = false;
+    
+    // Function to measure text width
+    function getTextWidth(text: string, element: HTMLElement): number {
+      const tempSpan = document.createElement('span');
+      tempSpan.style.visibility = 'hidden';
+      tempSpan.style.position = 'absolute';
+      tempSpan.style.fontSize = window.getComputedStyle(element).fontSize;
+      tempSpan.style.fontFamily = window.getComputedStyle(element).fontFamily;
+      tempSpan.style.fontWeight = window.getComputedStyle(element).fontWeight;
+      tempSpan.style.whiteSpace = 'nowrap';
+      tempSpan.textContent = text;
+      document.body.appendChild(tempSpan);
+      
+      const width = tempSpan.offsetWidth;
+      document.body.removeChild(tempSpan);
+      return width;
     }
-    const randomizedLabels = [menuLabels[0], ...shuffle(menuLabels.slice(1))];
-    let currentIndex = 0;
-    let timeoutId;
-    let paused = false;
-
-    // Always ensure the More link has no href on first load
-    linkElement.removeAttribute('href');
-    linkElement.setAttribute('data-href', '#');
-    linkElement.setAttribute('data-label', 'More');
-
-    function getRandomDelay() {
-      // Random delay between 7s and 18s
-      return 7000 + Math.floor(Math.random() * 11000);
+    
+    // Update exact container width for current text
+    if (currentText && randomLink) {
+      const width = getTextWidth(currentText.textContent || 'More', currentText);
+      (randomLink as HTMLElement).style.width = `${width}px`;
     }
-
-      const updateLink = () => {
-        const label = randomizedLabels[currentIndex];
-
-        if (!textElement || !dropdown) return;
-
-        // Fade out text
-        (textElement as HTMLElement).style.opacity = '0';
-        (textElement as HTMLElement).style.transform = 'translateX(5px)';
-
-        // Measure new text width off-DOM
-        const tempSpan = document.createElement('span');
-        tempSpan.className = textElement.className;
-        tempSpan.style.visibility = 'hidden';
-        tempSpan.style.position = 'absolute';
-        tempSpan.style.whiteSpace = 'nowrap';
-        tempSpan.style.fontSize = getComputedStyle(textElement).fontSize;
-        tempSpan.textContent = label;
-        document.body.appendChild(tempSpan);
-        const newWidth = tempSpan.offsetWidth;
-        document.body.removeChild(tempSpan);
-
-        // Animate dropdown container width
-        (dropdown as HTMLElement).style.width = `${newWidth + 32}px`; // +padding buffer
-
+    
+    // Cross-fade text animation with proper width transition
+    function updateTextWithCrossFade() {
+      if (isChanging || !currentText || !nextText || !randomLink) return;
+      
+      isChanging = true;
+      
+      // Get random index different from current one
+      let newIndex;
+      do {
+        newIndex = Math.floor(Math.random() * menuItems.length);
+      } while (newIndex === currentIndex && menuItems.length > 1);
+      
+      currentIndex = newIndex;
+      const newLabel = menuItems[currentIndex].label;
+      const newHref = menuItems[currentIndex].href;
+      
+      // Set up next text with new content
+      nextText.textContent = newLabel;
+      
+      // Get width of new text
+      const newWidth = getTextWidth(newLabel, currentText) + 1; // +1px buffer
+      
+      // Start transition - fade out current text
+      currentText.style.opacity = '0';
+      
+      // Start animating width at the same time
+      (randomLink as HTMLElement).style.width = `${newWidth}px`;
+      
+      // Update the link destination and finish text transition
+      setTimeout(() => {
+        // Update link href
+        (randomLink as HTMLAnchorElement).href = newHref;
+        
+        // Fade in next text
+        nextText.style.opacity = '1';
+        
+        // Complete the transition
         setTimeout(() => {
-          // Swap label text
-          textElement.textContent = label;
-
-          // Update href
-          if (currentIndex === 0) {
-            linkElement.removeAttribute('href');
-            linkElement.setAttribute('data-href', '#');
-            linkElement.setAttribute('data-label', 'More');
-          } else {
-            const item = content.querySelectorAll('.more-dropdown-item a')[menuLabels.indexOf(label) - 1];
-            const href = item?.getAttribute('href') || '';
-            linkElement.setAttribute('href', href);
-            linkElement.setAttribute('data-href', href);
-            linkElement.setAttribute('data-label', label);
-          }
-
-          // Animate back in
-          requestAnimationFrame(() => {
-            (textElement as HTMLElement).style.opacity = '1';
-            (textElement as HTMLElement).style.transform = 'translateX(0)';
-          });
-        }, 300); // match duration of opacity transition
-      };
-
-    function rotate() {
-      if (!paused) {
-        currentIndex = (currentIndex + 1) % randomizedLabels.length;
-        updateLink();
-      }
-      timeoutId = setTimeout(rotate, getRandomDelay());
+          currentText.textContent = newLabel;
+          currentText.style.opacity = '1';
+          nextText.style.opacity = '0';
+          isChanging = false;
+        }, 300);
+      }, 250); // Slightly shorter to sync with width animation
     }
-    // Start rotation
-    timeoutId = setTimeout(rotate, getRandomDelay());
-
-    // Pause rotation on hover/focus, resume on mouseleave/blur
-    linkElement.addEventListener('mouseenter', () => { paused = true; });
-    linkElement.addEventListener('mouseleave', () => { paused = false; });
-    linkElement.addEventListener('focus', () => { paused = true; });
-    linkElement.addEventListener('blur', () => { paused = false; });
-    trigger.addEventListener('mouseenter', () => { paused = true; });
-    trigger.addEventListener('mouseleave', () => { paused = false; });
-
-    linkElement.addEventListener('click', (e) => {
-      const href = linkElement.getAttribute('data-href');
-      const label = linkElement.getAttribute('data-label');
-      if (!href || href === '#' || label === 'More') {
-        e.preventDefault();
-        // Do not allow scroll to top
-        // (no href attribute means no navigation)
-        const isOpen = content.classList.contains('block');
-        if (isOpen) {
-          content.classList.add('hidden');
-          content.classList.remove('block');
-          trigger.setAttribute('aria-expanded', 'false');
-        } else {
-          content.classList.remove('hidden');
-          content.classList.add('block');
-          trigger.setAttribute('aria-expanded', 'true');
-        }
+    
+    // Initial text update
+    setTimeout(() => {
+      // Set initial width before first change
+      if (currentText && randomLink) {
+        const initialWidth = getTextWidth('More', currentText) + 1;
+        (randomLink as HTMLElement).style.width = `${initialWidth}px`;
       }
-    });
-
-    trigger.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const isOpen = content.classList.contains('block');
-      if (isOpen) {
-        content.classList.add('hidden');
-        content.classList.remove('block');
-        trigger.setAttribute('aria-expanded', 'false');
-      } else {
-        content.classList.remove('hidden');
-        content.classList.add('block');
-        trigger.setAttribute('aria-expanded', 'true');
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!dropdown?.contains(e.target as Node)) {
-        content.classList.add('hidden');
-        content.classList.remove('block');
-        trigger.setAttribute('aria-expanded', 'false');
-      }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        content.classList.add('hidden');
-        content.classList.remove('block');
-        trigger.setAttribute('aria-expanded', 'false');
-      }
-    });
-    // Close dropdown on click of any dropdown item
-    content.querySelectorAll('.more-dropdown-item a').forEach(item => {
-      item.addEventListener('click', () => {
-        content.classList.add('hidden');
-        content.classList.remove('block');
-        trigger.setAttribute('aria-expanded', 'false');
+      updateTextWithCrossFade();
+    }, 1000);
+    
+    // Set interval to change text every 13 seconds
+    const intervalId = setInterval(updateTextWithCrossFade, 13000);
+    
+    // Dropdown functionality
+    if (trigger && content) {
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        content.classList.toggle('active');
+        trigger.setAttribute('aria-expanded', content.classList.contains('active') ? 'true' : 'false');
       });
+      
+      document.addEventListener('click', (e) => {
+        if (!trigger.contains(e.target as Node)) {
+          content.classList.remove('active');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+      
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && content.classList.contains('active')) {
+          content.classList.remove('active');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+    
+    // Clean up interval on page unload
+    window.addEventListener('beforeunload', () => {
+      clearInterval(intervalId);
     });
   });
 </script>
-
-<style>
-  .more-dropdown {
-    position: relative;
-    display: inline-block;
-  }
-  
-  .more-dropdown-content {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    margin-top: 0.25rem;
-    z-index: 50;
-  }
-
-  .more-dropdown-text {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    display: block;
-  }
-</style>
