@@ -279,7 +279,7 @@
 
     :where(a):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       /* @apply text-secondary-foreground bg-border decoration-muted-foreground hover:text-foreground hover:decoration-foreground font-medium break-words underline underline-offset-[3px] transition-colors; */
-      @apply text-link decoration-slightly-muted hover:decoration-link hover:bg-muted break-words underline underline-offset-[3px] transition-colors p-[2.5px] duration-200;
+      @apply text-link decoration-slightly-muted hover:decoration-link break-words underline underline-offset-[3px] transition-colors p-[2.5px] duration-200;
       text-decoration-thickness: 0.14rem;
     }
 
