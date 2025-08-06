@@ -274,7 +274,7 @@
 
 
     :where(strong):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply font-bold;
+      @apply font-bold text-foreground;
     }
 
     :where(a):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
