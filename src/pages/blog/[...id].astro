@@ -82,6 +82,15 @@ const tocSections = await getTOCSections(currentPostId)
 </style>
 
 <Layout>
+  <!-- Scroll Progress Bar - Optimized Implementation -->
+  <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-800 z-[100] pointer-events-none overflow-hidden">
+    <div 
+      class="h-full bg-tertiary will-change-transform"
+      id="scroll-progress-bar"
+      style="width: 100%; transform: translate3d(-100%, 0, 0); transform-origin: left center;"
+    ></div>
+  </div>
+  
   <PostHead slot="head" post={post} />
   {
     (hasChildPosts || isCurrentSubpost) && (
@@ -321,7 +330,99 @@ const tocSections = await getTOCSections(currentPostId)
       }
     }
 
+    function initScrollProgress() {
+      const progressBar = document.getElementById('scroll-progress-bar');
+      
+      if (!progressBar) {
+        console.error('Progress bar element not found!');
+        return;
+      }
+      
+      // Cache DOM measurements to avoid repeated reflows
+      let docHeight = 0;
+      let windowHeight = 0;
+      let lastKnownScrollPosition = 0;
+      let ticking = false;
+      
+      // Recalculate dimensions only when needed
+      const updateDimensions = () => {
+        windowHeight = window.innerHeight;
+        docHeight = document.documentElement.scrollHeight - windowHeight;
+      };
+      
+      // Efficient progress update using transform instead of width
+      const updateProgress = () => {
+        const scrollTop = window.scrollY;
+        
+        // Skip if scroll position hasn't changed significantly
+        if (Math.abs(scrollTop - lastKnownScrollPosition) < 1) {
+          ticking = false;
+          return;
+        }
+        
+        lastKnownScrollPosition = scrollTop;
+        
+        if (docHeight <= 0) {
+          updateDimensions();
+          if (docHeight <= 0) {
+            ticking = false;
+            return;
+          }
+        }
+        
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        const clampedPercent = Math.max(0, Math.min(100, scrollPercent));
+        
+        // Use transform with translate3d for hardware acceleration
+        // This is more efficient than changing width
+        const translateX = clampedPercent - 100;
+        progressBar.style.transform = `translate3d(${translateX}%, 0, 0)`;
+        
+        ticking = false;
+      };
+      
+      // Throttled scroll handler using requestAnimationFrame
+      const onScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(updateProgress);
+          ticking = true;
+        }
+      };
+      
+      // Debounced resize handler to recalculate dimensions
+      let resizeTimeout: ReturnType<typeof setTimeout> | undefined;
+      const onResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          updateDimensions();
+          updateProgress();
+        }, 150);
+      };
+      
+      // Initial setup
+      updateDimensions();
+      
+      // Set initial transform to start at 0%
+      progressBar.style.transform = 'translate3d(-100%, 0, 0)';
+      progressBar.style.transformOrigin = 'left center';
+      
+      // Add event listeners
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onResize, { passive: true });
+      
+      // Initial update
+      requestAnimationFrame(updateProgress);
+      
+      // Return cleanup function for potential future use
+      return () => {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onResize);
+        clearTimeout(resizeTimeout);
+      };
+    }
+
     document.addEventListener('astro:page-load', scrollToTop);
+    document.addEventListener('astro:page-load', initScrollProgress);
 
     function initMobileTOC() {
       window.MobileTOCController.cleanup?.();
