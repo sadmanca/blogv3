@@ -23,29 +23,104 @@ const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
 const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
+
+// Helper function to get thumbnail colors with automatic pairing
+function getThumbnailColors(data: any) {
+  const theme: 'dark-on-light' | 'light-on-dark' = data.thumbnailTheme === 'light-on-dark' ? 'light-on-dark' : 'dark-on-light' // default theme
+  
+  // Default color pairs
+  const colorPairs = {
+    'dark-on-light': {
+      iconDefault: '#374151', // gray-700
+      bgDefault: '#f3f4f6',   // gray-100
+    },
+    'light-on-dark': {
+      iconDefault: '#f9fafb', // gray-50
+      bgDefault: '#374151',   // gray-700
+    }
+  }
+  
+  const defaultColors = colorPairs[theme]
+  
+  let iconColor = data.thumbnailIconColor || defaultColors.iconDefault
+  let bgColor = data.thumbnailBgColor || defaultColors.bgDefault
+  
+  // If only one color is provided, auto-generate the other based on theme
+  if (data.thumbnailIconColor && !data.thumbnailBgColor) {
+    // Icon color provided, generate background
+    if (theme === 'dark-on-light') {
+      bgColor = lightenColor(data.thumbnailIconColor, 0.85) // Much lighter version
+    } else {
+      bgColor = darkenColor(data.thumbnailIconColor, 0.7) // Darker version
+    }
+  } else if (data.thumbnailBgColor && !data.thumbnailIconColor) {
+    // Background color provided, generate icon
+    if (theme === 'dark-on-light') {
+      iconColor = darkenColor(data.thumbnailBgColor, 0.7) // Much darker version
+    } else {
+      iconColor = lightenColor(data.thumbnailBgColor, 0.85) // Lighter version
+    }
+  }
+  
+  return { iconColor, bgColor }
+}
+
+// Helper functions to lighten/darken colors
+function lightenColor(color: string, factor: number): string {
+  // Convert hex to RGB
+  const hex = color.replace('#', '')
+  const r = parseInt(hex.substr(0, 2), 16)
+  const g = parseInt(hex.substr(2, 2), 16)
+  const b = parseInt(hex.substr(4, 2), 16)
+  
+  // Lighten by interpolating towards white
+  const newR = Math.round(r + (255 - r) * factor)
+  const newG = Math.round(g + (255 - g) * factor)
+  const newB = Math.round(b + (255 - b) * factor)
+  
+  return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`
+}
+
+function darkenColor(color: string, factor: number): string {
+  // Convert hex to RGB
+  const hex = color.replace('#', '')
+  const r = parseInt(hex.substr(0, 2), 16)
+  const g = parseInt(hex.substr(2, 2), 16)
+  const b = parseInt(hex.substr(4, 2), 16)
+  
+  // Darken by multiplying by factor
+  const newR = Math.round(r * factor)
+  const newG = Math.round(g * factor)
+  const newB = Math.round(b * factor)
+  
+  return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`
+}
+
+const thumbnailColors = getThumbnailColors(entry.data)
+
+// Helper function to get card styles
+function getCardStyles(data: any) {
+  let cardStyle = ''
+  let hoverStyle = ''
+  
+  // Set background color if provided
+  if (data.cardBgColor) {
+    cardStyle += `background-color: ${data.cardBgColor}; `
+  }
+  
+  // Set outline color on hover if provided
+  if (data.cardOutlineColor) {
+    hoverStyle += `outline: 3px solid ${data.cardOutlineColor}; outline-offset: -3px; `
+  }
+  
+  return { cardStyle, hoverStyle }
+}
+
+const cardStyles = getCardStyles(entry.data)
 ---
 
 <style>
-  .placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 1;
-    transition: opacity 0.5s ease-in-out;
-    position: relative;
-    z-index: 1;
-  }
-  .zoomable-image {
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2;
-  }
-  .zoomable-image.loaded {
-    opacity: 1;
-  }
+  /* No image loading styles needed anymore */
 </style>
 
 <div
@@ -59,22 +134,15 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
       entry.data.image && (
       <div class="relative max-w-[200px] sm:flex-shrink-0 relative">
           <div
-            class="placeholder rounded-xl bg-gray-200 dark:bg-gray-900"
-            id={`placeholder-${entry.id}`}
-          >
-            <div class="h-[105px] w-[200px] rounded-xl bg-gray-200 dark:bg-gray-900 flex items-center justify-center ">
-              <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
-            </div>
+            class="h-[55px] w-[80px] rounded-xl flex items-center justify-center"
+            style={`background-color: ${thumbnailColors.bgColor}`}
+>
+            <Icon 
+              name={entry.data.thumbnailIcon || 'lucide:file-text'} 
+              class={`${entry.data.thumbnailIconSize || 'h-10 w-10'}`}
+              style={`color: ${thumbnailColors.iconColor}`}
+            />
           </div>
-          <Image
-            src={entry.data.image}
-            alt={entry.data.title}
-            width={1200}
-            height={630}
-            class="zoomable-image object-cover rounded-xl absolute top-0 left-0"
-            loading="lazy"
-            onload={`this.classList.add('loaded');`}
-          />
         </div>
       )
     }
@@ -83,41 +151,9 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
       <h3 class="text-xl font-extrabold leading-none mb-1">{entry.data.title}</h3>
       <p class="text-muted-foreground mb-1 text-sm font-medium leading-tight">{entry.data.description}</p>
 
-      {
-        entry.data.tags && (
-          <div class="flex flex-wrap gap-2">
-            {entry.data.tags.map((tag) => (
-              <Badge variant="muted" className="flex items-center gap-x-1">
-                {/* <Icon name="lucide:hash" class="size-3" /> */}
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )
-      }
-
       <div
         class="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-2 text-xs"
       >
-        {
-          authors.length > 0 && (
-            <>
-              {authors.map((author) => (
-                <div class="flex items-center gap-x-1.5">
-                  <AvatarComponent
-                    client:load
-                    src={author.avatar}
-                    alt={author.name}
-                    fallback={author.name[0]}
-                    className="size-5 rounded-full"
-                  />
-                  <span>{author.name}</span>
-                </div>
-              ))}
-              <Separator orientation="vertical" className="h-4!" />
-            </>
-          )
-        }
         <span>{formattedDate}</span>
         <Separator orientation="vertical" className="h-4!" />
         <span>{readTime}</span>
@@ -129,6 +165,20 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
                 <Icon name="lucide:file-text" class="size-3" />
                 {subpostCount} subpost{subpostCount === 1 ? '' : 's'}
               </span>
+            </>
+          )
+        }
+        {
+          entry.data.tags && entry.data.tags.length > 0 && (
+            <>
+              <Separator orientation="vertical" className="h-4!" />
+              <div class="flex flex-wrap gap-1">
+                {entry.data.tags.map((tag) => (
+                  <Badge variant="muted" className="flex items-center gap-x-1 text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
             </>
           )
         }

@@ -59,26 +59,7 @@ const tocSections = await getTOCSections(currentPostId)
 ---
 
 <style>
-  .placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 1;
-    transition: opacity 0.5s ease-in-out;
-    position: relative;
-    z-index: 1;
-  }
-  .zoomable-image {
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2;
-  }
-  .zoomable-image.loaded {
-    opacity: 1;
-  }
+  /* No image loading styles needed anymore */
 </style>
 
 <Layout>
@@ -142,25 +123,17 @@ const tocSections = await getTOCSections(currentPostId)
 
     {
       post.data.image && (
-      <div class="relative col-span-full mx-auto w-full max-w-[300px]" style="padding-left: 0 !important; padding-right: 0!important;">
+      <div class="relative col-span-full mx-auto w-full max-w-[200px]" style="padding-left: 0 !important; padding-right: 0!important;">
         <div
-          class="aspect-[300/157.5] placeholder rounded-xl bg-gray-200 dark:bg-gray-900 absolute top-0 left-0 w-full h-full"
-          id={`placeholder-${post.data.title}`}
+          class="aspect-[300/157.5] rounded-xl flex items-center justify-center"
+          style={`background-color: ${post.data.thumbnailBgColor || '#f3f4f6'}`}
         >
-          <div class="w-full h-full rounded-xl bg-gray-200 dark:bg-gray-900 flex items-center justify-center">
-            <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
-          </div>
+          <Icon 
+            name={post.data.thumbnailIcon || 'lucide:file-text'} 
+            class={`${post.data.thumbnailIconSize || 'h-16 w-16'}`}
+            style={`color: ${post.data.thumbnailIconColor || '#6b7280'}`}
+          />
         </div>
-        <Image 
-          src={post.data.image}
-          alt={post.data.title}
-          width={300}
-          height={157.5}
-          class="zoomable-image w-full h-full object-cover rounded-xl absolute top-0 left-0"
-          loading="lazy"
-          style="border-radius: 0.75rem !important;"
-          onload={`document.getElementById('placeholder-${post.data.title}').classList.add('hidden'); this.classList.add('loaded');`}
-        />
       </div>
       )
     }

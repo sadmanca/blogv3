@@ -193,6 +193,15 @@ const blog = defineCollection({
       tags: z.array(z.string()).optional(),
       authors: z.array(z.string()).optional(),
       draft: z.boolean().optional(),
+      // Thumbnail customization fields
+      thumbnailIcon: z.string().optional(),
+      thumbnailIconSize: z.string().optional(),
+      thumbnailIconColor: z.string().optional(),
+      thumbnailBgColor: z.string().optional(),
+      thumbnailTheme: z.enum(['dark-on-light', 'light-on-dark']).optional(),
+      // Blog card styling fields
+      cardBgColor: z.string().optional(),
+      cardOutlineColor: z.string().optional(),
     }),
 })
 
