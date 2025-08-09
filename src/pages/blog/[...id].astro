@@ -24,6 +24,7 @@ import {
   parseAuthors,
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
+import { getThumbnailColors } from '@/lib/thumbnail-colors'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import { render } from 'astro:content'
@@ -56,10 +57,24 @@ const combinedReadingTime =
     : null
 
 const tocSections = await getTOCSections(currentPostId)
+
+const thumb = getThumbnailColors(post.data);
+const cssVars = {
+  thumbIconLight: thumb.iconLight,
+  thumbIconDark:  thumb.iconDark,
+  thumbBgLight:   thumb.bgLight,
+  thumbBgDark:    thumb.bgDark,
+};
 ---
 
-<style>
-  /* No image loading styles needed anymore */
+<style define:vars={cssVars}>
+  .post-thumbnail          { background-color: var(--thumbBgLight); }
+  .post-thumbnail-icon     { color:            var(--thumbIconLight); }
+
+  :root[data-theme='dark']
+  .post-thumbnail          { background-color: var(--thumbBgDark); }
+  :root[data-theme='dark']
+  .post-thumbnail-icon     { color:            var(--thumbIconDark); }
 </style>
 
 <Layout>
@@ -122,21 +137,19 @@ const tocSections = await getTOCSections(currentPostId)
     </div>
 
     {
-      post.data.image && (
-      <div class="relative col-span-full mx-auto w-full max-w-[200px]" style="padding-left: 0 !important; padding-right: 0!important;">
-        <div
-          class="aspect-[300/157.5] rounded-xl flex items-center justify-center"
-          style={`background-color: ${post.data.thumbnailBgColor || '#f3f4f6'}`}
-        >
-          <Icon 
-            name={post.data.thumbnailIcon || 'lucide:file-text'} 
-            class={`${post.data.thumbnailIconSize || 'h-16 w-16'}`}
-            style={`color: ${post.data.thumbnailIconColor || '#6b7280'}`}
-          />
+    post.data.thumbnailIcon && 
+      (
+        <div class="relative col-span-full mx-auto w-full max-w-[150px] px-0">
+          <div class="aspect-[300/157.5] rounded-xl flex items-center justify-center post-thumbnail">
+            <Icon
+              name={post.data.thumbnailIcon}
+              class={`post-thumbnail-icon ${post.data.thumbnailIconSize || 'h-16 w-16'}`}
+              style="fill:currentColor;"
+            />
+          </div>
         </div>
-      </div>
       )
-    }
+    }    
 
     <section class="col-start-2 flex flex-col gap-y-6 text-center">
       <div class="flex flex-col">

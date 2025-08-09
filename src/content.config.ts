@@ -188,6 +188,7 @@ const blog = defineCollection({
       title: z.string(),
       description: z.string(),
       date: z.coerce.date(),
+      slug: z.string().optional(),
       order: z.number().optional(),
       image: image().optional(),
       tags: z.array(z.string()).optional(),
@@ -197,11 +198,16 @@ const blog = defineCollection({
       thumbnailIcon: z.string().optional(),
       thumbnailIconSize: z.string().optional(),
       thumbnailIconColor: z.string().optional(),
+      thumbnailIconColorDark: z.string().optional(),
       thumbnailBgColor: z.string().optional(),
+      thumbnailBgColorDark: z.string().optional(),
       thumbnailTheme: z.enum(['dark-on-light', 'light-on-dark']).optional(),
       // Blog card styling fields
+      // cardBgColor accepts OKLCH colors for light mode
+      // cardBgColorDark accepts OKLCH colors for dark mode (optional, falls back to cardBgColor)
+      // Examples: 'oklch(0.95 0.02 240)', 'oklch(0.85 0.1 120)'
       cardBgColor: z.string().optional(),
-      cardOutlineColor: z.string().optional(),
+      cardBgColorDark: z.string().optional(),
     }),
 })
 
