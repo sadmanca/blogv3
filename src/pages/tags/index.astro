@@ -2,11 +2,29 @@
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
-import { badgeVariants } from '@/components/ui/badge'
+import { Badge, badgeVariants } from '@/components/ui/badge'
 import Layout from '@/layouts/Layout.astro'
 import { getSortedTags } from '@/lib/data-utils'
+import { TAG_CLASSES } from '@/consts'
 import { Icon } from 'astro-icon/components'
 import { cn } from '@/lib/utils'
+
+/* ---------- tag styling helper ---------- */
+const getTagClasses = (tag: string) => {
+  const tagLower = tag.toLowerCase()
+  // Check for exact matches first
+  if (TAG_CLASSES[tagLower]) {
+    return TAG_CLASSES[tagLower]
+  }
+  // Check for partial matches
+  for (const [key, classes] of Object.entries(TAG_CLASSES)) {
+    if (tagLower.includes(key)) {
+      return classes
+    }
+  }
+  // Default classes for tags index (slightly larger)
+  return 'flex items-center gap-x-1'
+}
 
 const sortedTags = await getSortedTags()
 ---
@@ -22,14 +40,15 @@ const sortedTags = await getSortedTags()
         sortedTags.map(({ tag, count }) => (
           <Link
             href={`/tags/${tag}`}
-            class={cn(
-              badgeVariants({ variant: 'muted' }),
-              'hover-card'
-            )}            
           >
-            <Icon name="lucide:hash" class="size-3" />
-            <span class="font-semibold text-xl">{tag}</span>
-            <span class="text-muted-foreground ml-1">{count}</span>
+            <Badge 
+              variant="muted" 
+              classes={cn(getTagClasses(tag), 'hover-card')}
+            >
+              <Icon name="lucide:hash" class="size-3" />
+              <span class="font-semibold text-xl">{tag}</span>
+              <span class="text-muted-foreground ml-1">{count}</span>
+            </Badge>
           </Link>
         ))
       }

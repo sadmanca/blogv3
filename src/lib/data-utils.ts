@@ -229,12 +229,12 @@ export async function getCombinedReadingTime(postId: string): Promise<string> {
   const post = await getPostById(postId)
   if (!post) return readingTime(0)
 
-  let totalWords = calculateWordCountFromHtml(post.body)
+  let totalWords = calculateWordCountFromHtml(post.body ?? '')
 
   if (!isSubpost(postId)) {
     const subposts = await getSubpostsForParent(postId)
     for (const subpost of subposts) {
-      totalWords += calculateWordCountFromHtml(subpost.body)
+      totalWords += calculateWordCountFromHtml(subpost.body ?? '')
     }
   }
 
@@ -245,7 +245,7 @@ export async function getPostReadingTime(postId: string): Promise<string> {
   const post = await getPostById(postId)
   if (!post) return readingTime(0)
 
-  const wordCount = calculateWordCountFromHtml(post.body)
+  const wordCount = calculateWordCountFromHtml(post.body ?? '')
   return readingTime(wordCount)
 }
 

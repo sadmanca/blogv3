@@ -1,29 +1,39 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { JSDOM } from 'jsdom'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 export function formatDate(date: Date) {
-  return Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
+  return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
+    month: 'long',
+    year: 'numeric',
   }).format(date)
 }
 
-export function calculateWordCountFromHtml(
-  html: string | null | undefined,
-): number {
-  if (!html) return 0
-  const textOnly = html.replace(/<[^>]+>/g, '')
-  return textOnly.split(/\s+/).filter(Boolean).length
+export function calculateWordCountFromHtml(html: string): number {
+  const dom = new JSDOM(html)
+  const doc = dom.window.document
+  
+  // Remove code elements
+  const codeElements = doc.querySelectorAll('code, pre, .code')
+  codeElements.forEach(el => el.remove())
+  
+  // Remove table elements
+  const tableElements = doc.querySelectorAll('table')
+  tableElements.forEach(el => el.remove())
+  
+  // Get text content and count words
+  const textContent = doc.body.textContent || ''
+  return textContent.trim().split(/\s+/).filter(word => word.length > 0).length
 }
 
 export function readingTime(wordCount: number): string {
   const readingTimeMinutes = Math.max(1, Math.round(wordCount / 200))
-  return `${readingTimeMinutes} min read`
+  return `${readingTimeMinutes} min`
 }
 
 export function getHeadingMargin(depth: number): string {

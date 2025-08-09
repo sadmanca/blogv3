@@ -10,6 +10,7 @@ import {
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
 import { getThumbnailColors } from '@/lib/thumbnail-colors'
+import { TAG_CLASSES } from '@/consts'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
@@ -24,6 +25,23 @@ const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
 const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
+
+/* ---------- tag styling helper ---------- */
+const getTagClasses = (tag: string) => {
+  const tagLower = tag.toLowerCase()
+  // Check for exact matches first
+  if (TAG_CLASSES[tagLower]) {
+    return TAG_CLASSES[tagLower]
+  }
+  // Check for partial matches
+  for (const [key, classes] of Object.entries(TAG_CLASSES)) {
+    if (tagLower.includes(key)) {
+      return classes
+    }
+  }
+  // Default classes
+  return 'flex items-center gap-x-1 text-xs'
+}
 
 /* ---------- visual theming ---------- */
 const thumb = getThumbnailColors(entry.data)                 // ← NEW
@@ -70,8 +88,8 @@ const cssVars = {
     class="flex flex-col gap-4 sm:flex-row"
   >
     {(entry.data.thumbnailIcon || entry.data.image) && (
-      <div class="relative max-w-[200px] sm:flex-shrink-0">
-        <div class="h-[55px] w-[80px] rounded-xl flex items-center justify-center thumbnail">
+      <div class="relative max-w-[180px] sm:flex-shrink-0">
+        <div class="h-[55px] w-[70px] rounded-xl flex items-center justify-center thumbnail">
           <Icon
             name={entry.data.thumbnailIcon || 'lucide:file-text'}
             class={`thumbnail-icon ${entry.data.thumbnailIconSize || 'h-10 w-10'}`}
@@ -109,7 +127,10 @@ const cssVars = {
             <Separator orientation="vertical" className="h-4!" />
             <div class="flex flex-wrap gap-1">
               {entry.data.tags.map((tag) => (
-                <Badge variant="muted" className="flex items-center gap-x-1 text-xs">
+                <Badge 
+                  variant="muted" 
+                  classes={getTagClasses(tag)}
+                >
                   {tag}
                 </Badge>
               ))}

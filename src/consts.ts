@@ -67,4 +67,17 @@ export const FEATURED_PROJECTS = [
   'astro-loader-goodreads/astro-loader-goodreads',
   'fricdl/fricdl',
   'libstreetmap/libstreetmap',
-];
+]
+
+export const TAG_CLASSES: Record<string, string> = {
+  uoft:
+    'bg-blue-300 text-primary dark:bg-blue-800 dark:text-white flex items-center gap-x-1 text-xs',
+  personal: 'bg-purple-200 text-secondary-foreground dark:bg-purple-900 dark:text-white flex items-center gap-x-1 text-xs',
+  advice: 'bg-lime-200 text-secondary-foreground dark:bg-lime-900 dark:text-white flex items-center gap-x-1 text-xs',
+  project:
+    'bg-purple-500 text-white hover:bg-purple-600 flex items-center gap-x-1 text-xs',
+  tutorial:
+    'bg-orange-200 text-secondary-foreground dark:bg-orange-900 dark:text-white flex items-center gap-x-1 text-xs',
+  analysis:
+    'bg-indigo-500 text-white hover:bg-indigo-600 flex items-center gap-x-1 text-xs',
+}

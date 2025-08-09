@@ -7,7 +7,7 @@ import SubpostsHeader from '@/components/SubpostsHeader.astro'
 import SubpostsSidebar from '@/components/SubpostsSidebar.astro'
 import TOCHeader from '@/components/TOCHeader.astro'
 import TOCSidebar from '@/components/TOCSidebar.astro'
-import { badgeVariants } from '@/components/ui/badge'
+import { Badge, badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Layout from '@/layouts/Layout.astro'
 import {
@@ -25,6 +25,7 @@ import {
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
 import { getThumbnailColors } from '@/lib/thumbnail-colors'
+import { TAG_CLASSES } from '@/consts'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import { render } from 'astro:content'
@@ -57,6 +58,23 @@ const combinedReadingTime =
     : null
 
 const tocSections = await getTOCSections(currentPostId)
+
+/* ---------- tag styling helper ---------- */
+const getTagClasses = (tag: string) => {
+  const tagLower = tag.toLowerCase()
+  // Check for exact matches first
+  if (TAG_CLASSES[tagLower]) {
+    return TAG_CLASSES[tagLower]
+  }
+  // Check for partial matches
+  for (const [key, classes] of Object.entries(TAG_CLASSES)) {
+    if (tagLower.includes(key)) {
+      return classes
+    }
+  }
+  // Default classes
+  return 'flex items-center gap-x-1 text-xs'
+}
 
 const thumb = getThumbnailColors(post.data);
 const cssVars = {
@@ -232,12 +250,13 @@ const cssVars = {
             post.data.tags &&
               post.data.tags.length > 0 &&
               post.data.tags.map((tag) => (
-                <a
-                  href={`/tags/${tag}`}
-                  class={badgeVariants({ variant: 'muted' })}
-                >
-                  {/* <Icon name="lucide:hash" class="size-3" /> */}
-                  {tag}
+                <a href={`/tags/${tag}`}>
+                  <Badge 
+                    variant="muted" 
+                    classes={getTagClasses(tag)}
+                  >
+                    {tag}
+                  </Badge>
                 </a>
               ))
           }
