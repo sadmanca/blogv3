@@ -42,6 +42,7 @@
   --color-ring: var(--ring);
 
   --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
 
 
 
@@ -146,7 +147,8 @@
   --h4-bar: rgba(0, 0, 0, .20);
   --h5-bar: rgba(0, 0, 0, .25);
   --h6-bar: rgba(0, 0, 0, .10);
-  --link: oklch(0.6000 0.1981 258.79);
+  --link: oklch(0.65 0.2 260);
+  --link-hover: oklch(0.6 0.2 260);
 }
 
 [data-theme='dark'] {
@@ -171,7 +173,8 @@
   --h4-bar: rgba(255, 255, 255, .40);
   --h5-bar: rgba(255, 255, 255, .25);
   --h6-bar: rgba(255, 255, 255, .10);
-  --link: oklch(0.8000 0.1981 258.79);
+  --link: oklch(0.8 0.2 260);
+  --link-hover: oklch(0.9 0.2 260);
 }
 
 @layer base {
