@@ -1,0 +1,63 @@
+---
+title: "UofT Work Study Jobs Dashboard (2025-2026)"
+description: "Another year, another custom dashboard for work study job postings."
+date: 2025-08-16
+slug: "uoft-work-study-jobs-2025-2026"
+tags: ['UofT', 'university', 'part-time', 'blaugust-2025', 'blaugust', 'blog-challenge']
+image: './00-thumbnail.png'
+authors: ['sadman']
+thumbnailIcon: 'lucide:school-2'
+thumbnailIconSize: 'h-10 w-10'
+thumbnailIconColor: 'oklch(0.86 0.016 270)'
+thumbnailBgColor: 'oklch(0.26 0.09 260)'
+thumbnailIconColorDark: 'oklch(0.26 0.06 260)'
+thumbnailBgColorDark: 'oklch(0.86 0.016 270)'
+cardBgColor: "oklch(0.975 0.026 260)"
+cardBgColorDark: "oklch(0.1 0.09 260)"
+---
+
+import Callout from '@/components/mdx/Callout.astro';
+import { Image } from 'astro:assets';
+import { SITE } from '@/consts'
+
+import d1 from './04-new-work-study-job-dashboard.jpg';
+import d2 from './04-zoom-in.jpg';
+
+## Work Study Jobs for 2025-2026
+
+<Callout type="info" classes="border-blue-950/100 bg-blue-100 dark:border-blue-100/100 dark:bg-blue-950 -mb-4 wide-img">
+  View **work study job postings at UofT for the 2025-2026 academic year** using my custom dashboard at **<a href={`${SITE.href}/uoft-work-study-2025`} target="_blank" rel="noopener noreferrer">sadman.ca/uoft-work-study-2025</a>**!
+</Callout>
+
+<div class="wide-img flex flex-col md:flex-row gap-4 my-6">
+  <figure class="flex-1 m-0">
+    <Image src={d1} alt="My custom UofT work study job postings dashboard" class="zoom-image" data-zoom-src="/blog/2024-08-22-work-study-at-uoft/04-new-work-study-job-dashboard.jpg" />
+    <figcaption>My custom UofT work study job postings dashboard at <a href="https://sadman.ca/uoft-work-study-2025" target="_blank" rel="noopener noreferrer">sadman.ca/uoft-work-study-2025</a>. <br/> **Shown:** work study jobs for <a href="https://sadman.ca/uoft-work-study-2024" target="_blank" rel="noopener noreferrer">2024-2025</a>.</figcaption>
+  </figure>
+</div>
+
+<Callout type="info" icon="lucide:star" classes="border-yellow-950/100 bg-yellow-100 dark:border-yellow-100/100 dark:bg-yellow-950">
+  You can also view work study job postings for previous semesters at the links below:
+  - **<a href={`${SITE.href}/uoft-work-study-2024`} target="_blank" rel="noopener noreferrer">UofT Work Study Jobs (2025 Summer)</a>**
+  - **<a href={`${SITE.href}/uoft-work-study-2025-summer`} target="_blank" rel="noopener noreferrer">UofT Work Study Jobs (2025-2026 Fall/Winter)</a>**
+</Callout>
+
+<Callout type="info">
+  If this is the first time you're learning about the work study program at UofT and want to learn more, check out my **<a href={`${SITE.href}/blog/work-study-at-uoft`} target="_self" rel="noopener noreferrer">post from 2024</a>** where I give an overview of work study at UofT **(and why I can highly recommend it)**.
+</Callout>
+
+## I think I'm going to do this every year
+
+Someone on Discord asked me a few days ago if I was planning on creating a work study jobs dashboard for the upcoming academic year. My answer?
+
+**Heck yeah.**
+
+It's been almost a year from when I first started creating custom dashboards to show work study jobs, and since then these dashboards have become some of my most viewed pages (I'm sure that showing up on the first page of results when you google "uoft work study" helped).
+
+I get told by students all the time about how useful these dashboards are to them for combing through all the jobs they might be interested in and for submitting their applications.
+
+For me, it just takes a few minutes to manually scrape the data off of the UofT CLNx portal to JSON (I've written more about the process in [last year's blog post](/blog/work-study-at-uoft)), and then a few more minutes to add a page for the new dashboard. But for people using it, it just makes life so much easier.
+
+If you're a student who's never really looked through many work study job postings (or perhaps at all), I do recommend taking a look. Because even if you don't use it to land a work study position, it is a **fantastic** resource for finding professors that you might be interested in doing research with.
+
+**As long as students keep using them, I'll keep making them.**

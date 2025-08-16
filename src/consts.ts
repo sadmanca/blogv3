@@ -76,8 +76,14 @@ export const TAG_CLASSES: Record<string, string> = {
   advice: 'bg-lime-200 text-secondary-foreground dark:bg-lime-900 dark:text-white flex items-center gap-x-1 text-xs',
   project:
     'bg-purple-500 text-white hover:bg-purple-600 flex items-center gap-x-1 text-xs',
+  'blog-challenge':
+    'bg-slate-300 text-secondary-foreground dark:bg-slate-700/80 flex items-center gap-x-1 text-xs',
+  'blaugust-2025':
+    'bg-slate-300/60 text-secondary-foreground dark:bg-slate-800 flex items-center gap-x-1 text-xs',
+  'blaugust':
+    'bg-slate-300/60 text-secondary-foreground dark:bg-slate-800 flex items-center gap-x-1 text-xs',
   tutorial:
-    'bg-orange-200 text-secondary-foreground dark:bg-orange-900 dark:text-white flex items-center gap-x-1 text-xs',
+    'bg-amber-200 text-secondary-foreground dark:bg-amber-900 dark:text-white flex items-center gap-x-1 text-xs',
   analysis:
     'bg-indigo-500 text-white hover:bg-indigo-600 flex items-center gap-x-1 text-xs',
 }
