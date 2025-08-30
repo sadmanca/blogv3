@@ -20,8 +20,15 @@ import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  trailingSlash: 'always',
+  trailingSlash: 'ignore',
   site: 'https://sadman.ca',
+  output: 'static',
+  
+  image: {
+    // Enable modern image formats with fallbacks
+    domains: ['sadman.ca'],
+    remotePatterns: [{ protocol: 'https' }],
+  },
   integrations: [
     expressiveCode(),
     mdx(),
@@ -53,6 +60,31 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    ssr: {
+      // Remove JSDOM from externals since we no longer use it
+    },
+    build: {
+      // Optimize bundle splitting
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Separate vendor chunks for better caching
+            'vendor-ui': ['class-variance-authority', 'clsx', 'tailwind-merge'],
+            'vendor-react': ['react', 'react-dom'],
+            'vendor-astro': ['@astrojs/markdown-remark', 'astro-icon'],
+            'vendor-utils': ['xml2js', 'limiter']
+          }
+        }
+      },
+      // Optimize chunk size
+      chunkSizeWarningLimit: 1000,
+      // Enable minification
+      minify: 'esbuild',
+      // Enable source maps for debugging
+      sourcemap: false, // Disable in production for smaller builds
+      // Asset optimization
+      assetsInlineLimit: 4096, // Inline small assets as base64
+    },
   },
   server: {
     port: 1234,

@@ -12,31 +12,16 @@ const menuItems = [
 ---
 
 <div class="relative inline-block ml-2">
-  <div class="flex items-center">
-    <!-- Text container with fixed width for smooth transitions -->
-    <a 
-      id="random-link"
-      href="/uses" 
-      class="text-container text-sm capitalize text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer overflow-hidden"
-    >
-      <!-- Current visible text -->
-      <span id="current-text" class="inline-block whitespace-nowrap">More</span>
-      
-      <!-- Next text (initially hidden) -->
-      <span id="next-text" class="absolute left-0 top-0 opacity-0 whitespace-nowrap">More</span>
-    </a>
-    
-    <!-- Separate chevron icon for dropdown -->
-    <button 
-      type="button" 
-      id="more-dropdown-trigger"
-      class="ml-1 text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer flex-shrink-0"
-      aria-haspopup="true" 
-      aria-expanded="false"
-    >
-      <Icon name="lucide:chevron-down" class="size-4 transition-transform duration-300" style="margin-top: 2.5px;" />
-    </button>
-  </div>
+  <button 
+    type="button" 
+    id="more-dropdown-trigger"
+    class="flex items-center text-sm capitalize text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer"
+    aria-haspopup="true" 
+    aria-expanded="false"
+  >
+    More
+    <Icon name="lucide:chevron-down" class="ml-1 size-4 transition-transform duration-300" style="margin-top: 2.5px;" />
+  </button>
 
   <!-- Dropdown Menu -->
   <div 
@@ -58,23 +43,19 @@ const menuItems = [
 </div>
 
 <style>
-  .text-container {
-    position: relative;
-    display: inline-block;
-    width: 3em; /* Initial width */
-    transition: width 0.5s ease-in-out;
-  }
-
-  #current-text, #next-text {
-    transition: opacity 0.25s ease;
-  }
-
   .dropdown-menu {
     transition: 
-      opacity 0.2s ease, 
-      transform 0.2s ease, 
-      visibility 0.2s ease;
+      opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+      transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+      visibility 0.15s;
     pointer-events: none;
+    will-change: opacity, transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dropdown-menu {
+      transition: none;
+    }
   }
   
   .dropdown-menu.active {
@@ -93,135 +74,62 @@ const menuItems = [
   document.addEventListener('DOMContentLoaded', () => {
     const trigger = document.getElementById('more-dropdown-trigger');
     const content = document.getElementById('more-dropdown-content');
-    const currentText = document.getElementById('current-text');
-    const nextText = document.getElementById('next-text');
-    const randomLink = document.getElementById('random-link');
-    
-    // Enable transitions on all header elements
-    document.querySelectorAll('header *').forEach(el => {
-      if (el instanceof HTMLElement) {
-        el.style.transition = el.style.transition + ', width 0.5s ease-in-out, margin 0.5s ease-in-out';
-      }
-    });
-    
-    const menuItems = [
-      { label: 'Uses', href: '/uses', icon: 'lucide:laptop' },
-      { label: 'Reading', href: '/reading', icon: 'lucide:book' },
-      { label: 'PEY', href: '/blog/pey-coop-jobs-at-uoft', icon: 'lucide:briefcase' },
-      { label: 'Work Study', href: '/blog/work-study-at-uoft', icon: 'lucide:school' },
-    ];
-    
-    let currentIndex = -1;
-    let isChanging = false;
-    
-    // Function to measure text width
-    function getTextWidth(text: string, element: HTMLElement): number {
-      const tempSpan = document.createElement('span');
-      tempSpan.style.visibility = 'hidden';
-      tempSpan.style.position = 'absolute';
-      tempSpan.style.fontSize = window.getComputedStyle(element).fontSize;
-      tempSpan.style.fontFamily = window.getComputedStyle(element).fontFamily;
-      tempSpan.style.fontWeight = window.getComputedStyle(element).fontWeight;
-      tempSpan.style.whiteSpace = 'nowrap';
-      tempSpan.textContent = text;
-      document.body.appendChild(tempSpan);
-      
-      const width = tempSpan.offsetWidth;
-      document.body.removeChild(tempSpan);
-      return width;
-    }
-    
-    // Update exact container width for current text
-    if (currentText && randomLink) {
-      const width = getTextWidth(currentText.textContent || 'More', currentText);
-      (randomLink as HTMLElement).style.width = `${width}px`;
-    }
-    
-    // Cross-fade text animation with proper width transition
-    function updateTextWithCrossFade() {
-      if (isChanging || !currentText || !nextText || !randomLink) return;
-      
-      isChanging = true;
-      
-      // Get random index different from current one
-      let newIndex;
-      do {
-        newIndex = Math.floor(Math.random() * menuItems.length);
-      } while (newIndex === currentIndex && menuItems.length > 1);
-      
-      currentIndex = newIndex;
-      const newLabel = menuItems[currentIndex].label;
-      const newHref = menuItems[currentIndex].href;
-      
-      // Set up next text with new content
-      nextText.textContent = newLabel;
-      
-      // Get width of new text
-      const newWidth = getTextWidth(newLabel, currentText) + 1; // +1px buffer
-      
-      // Start transition - fade out current text
-      currentText.style.opacity = '0';
-      
-      // Start animating width at the same time
-      (randomLink as HTMLElement).style.width = `${newWidth}px`;
-      
-      // Update the link destination and finish text transition
-      setTimeout(() => {
-        // Update link href
-        (randomLink as HTMLAnchorElement).href = newHref;
-        
-        // Fade in next text
-        nextText.style.opacity = '1';
-        
-        // Complete the transition
-        setTimeout(() => {
-          currentText.textContent = newLabel;
-          currentText.style.opacity = '1';
-          nextText.style.opacity = '0';
-          isChanging = false;
-        }, 300);
-      }, 250); // Slightly shorter to sync with width animation
-    }
-    
-    // Initial text update
-    setTimeout(() => {
-      // Set initial width before first change
-      if (currentText && randomLink) {
-        const initialWidth = getTextWidth('More', currentText) + 1;
-        (randomLink as HTMLElement).style.width = `${initialWidth}px`;
-      }
-      updateTextWithCrossFade();
-    }, 1000);
-    
-    // Set interval to change text every 20 seconds
-    const intervalId = setInterval(updateTextWithCrossFade, 20000);
+    const container = trigger?.parentElement;
     
     // Dropdown functionality
-    if (trigger && content) {
+    if (trigger && content && container) {
+      let isOpen = false;
+      let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
+      
+      const openDropdown = () => {
+        if (!isOpen) {
+          content.classList.add('active');
+          trigger.setAttribute('aria-expanded', 'true');
+          isOpen = true;
+        }
+      };
+      
+      const closeDropdown = () => {
+        if (isOpen) {
+          content.classList.remove('active');
+          trigger.setAttribute('aria-expanded', 'false');
+          isOpen = false;
+        }
+      };
+      
+      // Hover functionality
+      container.addEventListener('mouseenter', () => {
+        if (hoverTimeout) {
+          clearTimeout(hoverTimeout);
+          hoverTimeout = null;
+        }
+        openDropdown();
+      });
+      
+      container.addEventListener('mouseleave', () => {
+        hoverTimeout = setTimeout(() => {
+          closeDropdown();
+        }, 150); // Small delay to prevent flickering
+      });
+      
+      // Click functionality (for touch devices)
       trigger.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
-        content.classList.toggle('active');
-        trigger.setAttribute('aria-expanded', content.classList.contains('active') ? 'true' : 'false');
+        isOpen ? closeDropdown() : openDropdown();
       });
       
       document.addEventListener('click', (e) => {
-        if (!trigger.contains(e.target as Node)) {
-          content.classList.remove('active');
-          trigger.setAttribute('aria-expanded', 'false');
+        if (!container.contains(e.target as Node)) {
+          closeDropdown();
         }
-      });
+      }, { passive: true });
       
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && content.classList.contains('active')) {
-          content.classList.remove('active');
-          trigger.setAttribute('aria-expanded', 'false');
+        if (e.key === 'Escape' && isOpen) {
+          closeDropdown();
         }
       });
     }
-    
-    // Clean up interval on page unload
-    window.addEventListener('beforeunload', () => {
-      clearInterval(intervalId);
-    });
   });
 </script>
