@@ -8,6 +8,7 @@ let authorsCache: CollectionEntry<'authors'>[] | null = null
 let postsCache: CollectionEntry<'blog'>[] | null = null
 let allPostsCache: CollectionEntry<'blog'>[] | null = null
 let projectsCache: CollectionEntry<'projects'>[] | null = null
+let hevyWorkoutsCache: CollectionEntry<'hevy_workouts'>[] | null = null
 
 // Cache for expensive calculations
 const wordCountCache = new Map<string, number>()
@@ -363,4 +364,64 @@ export async function getTOCSections(postId: string): Promise<TOCSection[]> {
   }
 
   return sections
+}
+
+export async function getAllWorkouts(): Promise<CollectionEntry<'hevy_workouts'>[]> {
+  if (!hevyWorkoutsCache) {
+    const workouts = await getCollection('hevy_workouts')
+    hevyWorkoutsCache = workouts.sort((a, b) => 
+      new Date(b.data.created_at).valueOf() - new Date(a.data.created_at).valueOf()
+    )
+  }
+  return hevyWorkoutsCache
+}
+
+export async function getRecentWorkouts(count: number): Promise<CollectionEntry<'hevy_workouts'>[]> {
+  const workouts = await getAllWorkouts()
+  return workouts.slice(0, count)
+}
+
+export async function getWorkoutStats() {
+  const workouts = await getAllWorkouts()
+  
+  if (workouts.length === 0) {
+    return {
+      totalWorkouts: 0,
+      workoutsThisYear: 0,
+      workoutsThisMonth: 0,
+      daysSinceLastWorkout: 0,
+      totalVolumeKg: 0,
+      averageDuration: 0,
+    }
+  }
+
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth()
+
+  const workoutsThisYear = workouts.filter(
+    (w) => new Date(w.data.created_at).getFullYear() === currentYear
+  ).length
+
+  const workoutsThisMonth = workouts.filter((w) => {
+    const date = new Date(w.data.created_at)
+    return date.getFullYear() === currentYear && date.getMonth() === currentMonth
+  }).length
+
+  const lastWorkoutDate = new Date(workouts[0]?.data.created_at || 0)
+  const daysSinceLastWorkout = Math.floor(
+    (now.getTime() - lastWorkoutDate.getTime()) / (1000 * 60 * 60 * 24)
+  )
+
+  const totalVolumeKg = workouts.reduce((sum, w) => sum + w.data.volume_kg, 0)
+  const averageDuration = workouts.reduce((sum, w) => sum + w.data.duration, 0) / workouts.length
+
+  return {
+    totalWorkouts: workouts.length,
+    workoutsThisYear,
+    workoutsThisMonth,
+    daysSinceLastWorkout,
+    totalVolumeKg: Math.round(totalVolumeKg),
+    averageDuration: Math.round(averageDuration),
+  }
 }

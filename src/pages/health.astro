@@ -1,0 +1,199 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getWorkoutStats, getRecentWorkouts } from '@/lib/data-utils'
+import { Icon } from 'astro-icon/components'
+
+const stats = await getWorkoutStats()
+const recentWorkouts = await getRecentWorkouts(10)
+
+function formatDate(dateString: string) {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+function formatDuration(minutes: number) {
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  if (hours > 0) {
+    return `${hours}h ${mins}m`
+  }
+  return `${mins}m`
+}
+---
+
+<Layout class="max-w-5xl">
+  <PageHead slot="head" title="Health & Fitness" />
+  <Breadcrumbs items={[{ label: 'Health', icon: 'lucide:heart' }]} />
+  <h1 class="text-6xl font-black mb-8">Health & Fitness</h1>
+
+  <section class="mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <!-- Total Workouts -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Workouts</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalWorkouts}</p>
+          </div>
+          <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-full">
+            <Icon name="lucide:target" class="w-6 h-6 text-blue-600 dark:text-blue-300" />
+          </div>
+        </div>
+      </div>
+
+      <!-- This Year -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">This Year</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">{stats.workoutsThisYear}</p>
+          </div>
+          <div class="p-3 bg-green-100 dark:bg-green-900 rounded-full">
+            <Icon name="lucide:calendar" class="w-6 h-6 text-green-600 dark:text-green-300" />
+          </div>
+        </div>
+      </div>
+
+      <!-- This Month -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">This Month</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">{stats.workoutsThisMonth}</p>
+          </div>
+          <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-full">
+            <Icon name="lucide:calendar-days" class="w-6 h-6 text-purple-600 dark:text-purple-300" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Days Since Last Workout -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Last Workout</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">
+              {stats.daysSinceLastWorkout === 0 ? 'Today' : `${stats.daysSinceLastWorkout} days ago`}
+            </p>
+          </div>
+          <div class="p-3 bg-orange-100 dark:bg-orange-900 rounded-full">
+            <Icon name="lucide:clock" class="w-6 h-6 text-orange-600 dark:text-orange-300" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Volume -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total Volume</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalVolumeKg.toLocaleString()} kg</p>
+          </div>
+          <div class="p-3 bg-red-100 dark:bg-red-900 rounded-full">
+            <Icon name="lucide:weight" class="w-6 h-6 text-red-600 dark:text-red-300" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Average Duration -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Avg Duration</p>
+            <p class="text-3xl font-bold text-gray-900 dark:text-white">{formatDuration(stats.averageDuration)}</p>
+          </div>
+          <div class="p-3 bg-indigo-100 dark:bg-indigo-900 rounded-full">
+            <Icon name="lucide:timer" class="w-6 h-6 text-indigo-600 dark:text-indigo-300" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="flex items-center gap-3 mb-6">
+      <h2 class="text-3xl font-bold">Recent Workouts</h2>
+      <a 
+        href="https://hevy.com" 
+        target="_blank"
+        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800 hover:opacity-70 transition-opacity"
+      >
+        <Icon name="simple-icons:hevy" class="w-4 h-4 mr-1.5" />
+        Powered by Hevy
+      </a>
+    </div>
+
+    {recentWorkouts.length === 0 ? (
+      <div class="text-center py-12 text-gray-500 dark:text-gray-400">
+        <Icon name="lucide:dumbbell" class="w-12 h-12 mx-auto mb-4 opacity-50" />
+        <p>No workouts found. Start tracking your workouts with Hevy!</p>
+      </div>
+    ) : (
+      <div class="space-y-4">
+        {recentWorkouts.map((workout) => (
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+              <div class="flex items-center gap-3 mb-2 sm:mb-0">
+                <Icon name="lucide:dumbbell" class="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                  {workout.data.title}
+                </h3>
+              </div>
+              <div class="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <span class="flex items-center gap-1">
+                  <Icon name="lucide:calendar" class="w-4 h-4" />
+                  {formatDate(workout.data.created_at)}
+                </span>
+                <span class="flex items-center gap-1">
+                  <Icon name="lucide:clock" class="w-4 h-4" />
+                  {formatDuration(workout.data.duration)}
+                </span>
+                <span class="flex items-center gap-1">
+                  <Icon name="lucide:weight" class="w-4 h-4" />
+                  {Math.round(workout.data.volume_kg).toLocaleString()} kg
+                </span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {workout.data.exercises.map((exercise) => (
+                <div class="bg-gray-50 dark:bg-gray-700/50 rounded-md p-4">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">
+                    {exercise.title}
+                  </h4>
+                  <div class="space-y-1">
+                    {exercise.sets.slice(0, 5).map((set, index) => (
+                      <div class="text-sm text-gray-600 dark:text-gray-300 flex items-center justify-between">
+                        <span>Set {index + 1}</span>
+                        <span>
+                          {set.weight_kg && set.reps 
+                            ? `${set.weight_kg} kg × ${set.reps}`
+                            : set.duration_seconds 
+                            ? formatDuration(Math.floor(set.duration_seconds / 60))
+                            : set.distance_meters
+                            ? `${(set.distance_meters / 1000).toFixed(2)} km`
+                            : 'Bodyweight'
+                          }
+                        </span>
+                      </div>
+                    ))}
+                    {exercise.sets.length > 5 && (
+                      <div class="text-xs text-gray-500 dark:text-gray-400">
+                        +{exercise.sets.length - 5} more sets
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </section>
+</Layout>

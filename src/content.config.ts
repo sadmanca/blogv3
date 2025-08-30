@@ -23,8 +23,12 @@ const TRAKT_RATINGS_URL = `https://api.trakt.tv/users/sadmanca/ratings`
 const TRAKT_CLIENT_ID = import.meta.env.TRAKT_CLIENT_ID
 const TMDB_API_KEY = import.meta.env.TMDB_API_KEY
 
+const HEVY_API_URL = 'https://api.hevyapp.com/v1/workouts'
+const HEVY_API_KEY = import.meta.env.HEVY_API_KEY
+
 const limiter_trakt = new RateLimiter({ tokensPerInterval: 1, interval: 'second' })
 const limiter_tmdb = new RateLimiter({ tokensPerInterval: 50, interval: 'second' })
+const limiter_hevy = new RateLimiter({ tokensPerInterval: 10, interval: 'minute' })
 
 async function fetchWithRetry(url: string, type: string, options = {}) {
   let response;
@@ -33,6 +37,8 @@ async function fetchWithRetry(url: string, type: string, options = {}) {
   while (retries > 0) {
     if (type == 'trakt') {
       await limiter_trakt.removeTokens(1);
+    } else if (type == 'hevy') {
+      await limiter_hevy.removeTokens(1);
     } else {
       await limiter_tmdb.removeTokens(1);
     }
@@ -181,6 +187,78 @@ const trakt_watched_shows = defineCollection({
   }
 });
 
+const hevy_workouts = defineCollection({
+  schema: z.object({
+    id: z.string(),
+    title: z.string(),
+    created_at: z.string(),
+    updated_at: z.string(),
+    start_time: z.string(),
+    end_time: z.string().optional(),
+    duration: z.number(),
+    exercises: z.array(z.object({
+      id: z.string(),
+      title: z.string(),
+      sets: z.array(z.object({
+        type: z.string(),
+        weight_kg: z.number().optional(),
+        reps: z.number().optional(),
+        distance_meters: z.number().optional(),
+        duration_seconds: z.number().optional(),
+        rpe: z.number().optional(),
+      }))
+    })),
+    volume_kg: z.number(),
+    personal_records: z.array(z.any()).optional(),
+  }),
+  loader: async () => {
+    
+    try {
+      const response = await fetchWithRetry(HEVY_API_URL, "hevy", {
+        headers: {
+          'api-key': HEVY_API_KEY,
+          'accept': 'application/json',
+        },
+      });
+      const data = await response.json();
+      
+      // Transform the API response to match our schema
+      const workouts = data.workouts.map((workout: any) => ({
+        id: workout.id,
+        title: workout.title || `Workout ${new Date(workout.created_at).toLocaleDateString()}`,
+        created_at: workout.created_at,
+        updated_at: workout.updated_at,
+        start_time: workout.start_time,
+        end_time: workout.end_time,
+        duration: Math.round((new Date(workout.end_time || workout.updated_at).getTime() - new Date(workout.start_time).getTime()) / 1000 / 60), // duration in minutes
+        exercises: (workout.exercises || []).map((exercise: any) => ({
+          id: exercise.exercise_template_id || exercise.id || 'unknown',
+          title: exercise.exercise_template?.title || exercise.title || 'Unknown Exercise',
+          sets: (exercise.sets || []).map((set: any) => ({
+            type: set.set_type || 'normal',
+            weight_kg: set.weight_kg || undefined,
+            reps: set.reps || undefined,
+            distance_meters: set.distance_meters || undefined,
+            duration_seconds: set.duration_seconds || undefined,
+            rpe: set.rpe || undefined,
+          }))
+        })),
+        volume_kg: (workout.exercises || []).reduce((total: number, exercise: any) => {
+          return total + (exercise.sets || []).reduce((exerciseTotal: number, set: any) => {
+            return exerciseTotal + ((set.weight_kg || 0) * (set.reps || 1));
+          }, 0);
+        }, 0),
+        personal_records: workout.personal_records || [],
+      }));
+
+      return workouts;
+    } catch (error) {
+      console.error('Failed to fetch Hevy data:', error);
+      return [];
+    }
+  }
+});
+
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
   schema: ({ image }) =>
@@ -249,4 +327,5 @@ export const collections = {
   goodreads_user_updates,
   trakt_watched_movies,
   trakt_watched_shows,
+  hevy_workouts,
 }
