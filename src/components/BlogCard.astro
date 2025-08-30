@@ -81,11 +81,12 @@ const cssVars = {
 </style>
 
 <div
-  class={`hover:bg-secondary/50 hover-card rounded-xl border p-3 transition-colors duration-300 ease-in-out ${card.hasBg ? 'blog-card-bg' : ''}`}
+  class={`hover:bg-secondary/50 hover-card rounded-xl border border-border/50 hover:border-tertiary/30 p-4 transition-all ease-in-out hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] ${card.hasBg ? 'blog-card-bg' : ''} relative overflow-hidden group`}
 >
+  <div class="absolute inset-0 bg-gradient-to-br from-tertiary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
   <Link
     href={`/${entry.collection}/${entry.id}`}
-    class="flex flex-col gap-4 sm:flex-row"
+    class="flex flex-col gap-4 sm:flex-row relative z-10"
   >
     {(entry.data.thumbnailIcon || entry.data.image) && (
       <div class="relative max-w-[180px] sm:flex-shrink-0">
