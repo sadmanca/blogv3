@@ -64,6 +64,27 @@ const isDev = import.meta.env.DEV; // true when in development mode
     </script>
   )}
   <!-- End Google tag (gtag.js) -->
+  
+  <!-- Service Worker Registration -->
+  <script is:inline>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('SW registered: ', registration);
+          })
+          .catch(function(registrationError) {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+  
+  <!-- Performance monitoring -->
+  {!isDev && (
+    <script src="/performance.js" defer></script>
+  )}
+  
   <MediumZoom />  
   <Head>
     <slot name="head" />

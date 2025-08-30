@@ -1,38 +1,62 @@
 import { FEATURED_PROJECTS } from '@/consts'
 import { getCollection, render, type CollectionEntry } from 'astro:content'
-import { readingTime, calculateWordCountFromHtml } from '@/lib/utils'
+import { readingTime } from '@/lib/utils'
+import { calculateWordCountFromHtml } from '@/lib/server-utils'
+
+// Cache for collection data to avoid repeated API calls
+let authorsCache: CollectionEntry<'authors'>[] | null = null
+let postsCache: CollectionEntry<'blog'>[] | null = null
+let allPostsCache: CollectionEntry<'blog'>[] | null = null
+let projectsCache: CollectionEntry<'projects'>[] | null = null
+
+// Cache for expensive calculations
+const wordCountCache = new Map<string, number>()
+const readingTimeCache = new Map<string, string>()
+const renderCache = new Map<string, any>()
 
 export async function getAllAuthors(): Promise<CollectionEntry<'authors'>[]> {
-  return await getCollection('authors')
+  if (!authorsCache) {
+    authorsCache = await getCollection('authors')
+  }
+  return authorsCache
 }
 
 export async function getAllPosts(): Promise<CollectionEntry<'blog'>[]> {
-  const posts = await getCollection('blog')
-  return posts
-    .filter((post) => !post.data.draft && !isSubpost(post.id))
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  if (!postsCache) {
+    const posts = await getCollection('blog')
+    postsCache = posts
+      .filter((post) => !post.data.draft && !isSubpost(post.id))
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  }
+  return postsCache
 }
 
 export async function getAllPostsAndSubposts(): Promise<
   CollectionEntry<'blog'>[]
 > {
-  const posts = await getCollection('blog')
-  return posts
-    .filter((post) => !post.data.draft)
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  if (!allPostsCache) {
+    const posts = await getCollection('blog')
+    allPostsCache = posts
+      .filter((post) => !post.data.draft)
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  }
+  return allPostsCache
 }
 
 export async function getAllProjects(): Promise<CollectionEntry<'projects'>[]> {
-  const projects = await getCollection('projects')
-  // Sort so FEATURED_PROJECTS come first, in order
-  return projects.sort((a, b) => {
-    const aIndex = FEATURED_PROJECTS.indexOf(a.id);
-    const bIndex = FEATURED_PROJECTS.indexOf(b.id);
-    if (aIndex === -1 && bIndex === -1) return 0;
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
+  if (!projectsCache) {
+    const projects = await getCollection('projects')
+    // Sort so FEATURED_PROJECTS come first, in order
+    projectsCache = projects.sort((a, b) => {
+      const aIndex = FEATURED_PROJECTS.indexOf(a.id);
+      const bIndex = FEATURED_PROJECTS.indexOf(b.id);
+      if (aIndex === -1 && bIndex === -1) return 0;
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      return aIndex - bIndex;
+    });
+  }
+  return projectsCache
 }
 
 export async function getAllTags(): Promise<Map<string, number>> {
@@ -226,27 +250,60 @@ export async function getSubpostCount(parentId: string): Promise<number> {
 }
 
 export async function getCombinedReadingTime(postId: string): Promise<string> {
-  const post = await getPostById(postId)
-  if (!post) return readingTime(0)
+  // Check cache first
+  const cacheKey = `combined-${postId}`
+  if (readingTimeCache.has(cacheKey)) {
+    return readingTimeCache.get(cacheKey)!
+  }
 
-  let totalWords = calculateWordCountFromHtml(post.body ?? '')
+  const post = await getPostById(postId)
+  if (!post) {
+    readingTimeCache.set(cacheKey, readingTime(0))
+    return readingTime(0)
+  }
+
+  let totalWords = getWordCountCached(postId, post.body ?? '')
 
   if (!isSubpost(postId)) {
     const subposts = await getSubpostsForParent(postId)
     for (const subpost of subposts) {
-      totalWords += calculateWordCountFromHtml(subpost.body ?? '')
+      totalWords += getWordCountCached(subpost.id, subpost.body ?? '')
     }
   }
 
-  return readingTime(totalWords)
+  const result = readingTime(totalWords)
+  readingTimeCache.set(cacheKey, result)
+  return result
 }
 
 export async function getPostReadingTime(postId: string): Promise<string> {
-  const post = await getPostById(postId)
-  if (!post) return readingTime(0)
+  // Check cache first
+  const cacheKey = `post-${postId}`
+  if (readingTimeCache.has(cacheKey)) {
+    return readingTimeCache.get(cacheKey)!
+  }
 
-  const wordCount = calculateWordCountFromHtml(post.body ?? '')
-  return readingTime(wordCount)
+  const post = await getPostById(postId)
+  if (!post) {
+    readingTimeCache.set(cacheKey, readingTime(0))
+    return readingTime(0)
+  }
+
+  const wordCount = getWordCountCached(postId, post.body ?? '')
+  const result = readingTime(wordCount)
+  readingTimeCache.set(cacheKey, result)
+  return result
+}
+
+// Helper function to cache word counts
+function getWordCountCached(postId: string, body: string): number {
+  if (wordCountCache.has(postId)) {
+    return wordCountCache.get(postId)!
+  }
+  
+  const wordCount = calculateWordCountFromHtml(body)
+  wordCountCache.set(postId, wordCount)
+  return wordCount
 }
 
 export type TOCHeading = {

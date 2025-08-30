@@ -1,6 +1,5 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { JSDOM } from 'jsdom'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -12,23 +11,6 @@ export function formatDate(date: Date) {
     month: 'long',
     year: 'numeric',
   }).format(date)
-}
-
-export function calculateWordCountFromHtml(html: string): number {
-  const dom = new JSDOM(html)
-  const doc = dom.window.document
-  
-  // Remove code elements
-  const codeElements = doc.querySelectorAll('code, pre, .code')
-  codeElements.forEach(el => el.remove())
-  
-  // Remove table elements
-  const tableElements = doc.querySelectorAll('table')
-  tableElements.forEach(el => el.remove())
-  
-  // Get text content and count words
-  const textContent = doc.body.textContent || ''
-  return textContent.trim().split(/\s+/).filter(word => word.length > 0).length
 }
 
 export function readingTime(wordCount: number): string {

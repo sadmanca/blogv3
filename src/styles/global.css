@@ -110,9 +110,41 @@
 }
 
 @font-face {
+  font-family: 'Inter Variable Arrow';
+  src: url('/fonts/InterVariable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2197; /* Only load the ↗ character */
+}
+
+/* Apply subset font to external link arrows */
+a[target="_blank"]::after,
+a[rel~="nofollow"]::after {
+  font-family: 'Inter Variable Arrow', 'Inter Variable', sans-serif;
+}
+
+/* Optimized font loading - reduced to essential weights only */
+@font-face {
+  font-family: 'Iosevka';
+  src: url('/fonts/IosevkaFixedSS03-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Iosevka';
+  src: url('/fonts/IosevkaFixedSS03-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Iosevka';
   src: url('/fonts/IosevkaFixedSS03-SemiBold.woff2') format('woff2');
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
@@ -120,7 +152,7 @@
 @font-face {
   font-family: 'Iosevka';
   src: url('/fonts/IosevkaFixedSS03-SemiBoldItalic.woff2') format('woff2');
-  font-weight: normal;
+  font-weight: 600;
   font-style: italic;
   font-display: swap;
 }
