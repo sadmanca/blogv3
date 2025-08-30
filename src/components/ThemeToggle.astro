@@ -8,7 +8,7 @@ import { Icon } from 'astro-icon/components'
   variant="ghost"
   size="icon"
   title="Toggle theme"
-  className="-me-2 size-8"
+  className="-me-2 size-8 hover:bg-gradient-to-r hover:from-tertiary/10 hover:to-primary/10 hover:border hover:border-tertiary/20 transition-all duration-300"
 >
   <Icon
     name="lucide:sun"
@@ -22,22 +22,25 @@ import { Icon } from 'astro-icon/components'
 </Button>
 
 <script is:inline data-astro-rerun>
-  const theme = (() => {
-    const localStorageTheme = localStorage?.getItem('theme') ?? ''
-    if (['dark', 'light'].includes(localStorageTheme)) {
-      return localStorageTheme
-    }
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark'
-    }
-    return 'light'
-  })()
+  // Wrap in IIFE to avoid redeclaration issues with Swup
+  (() => {
+    const theme = (() => {
+      const localStorageTheme = localStorage?.getItem('theme') ?? ''
+      if (['dark', 'light'].includes(localStorageTheme)) {
+        return localStorageTheme
+      }
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark'
+      }
+      return 'light'
+    })()
 
-  document.documentElement.setAttribute('data-theme', theme)
-  document.documentElement.classList.add(
-    theme === 'dark' ? 'scheme-dark' : 'scheme-light',
-  )
-  window.localStorage.setItem('theme', theme)
+    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.classList.add(
+      theme === 'dark' ? 'scheme-dark' : 'scheme-light',
+    )
+    window.localStorage.setItem('theme', theme)
+  })()
 </script>
 
 <script>
