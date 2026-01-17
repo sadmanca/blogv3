@@ -11,22 +11,23 @@ const menuItems = [
 ]
 ---
 
-<div class="relative inline-block ml-2">
-  <button 
-    type="button" 
-    id="more-dropdown-trigger"
-    class="flex items-center text-sm capitalize text-foreground/60 transition-colors hover:text-foreground/80 hover:cursor-pointer"
-    aria-haspopup="true" 
-    aria-expanded="false"
+<!-- 
+  Using <details> element for progressive enhancement:
+  - Works without JavaScript (native click-to-toggle)
+  - Enhanced with JS for hover behavior on desktop
+  - Accessible by default with proper keyboard support
+-->
+<details class="more-dropdown relative inline-block ml-2" id="more-dropdown">
+  <summary 
+    class="more-dropdown-trigger flex items-center text-sm capitalize text-foreground/60 transition-colors hover:text-foreground/80 cursor-pointer list-none [&::-webkit-details-marker]:hidden"
   >
     More
-    <Icon name="lucide:chevron-down" class="ml-1 size-4 transition-transform duration-300" style="margin-top: 2.5px;" />
-  </button>
+    <Icon name="lucide:chevron-down" class="chevron-icon ml-1 size-4 transition-transform duration-300" style="margin-top: 2.5px;" />
+  </summary>
 
   <!-- Dropdown Menu -->
   <div 
-    id="more-dropdown-content"
-    class="dropdown-menu absolute right-0 mt-1 z-50 min-w-[8rem] origin-top-right rounded-md bg-background border shadow-md p-1 invisible opacity-0 scale-95 -translate-y-2"
+    class="dropdown-menu absolute right-0 mt-1 z-50 min-w-[8rem] origin-top-right rounded-md bg-background border shadow-md p-1"
   >
     {menuItems.map(item => (
       <div class="block">
@@ -40,96 +41,103 @@ const menuItems = [
       </div>
     ))}
   </div>
-</div>
+</details>
 
 <style>
-  .dropdown-menu {
-    transition: 
-      opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
-      transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
-      visibility 0.15s;
-    pointer-events: none;
-    will-change: opacity, transform;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .dropdown-menu {
-      transition: none;
-    }
+  /* Base styles - works without JS */
+  .more-dropdown .dropdown-menu {
+    display: none;
   }
   
-  .dropdown-menu.active {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0) scale(100%);
-    pointer-events: auto;
+  .more-dropdown[open] .dropdown-menu {
+    display: block;
   }
-
-  #more-dropdown-trigger[aria-expanded="true"] svg {
+  
+  .more-dropdown[open] .chevron-icon {
     transform: rotate(180deg);
   }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const trigger = document.getElementById('more-dropdown-trigger');
-    const content = document.getElementById('more-dropdown-content');
-    const container = trigger?.parentElement;
-    
-    // Dropdown functionality
-    if (trigger && content && container) {
-      let isOpen = false;
-      let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
+  function initMoreDropdown() {
+    const details = document.getElementById('more-dropdown') as HTMLDetailsElement | null;
+    if (!details) return;
+
+    const summary = details.querySelector('summary');
+    if (!summary) return;
+
+    // Track if dropdown was opened by click (sticky) vs hover
+    let clickLocked = false;
+    let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const openDropdown = () => {
+      details.open = true;
+    };
+
+    const closeDropdown = () => {
+      details.open = false;
+      clickLocked = false;
+    };
+
+    // Handle summary click - toggle sticky state
+    summary.addEventListener('click', (e) => {
+      e.preventDefault();
       
-      const openDropdown = () => {
-        if (!isOpen) {
-          content.classList.add('active');
-          trigger.setAttribute('aria-expanded', 'true');
-          isOpen = true;
-        }
-      };
-      
-      const closeDropdown = () => {
-        if (isOpen) {
-          content.classList.remove('active');
-          trigger.setAttribute('aria-expanded', 'false');
-          isOpen = false;
-        }
-      };
-      
-      // Hover functionality
-      container.addEventListener('mouseenter', () => {
+      if (details.open && clickLocked) {
+        // Already open and locked by click - close it
+        closeDropdown();
+      } else if (details.open && !clickLocked) {
+        // Open by hover, now clicking - lock it open
+        clickLocked = true;
+      } else {
+        // Closed - open and lock
+        openDropdown();
+        clickLocked = true;
+      }
+    });
+
+    // Hover functionality (desktop only, uses matchMedia for proper detection)
+    const isHoverDevice = window.matchMedia('(hover: hover)').matches;
+
+    if (isHoverDevice) {
+      details.addEventListener('mouseenter', () => {
         if (hoverTimeout) {
           clearTimeout(hoverTimeout);
           hoverTimeout = null;
         }
-        openDropdown();
-      });
-      
-      container.addEventListener('mouseleave', () => {
-        hoverTimeout = setTimeout(() => {
-          closeDropdown();
-        }, 150); // Small delay to prevent flickering
-      });
-      
-      // Click functionality (for touch devices)
-      trigger.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        isOpen ? closeDropdown() : openDropdown();
-      });
-      
-      document.addEventListener('click', (e) => {
-        if (!container.contains(e.target as Node)) {
-          closeDropdown();
+        if (!clickLocked) {
+          openDropdown();
         }
-      }, { passive: true });
-      
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && isOpen) {
-          closeDropdown();
+      });
+
+      details.addEventListener('mouseleave', () => {
+        if (!clickLocked) {
+          hoverTimeout = setTimeout(() => {
+            closeDropdown();
+          }, 150);
         }
       });
     }
-  });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!details.contains(e.target as Node) && details.open) {
+        closeDropdown();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && details.open) {
+        closeDropdown();
+        summary.focus();
+      }
+    });
+  }
+
+  // Initialize on page load
+  initMoreDropdown();
+
+  // Re-initialize after Astro view transitions
+  document.addEventListener('astro:after-swap', initMoreDropdown);
 </script>
