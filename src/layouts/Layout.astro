@@ -6,8 +6,13 @@ import Footer from '@/components/Footer.astro'
 import Head from '@/components/Head.astro'
 import Header from '@/components/Header.astro'
 import MediumZoom from '@/components/MediumZoom.astro'
+import Banner from '@/components/ui/banner.tsx'
 import { SITE } from '@/consts'
 import { cn } from '@/lib/utils'
+import { getAllPosts } from '@/lib/data-utils'
+
+const allPosts = await getAllPosts()
+const latestPost = allPosts.length > 0 ? allPosts[0] : null
 
 interface Props {
   class?: string
@@ -90,7 +95,15 @@ const isDev = import.meta.env.DEV; // true when in development mode
     <slot name="head" />
   </Head>
   <body>
-    <div class="flex h-fit min-h-screen flex-col gap-y-6 font-sans">
+    <div class="flex h-fit min-h-screen flex-col gap-y-1 font-sans">
+      {latestPost && (
+        <Banner
+          client:only="react"
+          type={`Latest post: `}
+          text={`${latestPost.data.title}`}
+          link={`/blog/${latestPost.id}`}
+        />
+      )}
       <div
         class="sticky top-0 z-50 divide-y xl:divide-none"
       >
