@@ -364,12 +364,14 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     }
   }
 
-  document.addEventListener('astro:page-load', () => TOCController.init())
-  document.addEventListener('astro:after-swap', () => {
-    TOCController.cleanup()
-    TOCController.init()
-  })
-  document.addEventListener('astro:before-swap', () => TOCController.cleanup())
+  // Initialize immediately if DOM ready, otherwise wait
+  if (document.readyState !== 'loading') {
+    TOCController.init();
+  }
+
+  // Astro view transitions
+  document.addEventListener('astro:page-load', () => TOCController.init());
+  document.addEventListener('astro:before-swap', () => TOCController.cleanup());
 
   window.TOCController = TOCController;
 </script>

@@ -130,7 +130,12 @@ const isDev = import.meta.env.DEV; // true when in development mode
         }
       }
 
-      document.addEventListener('astro:after-swap', hideMobileTOC);
+      // Initialize immediately if DOM ready
+      if (document.readyState !== 'loading') {
+        hideMobileTOC();
+      }
+
+      // Astro view transitions
       document.addEventListener('astro:page-load', hideMobileTOC);
   </script>
   </body>

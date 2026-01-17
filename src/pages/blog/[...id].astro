@@ -426,15 +426,16 @@ const cssVars = {
       };
     }
 
-    document.addEventListener('astro:page-load', scrollToTop);
-    document.addEventListener('astro:page-load', initScrollProgress);
-
-    function initMobileTOC() {
-      window.MobileTOCController.cleanup?.();
-      window.MobileTOCController.init();
+    // Initialize immediately if DOM ready
+    if (document.readyState !== 'loading') {
+      scrollToTop();
+      initScrollProgress();
     }
 
-    document.addEventListener('astro:page-load', initMobileTOC);
-    document.addEventListener('astro:after-swap', initMobileTOC);    
+    // Astro view transitions
+    document.addEventListener('astro:page-load', () => {
+      scrollToTop();
+      initScrollProgress();
+    });
   </script>
 </Layout>

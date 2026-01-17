@@ -399,14 +399,14 @@ const { headings } = Astro.props
     }
   }
 
-  document.addEventListener('astro:page-load', () => MobileTOCController.init())
-  document.addEventListener('astro:after-swap', () => {
-    MobileTOCController.cleanup()
-    MobileTOCController.init()
-  })
-  document.addEventListener('astro:before-swap', () =>
-    MobileTOCController.cleanup(),
-  )
+  // Initialize immediately if DOM ready, otherwise wait
+  if (document.readyState !== 'loading') {
+    MobileTOCController.init();
+  }
+
+  // Astro view transitions
+  document.addEventListener('astro:page-load', () => MobileTOCController.init());
+  document.addEventListener('astro:before-swap', () => MobileTOCController.cleanup());
 
   window.MobileTOCController = MobileTOCController;
 </script>
