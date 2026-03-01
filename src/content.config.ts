@@ -27,8 +27,9 @@ const limiter_trakt = new RateLimiter({ tokensPerInterval: 1, interval: 'second'
 const limiter_tmdb = new RateLimiter({ tokensPerInterval: 50, interval: 'second' })
 
 async function fetchWithRetry(url: string, type: string, options = {}) {
-  let response;
-  let retries = 15;
+  let response: Response | undefined;
+  let retries = 5;
+  let attempt = 0;
 
   while (retries > 0) {
     if (type == 'trakt') {
@@ -36,16 +37,26 @@ async function fetchWithRetry(url: string, type: string, options = {}) {
     } else {
       await limiter_tmdb.removeTokens(1);
     }
+
     response = await fetch(url, options);
-    if (response.status === 200) {
+    if (response.ok) {
       return response;
     }
 
+    const shouldRetry = response.status === 429 || response.status >= 500;
+    if (!shouldRetry) {
+      break;
+    }
+
     retries -= 1;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    attempt += 1;
+    const backoffMs = Math.min(1000 * 2 ** attempt, 10000);
+    await new Promise((resolve) => setTimeout(resolve, backoffMs));
   }
 
-  throw new Error('Too many requests or invalid response format');
+  throw new Error(
+    `Too many requests or invalid response format (${response?.status ?? 'no status'} ${response?.statusText ?? ''})`,
+  );
 }
 
 const trakt_watched_movies = defineCollection({
@@ -59,58 +70,68 @@ const trakt_watched_movies = defineCollection({
     imdb: z.string(),
   }),
   loader: async () => {
+    if (!TRAKT_CLIENT_ID || !TMDB_API_KEY) {
+      console.warn('[content] Skipping trakt_watched_movies: missing TRAKT_CLIENT_ID or TMDB_API_KEY');
+      return [];
+    }
+
     const type = 'movie'
     const alt_type = 'movies'
     const alt_type2 = 'movie'
-    
-    const watchedResponse = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
-      headers: {
-        'Content-Type': 'application/json',
-        'trakt-api-version': '2',
-        'trakt-api-key': TRAKT_CLIENT_ID,
-      },
-    });
-    const watchedData = await watchedResponse.json();
 
-    const ratingsResponse = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
-      headers: {
-        'Content-Type': 'application/json',
-        'trakt-api-version': '2',
-        'trakt-api-key': TRAKT_CLIENT_ID,
-      },
-    });
-    const ratingsData = await ratingsResponse.json();
+    try {
+      const watchedResponse = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
+        headers: {
+          'Content-Type': 'application/json',
+          'trakt-api-version': '2',
+          'trakt-api-key': TRAKT_CLIENT_ID,
+        },
+      });
+      const watchedData = await watchedResponse.json();
 
-    const ratings = ratingsData.reduce(
-      (
-        acc: { [x: string]: any },
-        item: { [x: string]: { ids: { tmdb: string | number } }; rating: any },
-      ) => {
-        acc[item[type].ids.tmdb] = item.rating
-        return acc
-      },
-      {},
-    );
+      const ratingsResponse = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
+        headers: {
+          'Content-Type': 'application/json',
+          'trakt-api-version': '2',
+          'trakt-api-key': TRAKT_CLIENT_ID,
+        },
+      });
+      const ratingsData = await ratingsResponse.json();
 
-    const movies = await Promise.all(watchedData.map(async (item: any) => {
-      const tmdbId = item[type].ids.tmdb;
-      const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+      const ratings = ratingsData.reduce(
+        (
+          acc: { [x: string]: any },
+          item: { [x: string]: { ids: { tmdb: string | number } }; rating: any },
+        ) => {
+          acc[item[type].ids.tmdb] = item.rating
+          return acc
+        },
+        {},
+      );
 
-      const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
-      const tmdbData = await tmdbResponse.json();
+      const movies = await Promise.all(watchedData.map(async (item: any) => {
+        const tmdbId = item[type].ids.tmdb;
+        const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
 
-      return {
-        id: item[type].ids.imdb,
-        title: item[type].title,
-        year: item[type].year,
-        rating: ratings[tmdbId] || 0,
-        last_watched_at: item.last_watched_at,
-        poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
-        imdb: item[type].ids.imdb
-      };
-    }));
+        const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
+        const tmdbData = await tmdbResponse.json();
 
-    return movies;
+        return {
+          id: item[type].ids.imdb,
+          title: item[type].title,
+          year: item[type].year,
+          rating: ratings[tmdbId] || 0,
+          last_watched_at: item.last_watched_at,
+          poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
+          imdb: item[type].ids.imdb
+        };
+      }));
+
+      return movies;
+    } catch (error) {
+      console.warn(`[content] trakt_watched_movies failed; returning empty list. ${(error as Error).message}`);
+      return [];
+    }
   }
 });
 
@@ -125,59 +146,68 @@ const trakt_watched_shows = defineCollection({
     imdb: z.string(),
   }),
   loader: async () => {
+    if (!TRAKT_CLIENT_ID || !TMDB_API_KEY) {
+      console.warn('[content] Skipping trakt_watched_shows: missing TRAKT_CLIENT_ID or TMDB_API_KEY');
+      return [];
+    }
     
     const type = 'show'
     const alt_type = 'shows'
     const alt_type2 = 'tv'
-    
-    const watchedResponse = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
-      headers: {
-        'Content-Type': 'application/json',
-        'trakt-api-version': '2',
-        'trakt-api-key': TRAKT_CLIENT_ID,
-      },
-    });
-    const watchedData = await watchedResponse.json();
 
-    const ratingsResponse = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
-      headers: {
-        'Content-Type': 'application/json',
-        'trakt-api-version': '2',
-        'trakt-api-key': TRAKT_CLIENT_ID,
-      },
-    });
-    const ratingsData = await ratingsResponse.json();
+    try {
+      const watchedResponse = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
+        headers: {
+          'Content-Type': 'application/json',
+          'trakt-api-version': '2',
+          'trakt-api-key': TRAKT_CLIENT_ID,
+        },
+      });
+      const watchedData = await watchedResponse.json();
 
-    const ratings = ratingsData.reduce(
-      (
-        acc: { [x: string]: any },
-        item: { [x: string]: { ids: { tmdb: string | number } }; rating: any },
-      ) => {
-        acc[item[type].ids.tmdb] = item.rating
-        return acc
-      },
-      {},
-    );
+      const ratingsResponse = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
+        headers: {
+          'Content-Type': 'application/json',
+          'trakt-api-version': '2',
+          'trakt-api-key': TRAKT_CLIENT_ID,
+        },
+      });
+      const ratingsData = await ratingsResponse.json();
 
-    const shows = await Promise.all(watchedData.map(async (item: any) => {
-      const tmdbId = item[type].ids.tmdb;
-      const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+      const ratings = ratingsData.reduce(
+        (
+          acc: { [x: string]: any },
+          item: { [x: string]: { ids: { tmdb: string | number } }; rating: any },
+        ) => {
+          acc[item[type].ids.tmdb] = item.rating
+          return acc
+        },
+        {},
+      );
 
-      const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
-      const tmdbData = await tmdbResponse.json();
+      const shows = await Promise.all(watchedData.map(async (item: any) => {
+        const tmdbId = item[type].ids.tmdb;
+        const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
 
-      return {
-        id: item[type].ids.imdb,
-        title: item[type].title,
-        year: item[type].year,
-        rating: ratings[tmdbId] || 0,
-        last_watched_at: item.last_watched_at,
-        poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
-        imdb: item[type].ids.imdb
-      };
-    }));
+        const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
+        const tmdbData = await tmdbResponse.json();
 
-    return shows;
+        return {
+          id: item[type].ids.imdb,
+          title: item[type].title,
+          year: item[type].year,
+          rating: ratings[tmdbId] || 0,
+          last_watched_at: item.last_watched_at,
+          poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
+          imdb: item[type].ids.imdb
+        };
+      }));
+
+      return shows;
+    } catch (error) {
+      console.warn(`[content] trakt_watched_shows failed; returning empty list. ${(error as Error).message}`);
+      return [];
+    }
   }
 });
 
