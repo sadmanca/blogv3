@@ -1,15 +1,15 @@
 ---
-import Breadcrumbs from '@/components/Breadcrumbs.astro'
-import Link from '@/components/Link.astro'
-import PostHead from '@/components/PostHead.astro'
-import PostNavigation from '@/components/PostNavigation.astro'
-import SubpostsHeader from '@/components/SubpostsHeader.astro'
-import SubpostsSidebar from '@/components/SubpostsSidebar.astro'
-import TOCHeader from '@/components/TOCHeader.astro'
-import TOCSidebar from '@/components/TOCSidebar.astro'
-import { Badge, badgeVariants } from '@/components/ui/badge'
+import Breadcrumbs from '@/components/breadcrumbs.astro'
+import Link from '@/components/link.astro'
+import PostHead from '@/components/post-head.astro'
+import PostNavigation from '@/components/post-navigation.astro'
+import SubpostsHeader from '@/components/subposts-header.astro'
+import SubpostsSidebar from '@/components/subposts-sidebar.astro'
+import TOCHeader from '@/components/toc-header.astro'
+import TOCSidebar from '@/components/toc-sidebar.astro'
+import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import Layout from '@/layouts/Layout.astro'
+import Layout from '@/layouts/layout.astro'
 import {
   getAdjacentPosts,
   getAllPostsAndSubposts,
@@ -40,7 +40,9 @@ export async function getStaticPaths() {
 
 const post = Astro.props
 const currentPostId = Astro.params.id
-const { Content, headings } = await render(post)
+const renderedPost = await render(post)
+const Content = renderedPost?.Content
+const headings = renderedPost?.headings ?? []
 const authors = await parseAuthors(post.data.authors ?? [])
 
 const isCurrentSubpost = isSubpost(currentPostId)
@@ -250,13 +252,12 @@ const cssVars = {
             post.data.tags &&
               post.data.tags.length > 0 &&
               post.data.tags.map((tag) => (
-                <a href={`/tags/${tag}`}>
-                  <Badge 
-                    variant="muted" 
-                    classes={getTagClasses(tag)}
-                  >
-                    {tag}
-                  </Badge>
+                <a
+                  href={`/tags/${tag}`}
+                  class={badgeVariants({ variant: 'muted' })}
+                >
+                  <Icon name="lucide:hash" class="size-3" />
+                  {tag}
                 </a>
               ))
           }
@@ -278,7 +279,11 @@ const cssVars = {
 
     <article class="prose col-start-2 max-w-xl">
     <!-- <article class="prose col-start-2 max-w-xl"> -->
-      <Content />
+      {
+        Content
+          ? <Content />
+          : <p>This post content could not be rendered.</p>
+      }
     </article>
 
     {
@@ -439,3 +444,18 @@ const cssVars = {
     });
   </script>
 </Layout>
+
+<script>
+  const ensureKatexStyles = () => {
+    if (!document.querySelector('.katex')) return
+    if (document.querySelector('link[href*="katex.min.css"]')) return
+
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css'
+    document.head.appendChild(link)
+  }
+
+  document.addEventListener('astro:page-load', ensureKatexStyles)
+  document.addEventListener('astro:after-swap', ensureKatexStyles)
+</script>

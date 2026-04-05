@@ -29,12 +29,6 @@
   --color-slightly-muted: var(--slightly-muted);
   --color-muted-foreground: var(--muted-foreground);
 
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-
-  --color-additive: var(--additive);
-  --color-additive-foreground: var(--additive-foreground);
-
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
 

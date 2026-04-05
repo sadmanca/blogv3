@@ -104,6 +104,11 @@ function formatDate(dateString: any) {
 
   return `${day} ${month} ${year}`
 }
+
+function shouldSkipOptimization(imageUrl: string) {
+  // Some legacy cover URLs redirect and fail Astro remote image optimization.
+  return imageUrl.includes('pressablecdn.com')
+}
 ---
 
 <style>
@@ -161,15 +166,29 @@ function formatDate(dateString: any) {
                   <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
                 </div>
               </div>
-              <Image
-                src={book.data.book_medium_image_url}
-                alt={book.data.title ?? ''}
-                class="-mt-0 zoomable-image h-full w-full rounded-md object-cover"
-                title={`${book.data.title}`}
-                width={101}
-                height={150}
-                onload={`document.getElementById('placeholder-${book.data.book_id}').classList.add('hidden'); this.classList.add('loaded');`}
-              />
+              {shouldSkipOptimization(book.data.book_medium_image_url) ? (
+                <img
+                  src={book.data.book_medium_image_url}
+                  alt={book.data.title ?? ''}
+                  class="-mt-0 zoomable-image h-full w-full rounded-md object-cover"
+                  title={`${book.data.title}`}
+                  width={101}
+                  height={150}
+                  loading="lazy"
+                  decoding="async"
+                  onload={`document.getElementById('placeholder-${book.data.book_id}').classList.add('hidden'); this.classList.add('loaded');`}
+                />
+              ) : (
+                <Image
+                  src={book.data.book_medium_image_url}
+                  alt={book.data.title ?? ''}
+                  class="-mt-0 zoomable-image h-full w-full rounded-md object-cover"
+                  title={`${book.data.title}`}
+                  width={101}
+                  height={150}
+                  onload={`document.getElementById('placeholder-${book.data.book_id}').classList.add('hidden'); this.classList.add('loaded');`}
+                />
+              )}
             </div>
           </a>
           <div class={`mt-${titleMarginTop} text-center`}>
