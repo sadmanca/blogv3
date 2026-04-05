@@ -126,7 +126,8 @@ const cssVars = {
   }
 
   <section
-    class="grid grid-cols-[minmax(0px,1fr)_min(calc(var(--breakpoint-md)-2rem),100%)_minmax(0px,1fr)] gap-y-6"
+    class="grid gap-y-6"
+    style="grid-template-columns: minmax(0, 1fr) min(calc(48rem - 2rem), 100%) minmax(0, 1fr);"
   >
     <div class="col-start-2">
       <Breadcrumbs
@@ -271,6 +272,13 @@ const cssVars = {
       />
     </section>
 
+    {
+      import.meta.env.DEV && (
+        <div class="fixed bottom-2 right-2 z-[9999] rounded bg-black/70 px-2 py-1 text-xs text-white font-mono pointer-events-none">
+          toc: {tocSections.length} section{tocSections.length !== 1 ? 's' : ''}
+        </div>
+      )
+    }
     {
       tocSections.length > 0 && (
         <TOCSidebar sections={tocSections} currentPostId={currentPostId} />
