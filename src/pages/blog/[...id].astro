@@ -334,17 +334,20 @@ const cssVars = {
       if (scrollToTopButton && footer) {
         scrollToTopButton.addEventListener('click', () => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
-        })
+        });
 
-        window.addEventListener('scroll', () => {
+        // Clean up previous scroll listener before adding a new one.
+        (window as any).__scrollToTopCleanup?.();
+        const scrollHandler = () => {
           const footerRect = footer.getBoundingClientRect();
           const isFooterVisible = footerRect.top <= window.innerHeight;
-
           scrollToTopButton.classList.toggle(
             'hidden',
             window.scrollY <= 300 || isFooterVisible,
-          )
-        })
+          );
+        };
+        window.addEventListener('scroll', scrollHandler, { passive: true });
+        (window as any).__scrollToTopCleanup = () => window.removeEventListener('scroll', scrollHandler);
       }
     }
 
@@ -439,24 +442,32 @@ const cssVars = {
       };
     }
 
-    let cleanupScrollProgress: (() => void) | undefined;
+    // Once-guard: reloadScripts re-executes this script on every navigation.
+    // Register document listeners only on the very first execution.
+    const _blogPageFirst = !(window as any).__blogPageInit;
+    (window as any).__blogPageInit = true;
 
-    // Initialize immediately if DOM ready
+    // Initialize immediately — re-execution happens after container swap, so DOM is correct.
     if (document.readyState !== 'loading') {
       scrollToTop();
-      cleanupScrollProgress = initScrollProgress() ?? undefined;
+      (window as any).__cleanupScrollProgress?.();
+      (window as any).__cleanupScrollProgress = initScrollProgress() ?? undefined;
     }
 
-    // Astro view transitions
-    document.addEventListener('astro:before-swap', () => {
-      cleanupScrollProgress?.();
-      cleanupScrollProgress = undefined;
-    });
+    if (_blogPageFirst) {
+      document.addEventListener('astro:before-swap', () => {
+        (window as any).__cleanupScrollProgress?.();
+        (window as any).__cleanupScrollProgress = undefined;
+        (window as any).__scrollToTopCleanup?.();
+        (window as any).__scrollToTopCleanup = undefined;
+      });
 
-    document.addEventListener('astro:page-load', () => {
-      scrollToTop();
-      cleanupScrollProgress = initScrollProgress() ?? undefined;
-    });
+      document.addEventListener('astro:page-load', () => {
+        scrollToTop();
+        (window as any).__cleanupScrollProgress?.();
+        (window as any).__cleanupScrollProgress = initScrollProgress() ?? undefined;
+      });
+    }
   </script>
 </Layout>
 

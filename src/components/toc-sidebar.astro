@@ -159,6 +159,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     regions: { id: string; start: number; end: number }[] = []
     scrollArea: HTMLElement | null = null
     tocScrollArea: HTMLElement | null = null
+    scrollObserver: MutationObserver | null = null
 
     reset() {
       this.links = document.querySelectorAll(
@@ -343,7 +344,9 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       // after astro:page-load. Watch for it so scroll mask and auto-scroll work.
       const tocContainer = document.getElementById('toc-sidebar-container')
       if (tocContainer && !state.scrollArea) {
-        const observer = new MutationObserver(() => {
+        // Disconnect any previous observer before creating a new one (guards against double-init).
+        state.scrollObserver?.disconnect()
+        state.scrollObserver = new MutationObserver(() => {
           const el = tocContainer.querySelector<HTMLElement>(
             '[data-radix-scroll-area-viewport]',
           )
@@ -351,10 +354,11 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
             state.scrollArea = el
             el.addEventListener('scroll', this.handleTOCScroll, { passive: true })
             TOCScrollMask.update()
-            observer.disconnect()
+            state.scrollObserver?.disconnect()
+            state.scrollObserver = null
           }
         })
-        observer.observe(tocContainer, { childList: true, subtree: true })
+        state.scrollObserver.observe(tocContainer, { childList: true, subtree: true })
       } else if (state.scrollArea) {
         state.scrollArea.addEventListener('scroll', this.handleTOCScroll, { passive: true })
       }
@@ -365,6 +369,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     }
 
     static cleanup() {
+      state.scrollObserver?.disconnect()
       window.removeEventListener('scroll', this.handleScroll)
       window.removeEventListener('resize', this.handleResize)
       state.scrollArea?.removeEventListener('scroll', this.handleTOCScroll)
@@ -375,18 +380,26 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
         regions: [],
         scrollArea: null,
         tocScrollArea: null,
+        scrollObserver: null,
       })
     }
   }
 
-  // Initialize immediately if DOM ready, otherwise wait
+  // Once-guard: reloadScripts re-executes this script on every navigation.
+  // Register document listeners only on the very first execution.
+  const _tocSidebarFirst = !(window as any).__tocSidebarInit;
+  (window as any).__tocSidebarInit = true;
+
+  // Always update global reference so listeners invoke the latest class instance.
+  window.TOCController = TOCController;
+
+  // Initialize immediately — re-execution happens after container swap, so DOM is correct.
   if (document.readyState !== 'loading') {
     TOCController.init();
   }
 
-  // Astro view transitions
-  document.addEventListener('astro:page-load', () => TOCController.init());
-  document.addEventListener('astro:before-swap', () => TOCController.cleanup());
-
-  window.TOCController = TOCController;
+  if (_tocSidebarFirst) {
+    document.addEventListener('astro:page-load', () => window.TOCController?.init());
+    document.addEventListener('astro:before-swap', () => window.TOCController?.cleanup());
+  }
 </script>

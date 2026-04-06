@@ -151,7 +151,19 @@ const isDev = import.meta.env.DEV; // true when in development mode
       }
 
       // Astro view transitions
-      document.addEventListener('astro:page-load', hideMobileTOC);
+      document.addEventListener('astro:page-load', () => {
+        hideMobileTOC();
+        // toc-header compiles to an external module inside #swup-toc-slot.
+        // reloadScripts cannot re-execute external modules (module cache).
+        // On the first SPA navigation to a blog post, load it via dynamic import().
+        const tocSlot = document.getElementById('swup-toc-slot');
+        const extScript = tocSlot?.querySelector<HTMLScriptElement>('script[type="module"][src]');
+        if (extScript?.src && !(window as any).MobileTOCController) {
+          import(/* @vite-ignore */ extScript.src)
+            .then(() => (window as any).MobileTOCController?.init())
+            .catch(() => {});
+        }
+      });
   </script>
   </body>
 </html>
