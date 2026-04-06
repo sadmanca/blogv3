@@ -28,7 +28,7 @@ const MobileMenu = () => {
   }, [])
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={(val) => setIsOpen(val)}>
+    <DropdownMenu open={isOpen} onOpenChange={(val: boolean) => setIsOpen(val)}>
       <DropdownMenuTrigger
         asChild
         onClick={() => {
