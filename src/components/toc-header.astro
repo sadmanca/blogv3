@@ -384,6 +384,23 @@ const { headings } = Astro.props
       MobileTOCLinks.update(state.activeIds)
       ProgressCircle.update()
 
+      // scrollArea is populated by React (Radix UI) hydration which may run
+      // after astro:page-load. Watch for it so scroll mask and auto-scroll work.
+      const tocContainer = document.getElementById('mobile-toc-container')
+      if (tocContainer && !state.scrollArea) {
+        const observer = new MutationObserver(() => {
+          const el = tocContainer.querySelector<HTMLElement>(
+            '[data-radix-scroll-area-viewport]',
+          )
+          if (el) {
+            state.scrollArea = el
+            TOCHeaderScrollMask.update()
+            observer.disconnect()
+          }
+        })
+        observer.observe(tocContainer, { childList: true, subtree: true })
+      }
+
       MobileTOCLinks.setupInteraction()
       window.addEventListener('scroll', this.handleScroll, { passive: true })
       window.addEventListener('resize', this.handleResize, { passive: true })

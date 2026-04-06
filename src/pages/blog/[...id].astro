@@ -439,16 +439,23 @@ const cssVars = {
       };
     }
 
+    let cleanupScrollProgress: (() => void) | undefined;
+
     // Initialize immediately if DOM ready
     if (document.readyState !== 'loading') {
       scrollToTop();
-      initScrollProgress();
+      cleanupScrollProgress = initScrollProgress() ?? undefined;
     }
 
     // Astro view transitions
+    document.addEventListener('astro:before-swap', () => {
+      cleanupScrollProgress?.();
+      cleanupScrollProgress = undefined;
+    });
+
     document.addEventListener('astro:page-load', () => {
       scrollToTop();
-      initScrollProgress();
+      cleanupScrollProgress = initScrollProgress() ?? undefined;
     });
   </script>
 </Layout>

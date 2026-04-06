@@ -36,7 +36,7 @@ export default defineConfig({
     icon(),
     swup({
       animationClass: 'transition-',
-      containers: ['main'],
+      containers: ['main', '#swup-toc-slot'],
       cache: true,
       preload: {
         hover: true,

@@ -108,8 +108,10 @@ const isDev = import.meta.env.DEV; // true when in development mode
         class="sticky top-0 z-50 divide-y xl:divide-none"
       >
         <Header />
-        <slot name="subposts-navigation" />
-        <slot name="table-of-contents" />
+        <div id="swup-toc-slot">
+          <slot name="subposts-navigation" />
+          <slot name="table-of-contents" />
+        </div>
       </div>
       <main class="grow">
         <div class={cn('mx-auto flex grow flex-col gap-y-6 px-4', className)}>
