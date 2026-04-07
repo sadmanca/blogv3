@@ -256,7 +256,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
   class TOCLinks {
     static update(headingIds: string[]) {
       state.links.forEach((link) => {
-        link.classList.remove('text-foreground', 'font-bold')
+        link.classList.remove('text-foreground')
       })
 
       headingIds.forEach((id) => {
@@ -265,7 +265,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
             `#toc-sidebar-container [data-heading-link="${id}"]`,
           )
           if (activeLink) {
-            activeLink.classList.add('text-foreground', 'font-bold')
+            activeLink.classList.add('text-foreground')
           }
         }
       })

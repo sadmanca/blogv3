@@ -37,7 +37,7 @@ export default defineConfig({
     swup({
       animationClass: 'transition-',
       containers: ['main', '#swup-toc-slot'],
-      cache: true,
+      cache: !import.meta.env.DEV,
       preload: {
         hover: true,
         visible: false

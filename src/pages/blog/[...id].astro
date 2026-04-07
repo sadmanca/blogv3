@@ -279,31 +279,32 @@ const cssVars = {
         </div>
       )
     }
-    {
-      tocSections.length > 0 && (
-        <TOCSidebar sections={tocSections} currentPostId={currentPostId} />
-      )
-    }
-
-    <article class="prose col-start-2 max-w-xl">
-    <!-- <article class="prose col-start-2 max-w-xl"> -->
+    <div class="col-span-full grid" style="grid-template-columns: minmax(0, 1fr) min(calc(48rem - 2rem), 100%) minmax(0, 1fr);">
       {
-        Content
-          ? <Content />
-          : <p>This post content could not be rendered.</p>
+        tocSections.length > 0 && (
+          <TOCSidebar sections={tocSections} currentPostId={currentPostId} />
+        )
       }
-    </article>
 
-    {
-      (hasChildPosts || isCurrentSubpost) && (
-        <SubpostsSidebar
-          parentId={
-            isCurrentSubpost ? getParentId(currentPostId) : currentPostId
-          }
-          className="w-64"
-        />
-      )
-    }
+      <article class="prose col-start-2 max-w-xl">
+        {
+          Content
+            ? <Content />
+            : <p>This post content could not be rendered.</p>
+        }
+      </article>
+
+      {
+        (hasChildPosts || isCurrentSubpost) && (
+          <SubpostsSidebar
+            parentId={
+              isCurrentSubpost ? getParentId(currentPostId) : currentPostId
+            }
+            className="w-64"
+          />
+        )
+      }
+    </div>
 
     <PostNavigation
       newerPost={navigation.newer}
