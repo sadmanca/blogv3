@@ -28,6 +28,7 @@ const limiter_trakt = new RateLimiter({ tokensPerInterval: 1, interval: 'second'
 const limiter_tmdb = new RateLimiter({ tokensPerInterval: 50, interval: 'second' })
 
 async function fetchWithRetry(url: string, type: string, options = {}) {
+  const start = performance.now();
   let response: Response | undefined;
   let retries = 5;
   let attempt = 0;
@@ -41,6 +42,8 @@ async function fetchWithRetry(url: string, type: string, options = {}) {
 
     response = await fetch(url, options);
     if (response.ok) {
+      const end = performance.now();
+      console.log(`[perf] fetched ${url} in ${(end - start).toFixed(2)}ms`); 
       return response;
     }
 

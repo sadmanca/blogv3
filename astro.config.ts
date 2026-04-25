@@ -13,6 +13,7 @@ import remarkEmoji from 'remark-emoji'
 import remarkMath from 'remark-math'
 import rehypeDocument from 'rehype-document'
 import swup from '@swup/astro';
+import inspect from 'vite-plugin-inspect';
 
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
@@ -58,7 +59,7 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), inspect()],
     ssr: {
       // Remove JSDOM from externals since we no longer use it
     },

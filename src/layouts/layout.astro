@@ -135,11 +135,12 @@ const isDev = import.meta.env.DEV; // true when in development mode
         const isBlogTextPage = path.startsWith("/blog/") && !hideBlogListOrNumberRegex.test(path);
 
         if (tocContainer) {
+          const isMobile = window.innerWidth < 1280; // Matches XL breakpoint
           if (isAboutPage || isBlogTextPage) {
-            tocContainer.style.display = '';
+            tocContainer.style.setProperty('display', isMobile ? '' : 'none', 'important');
             console.log('Mobile TOC shown for blog post or about page');
           } else {
-            tocContainer.style.display = 'none';
+            tocContainer.style.setProperty('display', 'none', 'important');
             console.log('Mobile TOC hidden for blog list or numbered pages');
           }
         }
@@ -153,6 +154,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
       // Astro view transitions
       document.addEventListener('astro:page-load', () => {
         hideMobileTOC();
+        window.addEventListener('resize', hideMobileTOC);
         // toc-header compiles to an external module inside #swup-toc-slot.
         // reloadScripts cannot re-execute external modules (module cache).
         // On the first SPA navigation to a blog post, load it via dynamic import().

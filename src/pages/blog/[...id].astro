@@ -272,13 +272,6 @@ const cssVars = {
       />
     </section>
 
-    {
-      import.meta.env.DEV && (
-        <div class="fixed bottom-2 right-2 z-[9999] rounded bg-black/70 px-2 py-1 text-xs text-white font-mono pointer-events-none">
-          toc: {tocSections.length} section{tocSections.length !== 1 ? 's' : ''}
-        </div>
-      )
-    }
     <div class="col-span-full grid" style="grid-template-columns: minmax(0, 1fr) min(calc(48rem - 2rem), 100%) minmax(0, 1fr);">
       {
         tocSections.length > 0 && (

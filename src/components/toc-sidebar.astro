@@ -63,8 +63,9 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
                               ? `/blog/${parentId}#${heading.slug}`
                               : `#${heading.slug}`
                           }
-                          class="marker:text-foreground/30 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
+                          class="marker:text-foreground/30 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit inline-flex flex-col relative"
                           data-heading-link={heading.slug}
+                          data-text={heading.text}
                         >
                           {heading.text}
                         </a>
@@ -93,12 +94,13 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
                               ? '#'
                               : `/blog/${section.subpostId}`
                           }
-                          class="marker:text-foreground/30 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
+                          class="marker:text-foreground/30 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit inline-flex flex-col relative"
                           data-heading-link={
                             section.subpostId === currentPostId
                               ? 'top'
                               : `${section.subpostId}-top`
                           }
+                          data-text={section.title}
                         >
                           {section.title}
                         </a>
@@ -119,12 +121,13 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
                                 ? `#${heading.slug}`
                                 : `/blog/${section.subpostId}#${heading.slug}`
                             }
-                            class="marker:text-foreground/30 hover:text-foreground/60 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
+                            class="marker:text-foreground/30 hover:text-foreground/60 list-none underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit inline-flex flex-col relative"
                             data-heading-link={
                               section.subpostId === currentPostId
                                 ? heading.slug
                                 : `${section.subpostId}-${heading.slug}`
                             }
+                            data-text={heading.text}
                           >
                             {heading.text}
                           </a>
@@ -256,7 +259,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
   class TOCLinks {
     static update(headingIds: string[]) {
       state.links.forEach((link) => {
-        link.classList.remove('text-foreground')
+        link.classList.remove('text-foreground', 'font-bold')
       })
 
       headingIds.forEach((id) => {
@@ -265,7 +268,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
             `#toc-sidebar-container [data-heading-link="${id}"]`,
           )
           if (activeLink) {
-            activeLink.classList.add('text-foreground')
+            activeLink.classList.add('text-foreground', 'font-bold')
           }
         }
       })
@@ -403,3 +406,20 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     document.addEventListener('astro:before-swap', () => window.TOCController?.cleanup());
   }
 </script>
+
+<style>
+  [data-heading-link]::after {
+    content: attr(data-text);
+    height: 0;
+    visibility: hidden;
+    overflow: hidden;
+    user-select: none;
+    pointer-events: none;
+    font-weight: 700; /* Matches font-bold */
+  }
+
+  /* Specificity override for subpost-header links which might have different mobile styles */
+  #toc-sidebar-container [data-heading-link]::after {
+    display: block;
+  }
+</style>
