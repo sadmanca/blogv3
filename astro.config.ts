@@ -60,6 +60,10 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss(), inspect()],
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'lucide-react', 'clsx', 'tailwind-merge'],
+      exclude: ['@astrojs/mdx'],
+    },
     ssr: {
       // Remove JSDOM from externals since we no longer use it
     },
@@ -101,31 +105,35 @@ export default defineConfig({
       ],
       rehypeHeadingIds,
       rehypeKatex,
-      [
-        rehypeExpressiveCode,
-        {
-          themes: ['catppuccin-macchiato'],
-          defaultProps: {
-            wrap: true,
-            preserveIndent: true,
-            showLineNumbers: true,
-            overridesByLang: {
-              'bash,sh,zsh': { wrap: false },
-            },
-            collapseStyle: 'collapsible-auto',
-            useThemedSelectionColors: true,
-          },
-          styleOverrides: {
-            codeFontSize: '0.9rem',
-            codeFontFamily:
-              "Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-            uiFontFamily:
-              "Bricolage Grotesque, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
-            borderWidth: '2.5px',
-          },
-          plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
-        },
-      ],
+      ...(import.meta.env.DEV
+        ? []
+        : [
+            [
+              rehypeExpressiveCode,
+              {
+                themes: ['catppuccin-macchiato'],
+                defaultProps: {
+                  wrap: true,
+                  preserveIndent: true,
+                  showLineNumbers: true,
+                  overridesByLang: {
+                    'bash,sh,zsh': { wrap: false },
+                  },
+                  collapseStyle: 'collapsible-auto',
+                  useThemedSelectionColors: true,
+                },
+                styleOverrides: {
+                  codeFontSize: '0.9rem',
+                  codeFontFamily:
+                    "Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                  uiFontFamily:
+                    "Bricolage Grotesque, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
+                  borderWidth: '2.5px',
+                },
+                plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
+              },
+            ],
+          ]),
     ],
     remarkPlugins: [remarkMath, remarkEmoji],
   },

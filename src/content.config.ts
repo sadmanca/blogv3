@@ -3,6 +3,7 @@ import { defineCollection } from 'astro:content'
 import { RateLimiter } from 'limiter'
 import { goodreadsLoader } from 'astro-loader-goodreads';
 import { z } from 'astro/zod'
+import { getCachedData } from './lib/cache/api-cache';
 
 const goodreads_read_books = defineCollection({
   loader: goodreadsLoader({
@@ -84,25 +85,29 @@ const trakt_watched_movies = defineCollection({
     const alt_type2 = 'movie'
 
     try {
-      const watchedResponse = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
-        headers: {
-          'Content-Type': 'application/json',
-          'trakt-api-version': '2',
-          'trakt-api-key': TRAKT_CLIENT_ID,
-          'User-Agent': 'blogv3/1.0.0',
-        },
+      const watchedData = await getCachedData(`${alt_type}_watched`, async () => {
+        const response = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
+          headers: {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID,
+            'User-Agent': 'blogv3/1.0.0',
+          },
+        });
+        return await response.json();
       });
-      const watchedData = await watchedResponse.json();
 
-      const ratingsResponse = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
-        headers: {
-          'Content-Type': 'application/json',
-          'trakt-api-version': '2',
-          'trakt-api-key': TRAKT_CLIENT_ID,
-          'User-Agent': 'blogv3/1.0.0',
-        },
+      const ratingsData = await getCachedData(`${alt_type}_ratings`, async () => {
+        const response = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
+          headers: {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID,
+            'User-Agent': 'blogv3/1.0.0',
+          },
+        });
+        return await response.json();
       });
-      const ratingsData = await ratingsResponse.json();
 
       const ratings = ratingsData.reduce(
         (
@@ -117,20 +122,21 @@ const trakt_watched_movies = defineCollection({
 
       const movies = await Promise.all(watchedData.map(async (item: any) => {
         const tmdbId = item[type].ids.tmdb;
-        const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+        return await getCachedData(`tmdb_${alt_type2}_${tmdbId}`, async () => {
+          const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+          const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
+          const tmdbData = await tmdbResponse.json();
 
-        const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
-        const tmdbData = await tmdbResponse.json();
-
-        return {
-          id: item[type].ids.imdb,
-          title: item[type].title,
-          year: item[type].year,
-          rating: ratings[tmdbId] || 0,
-          last_watched_at: item.last_watched_at,
-          poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
-          imdb: item[type].ids.imdb
-        };
+          return {
+            id: item[type].ids.imdb,
+            title: item[type].title,
+            year: item[type].year,
+            rating: ratings[tmdbId] || 0,
+            last_watched_at: item.last_watched_at,
+            poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
+            imdb: item[type].ids.imdb
+          };
+        });
       }));
 
       return movies;
@@ -162,25 +168,29 @@ const trakt_watched_shows = defineCollection({
     const alt_type2 = 'tv'
 
     try {
-      const watchedResponse = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
-        headers: {
-          'Content-Type': 'application/json',
-          'trakt-api-version': '2',
-          'trakt-api-key': TRAKT_CLIENT_ID,
-          'User-Agent': 'blogv3/1.0.0',
-        },
+      const watchedData = await getCachedData(`${alt_type}_watched`, async () => {
+        const response = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
+          headers: {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID,
+            'User-Agent': 'blogv3/1.0.0',
+          },
+        });
+        return await response.json();
       });
-      const watchedData = await watchedResponse.json();
 
-      const ratingsResponse = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
-        headers: {
-          'Content-Type': 'application/json',
-          'trakt-api-version': '2',
-          'trakt-api-key': TRAKT_CLIENT_ID,
-          'User-Agent': 'blogv3/1.0.0',
-        },
+      const ratingsData = await getCachedData(`${alt_type}_ratings`, async () => {
+        const response = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
+          headers: {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID,
+            'User-Agent': 'blogv3/1.0.0',
+          },
+        });
+        return await response.json();
       });
-      const ratingsData = await ratingsResponse.json();
 
       const ratings = ratingsData.reduce(
         (
@@ -195,20 +205,21 @@ const trakt_watched_shows = defineCollection({
 
       const shows = await Promise.all(watchedData.map(async (item: any) => {
         const tmdbId = item[type].ids.tmdb;
-        const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+        return await getCachedData(`tmdb_${alt_type2}_${tmdbId}`, async () => {
+          const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+          const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
+          const tmdbData = await tmdbResponse.json();
 
-        const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
-        const tmdbData = await tmdbResponse.json();
-
-        return {
-          id: item[type].ids.imdb,
-          title: item[type].title,
-          year: item[type].year,
-          rating: ratings[tmdbId] || 0,
-          last_watched_at: item.last_watched_at,
-          poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
-          imdb: item[type].ids.imdb
-        };
+          return {
+            id: item[type].ids.imdb,
+            title: item[type].title,
+            year: item[type].year,
+            rating: ratings[tmdbId] || 0,
+            last_watched_at: item.last_watched_at,
+            poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
+            imdb: item[type].ids.imdb
+          };
+        });
       }));
 
       return shows;
