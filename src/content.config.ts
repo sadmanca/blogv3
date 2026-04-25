@@ -21,8 +21,8 @@ const goodreads_user_updates = defineCollection({
 
 const TRAKT_WATCHED_URL = `https://api.trakt.tv/users/sadmanca/watched`
 const TRAKT_RATINGS_URL = `https://api.trakt.tv/users/sadmanca/ratings`
-const TRAKT_CLIENT_ID = import.meta.env.TRAKT_CLIENT_ID
-const TMDB_API_KEY = import.meta.env.TMDB_API_KEY
+const TRAKT_CLIENT_ID = import.meta.env.TRAKT_CLIENT_ID || process.env.TRAKT_CLIENT_ID;
+const TMDB_API_KEY = import.meta.env.TMDB_API_KEY || process.env.TMDB_API_KEY;
 
 const limiter_trakt = new RateLimiter({ tokensPerInterval: 1, interval: 'second' })
 const limiter_tmdb = new RateLimiter({ tokensPerInterval: 50, interval: 'second' })
