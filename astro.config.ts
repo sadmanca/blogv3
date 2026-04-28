@@ -20,6 +20,33 @@ import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
 
 import tailwindcss from '@tailwindcss/vite'
 
+const isDevCommand = process.argv.slice(2).includes('dev')
+
+const expressiveCodePlugin = [
+  rehypeExpressiveCode,
+  {
+    themes: ['catppuccin-macchiato'],
+    defaultProps: {
+      wrap: true,
+      preserveIndent: true,
+      showLineNumbers: true,
+      overridesByLang: {
+        'bash,sh,zsh': { wrap: false },
+      },
+      collapseStyle: 'collapsible-auto',
+    },
+    styleOverrides: {
+      codeFontSize: '0.9rem',
+      codeFontFamily:
+        "Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+      uiFontFamily:
+        "Bricolage Grotesque, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
+      borderWidth: '2.5px',
+    },
+    plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
+  },
+] satisfies [typeof rehypeExpressiveCode, NonNullable<Parameters<typeof rehypeExpressiveCode>[0]>]
+
 export default defineConfig({
   trailingSlash: 'ignore',
   site: 'https://sadman.ca',
@@ -59,11 +86,15 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: [tailwindcss(), inspect()],
-    optimizeDeps: {
-      include: ['react', 'react-dom', 'lucide-react', 'clsx', 'tailwind-merge'],
-      exclude: ['@astrojs/mdx'],
-    },
+    plugins: [tailwindcss(), ...(isDevCommand ? [inspect()] : [])],
+    ...(isDevCommand
+      ? {
+          optimizeDeps: {
+            include: ['react', 'react-dom', 'lucide-react', 'clsx', 'tailwind-merge'],
+            exclude: ['@astrojs/mdx'],
+          },
+        }
+      : {}),
     ssr: {
       // Remove JSDOM from externals since we no longer use it
     },
@@ -105,35 +136,7 @@ export default defineConfig({
       ],
       rehypeHeadingIds,
       rehypeKatex,
-      ...(import.meta.env.DEV
-        ? []
-        : [
-            [
-              rehypeExpressiveCode,
-              {
-                themes: ['catppuccin-macchiato'],
-                defaultProps: {
-                  wrap: true,
-                  preserveIndent: true,
-                  showLineNumbers: true,
-                  overridesByLang: {
-                    'bash,sh,zsh': { wrap: false },
-                  },
-                  collapseStyle: 'collapsible-auto',
-                  useThemedSelectionColors: true,
-                },
-                styleOverrides: {
-                  codeFontSize: '0.9rem',
-                  codeFontFamily:
-                    "Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-                  uiFontFamily:
-                    "Bricolage Grotesque, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
-                  borderWidth: '2.5px',
-                },
-                plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
-              },
-            ],
-          ]),
+      ...(isDevCommand ? [] : [expressiveCodePlugin]),
     ],
     remarkPlugins: [remarkMath, remarkEmoji],
   },

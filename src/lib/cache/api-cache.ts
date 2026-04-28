@@ -2,11 +2,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const CACHE_DIR = path.resolve('.cache');
-if (!fs.existsSync(CACHE_DIR)) {
-  fs.mkdirSync(CACHE_DIR, { recursive: true });
+const shouldUseDevCache = process.argv.slice(2).includes('dev');
+
+function ensureCacheDir() {
+  if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR, { recursive: true });
+  }
 }
 
 export async function getCachedData<T>(key: string, fetcher: () => Promise<T>, ttlMs: number = 7 * 24 * 60 * 60 * 1000): Promise<T> {
+  if (!shouldUseDevCache) {
+    return fetcher();
+  }
+
+  ensureCacheDir();
   const cacheFile = path.join(CACHE_DIR, `${encodeURIComponent(key)}.json`);
   
   if (fs.existsSync(cacheFile)) {
