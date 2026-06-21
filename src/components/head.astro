@@ -7,13 +7,15 @@ import Favicons from './favicons.astro'
 <head>
   <!-- Blocking theme script: must be first to prevent flash and guarantee data-theme is always set -->
   <script is:inline>
-    (function () {
+    function applyTheme() {
       var stored = localStorage.getItem('theme')
       var theme = stored === 'dark' || stored === 'light'
         ? stored
         : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
       document.documentElement.setAttribute('data-theme', theme)
-    })()
+    }
+    applyTheme()
+    document.addEventListener('astro:after-swap', applyTheme)
   </script>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />

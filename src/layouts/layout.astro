@@ -24,7 +24,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
 ---
 
 <!doctype html>
-<html class="bg-background text-foreground" lang={SITE.locale}>
+<html class="bg-background text-foreground" lang={SITE.locale} transition:animate="none">
   <!-- Google tag (gtag.js) -->
   {!isDev && (
     <script is:inline>

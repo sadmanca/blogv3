@@ -24,6 +24,7 @@ const { type: _type, text, link } = Astro.props
 <div
   id="banner"
   data-banner
+  transition:persist
   class="banner bg-purple-300 dark:bg-purple-900 text-gray-900 dark:text-white px-2 py-1 relative"
 >
   <div class="flex items-center justify-center text-sm">
@@ -65,10 +66,13 @@ const { type: _type, text, link } = Astro.props
 
     if (localStorage.getItem('bannerClosed') !== 'true' && window.innerWidth > 768) {
       const close = () => {
-        banner.style.transition = 'transform 500ms ease';
+        banner.style.transition = 'transform 500ms ease, height 500ms ease, padding 500ms ease';
         banner.style.transform = 'translateY(-100%)';
+        banner.style.height = '0';
+        banner.style.paddingTop = '0';
+        banner.style.paddingBottom = '0';
+        banner.style.overflow = 'hidden';
         localStorage.setItem('bannerClosed', 'true');
-        setTimeout(() => banner.remove(), 500);
       };
 
       if (sessionStorage.getItem('bannerAnimated') !== 'true') {
