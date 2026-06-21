@@ -92,6 +92,7 @@
   src: url('/fonts/BricolageGrotesque.woff2') format('woff2'),
        url('/fonts/BricolageGrotesque.woff') format('woff'),
        url('/fonts/BricolageGrotesque.ttf') format('truetype');
+  font-display: swap;
 }
 
 

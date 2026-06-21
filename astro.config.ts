@@ -67,7 +67,7 @@ export default defineConfig({
     sitemap(),
     icon(),
     swup({
-      animationClass: 'transition-',
+      animationClass: 'swup-',
       containers: ['main', '#swup-toc-slot'],
       cache: !import.meta.env.DEV,
       preload: {

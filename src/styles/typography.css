@@ -579,6 +579,15 @@ figcaption:not(.header) {
   background-color: white;
 }
 
+/* Swup page transition: crossfade */
+.swup-fade {
+  transition: opacity 0.2s ease-in-out;
+  opacity: 1;
+}
+html.swup-is-animating .swup-fade {
+  opacity: 0;
+}
+
 .expressive-code figure.frame {
   z-index: 20;
 }

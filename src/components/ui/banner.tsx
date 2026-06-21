@@ -3,54 +3,45 @@ import { ArrowRightIcon, Bell, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BannerProps {
-  type: string; // The text to display in the banner
-  text: string; // The text to display in the banner
-  link: string; // The URL the banner should link to
+  type: string;
+  text: string;
+  link: string;
 }
 
 export default function Banner({ type, text, link }: BannerProps) {
-  const [isVisible, setIsVisible] = useState(false); // Default to false to avoid pop-in
-  const [shouldRender, setShouldRender] = useState(false); // Controls rendering for animation
+  const [mounted, setMounted] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [isViewportWideEnough, setIsViewportWideEnough] = useState(true);
 
   useEffect(() => {
-    // Check if the banner has been closed previously
     const bannerClosed = localStorage.getItem("bannerClosed");
-    if (bannerClosed !== "true") {
-      setShouldRender(true); // Render the banner
-      setTimeout(() => setIsVisible(true), 50); // Delay visibility to trigger animation
+    if (bannerClosed === "true") {
+      setDismissed(true);
+      return;
     }
 
+    setMounted(true);
+
     const handleResize = () => {
-      // Check if the viewport width is greater than 768px (or any threshold you choose)
       setIsViewportWideEnough(window.innerWidth > 768);
     };
-
-    // Initial check
     handleResize();
-
-    // Add event listener for window resize
     window.addEventListener("resize", handleResize);
-
-    // Cleanup event listener on component unmount
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleClose = () => {
-    setIsVisible(false);
-    setTimeout(() => setShouldRender(false), 500); // Wait for animation to finish before unmounting
-    localStorage.setItem("bannerClosed", "true"); // Save the closed state
+    setMounted(false);
+    setTimeout(() => setDismissed(true), 500);
+    localStorage.setItem("bannerClosed", "true");
   };
 
-  // Hide the banner if it's not visible or if the viewport is too small
-  if (!shouldRender || !isViewportWideEnough) return null;
+  if (dismissed || !isViewportWideEnough) return null;
 
   return (
     <div
       className={`bg-purple-300 dark:bg-purple-900 text-gray-900 dark:text-white px-2 py-1 relative transform transition-transform duration-500 ${
-        isVisible ? "translate-y-0" : "-translate-y-full"
+        mounted ? "translate-y-0" : "-translate-y-full"
       }`}
     >
       <div className="flex items-center justify-center text-sm">
@@ -59,8 +50,8 @@ export default function Banner({ type, text, link }: BannerProps) {
           className="flex items-center group"
           onClick={() => {
             localStorage.setItem("bannerClosed", "true");
-            setIsVisible(false);
-            setTimeout(() => setShouldRender(false), 500);
+            setMounted(false);
+            setTimeout(() => setDismissed(true), 500);
           }}
         >
           <span className="inline-flex items-center transition-transform duration-300 group-hover:-translate-x-1">
