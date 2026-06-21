@@ -52,7 +52,9 @@ export default defineConfig({
   trailingSlash: 'ignore',
   site: 'https://sadman.ca',
   output: 'static',
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    imageService: 'compile',
+  }),
   
   image: {
     // Enable modern image formats with fallbacks
