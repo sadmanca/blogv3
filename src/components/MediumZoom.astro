@@ -86,12 +86,10 @@
           initZoom();
         }
         
-        // Swup and Astro navigation events
-        document.addEventListener('swup:content:replaced', initZoom);
+        // Astro navigation events
         document.addEventListener('astro:page-load', initZoom);
         
         // Clean up before navigation
-        document.addEventListener('swup:will-replace-content', cleanupAllZoom);
         document.addEventListener('astro:before-swap', cleanupAllZoom);
       }
     })();

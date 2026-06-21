@@ -13,8 +13,6 @@ import rehypeKatex from 'rehype-katex'
 import remarkEmoji from 'remark-emoji'
 import remarkMath from 'remark-math'
 import rehypeDocument from 'rehype-document'
-import swup from '@swup/astro';
-import inspect from 'vite-plugin-inspect';
 
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
@@ -66,31 +64,9 @@ export default defineConfig({
     react(),
     sitemap(),
     icon(),
-    swup({
-      animationClass: 'swup-',
-      containers: ['main', '#swup-toc-slot'],
-      cache: !import.meta.env.DEV,
-      preload: {
-        hover: true,
-        visible: false
-      },
-      accessibility: true,
-      forms: false,
-      morph: false,
-      parallel: false,
-      progress: true,
-      routes: false,
-      smoothScrolling: false,
-      updateBodyClass: true,
-      updateHead: true,
-      reloadScripts: true,
-      debug: false,
-      loadOnIdle: true,
-      globalInstance: true,
-    }),
   ],
   vite: {
-    plugins: [tailwindcss(), ...(isDevCommand ? [inspect()] : [])] as any,
+    plugins: [tailwindcss()] as any,
     ...(isDevCommand
       ? {
           optimizeDeps: {

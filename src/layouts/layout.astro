@@ -7,6 +7,7 @@ import Head from '@/components/head.astro'
 import Header from '@/components/header.astro'
 import MediumZoom from '@/components/MediumZoom.astro'
 import Banner from '@/components/ui/banner.tsx'
+import ClientRouter from 'astro/components/ClientRouter.astro'
 import { SITE } from '@/consts'
 import { cn } from '@/lib/utils'
 import { getAllPosts } from '@/lib/data-utils'
@@ -91,6 +92,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
   )}
   
   <MediumZoom />  
+  <ClientRouter fallback="animate" />
   <Head>
     <slot name="head" />
   </Head>
