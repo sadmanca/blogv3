@@ -2,7 +2,7 @@
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn, getHeadingMargin } from '@/lib/utils'
 import type { MarkdownHeading } from 'astro'
-import { Icon } from 'astro-icon/components'
+import { Icon } from '@twodft/astro-icon/components'
 
 type Props = {
   headings: MarkdownHeading[]
@@ -384,6 +384,23 @@ const { headings } = Astro.props
       MobileTOCLinks.update(state.activeIds)
       ProgressCircle.update()
 
+      // scrollArea is populated by React (Radix UI) hydration which may run
+      // after astro:page-load. Watch for it so scroll mask and auto-scroll work.
+      const tocContainer = document.getElementById('mobile-toc-container')
+      if (tocContainer && !state.scrollArea) {
+        const observer = new MutationObserver(() => {
+          const el = tocContainer.querySelector<HTMLElement>(
+            '[data-radix-scroll-area-viewport]',
+          )
+          if (el) {
+            state.scrollArea = el
+            TOCHeaderScrollMask.update()
+            observer.disconnect()
+          }
+        })
+        observer.observe(tocContainer, { childList: true, subtree: true })
+      }
+
       MobileTOCLinks.setupInteraction()
       window.addEventListener('scroll', this.handleScroll, { passive: true })
       window.addEventListener('resize', this.handleResize, { passive: true })
@@ -399,6 +416,9 @@ const { headings } = Astro.props
     }
   }
 
+  // Update global reference before init so callers via window ref work immediately.
+  window.MobileTOCController = MobileTOCController;
+
   // Initialize immediately if DOM ready, otherwise wait
   if (document.readyState !== 'loading') {
     MobileTOCController.init();
@@ -407,6 +427,4 @@ const { headings } = Astro.props
   // Astro view transitions
   document.addEventListener('astro:page-load', () => MobileTOCController.init());
   document.addEventListener('astro:before-swap', () => MobileTOCController.cleanup());
-
-  window.MobileTOCController = MobileTOCController;
 </script>

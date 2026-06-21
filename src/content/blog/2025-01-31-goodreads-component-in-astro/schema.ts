@@ -1,6 +1,6 @@
-import { string, z } from "astro/zod";
+import { z } from 'astro/zod'
 
-export const NSSchema = z.record(z.string());
+export const NSSchema = z.record(z.string(), z.string())
 
 export const ImageSchema = z.object({
   url: z.string().optional(),

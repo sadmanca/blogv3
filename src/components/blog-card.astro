@@ -1,5 +1,5 @@
 ---
-import AvatarComponent from '@/components/ui/avatar'
+import AvatarComponent from '@/components/ui/avatar.tsx'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -11,10 +11,10 @@ import {
 import { formatDate } from '@/lib/utils'
 import { getThumbnailColors } from '@/lib/thumbnail-colors'
 import { TAG_CLASSES } from '@/consts'
-import { Icon } from 'astro-icon/components'
+import { Icon } from '@twodft/astro-icon/components'
 import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
-import Link from './Link.astro'
+import Link from './link.astro'
 
 interface Props {
   entry: CollectionEntry<'blog'>

@@ -1,15 +1,15 @@
 ---
-import Breadcrumbs from '@/components/Breadcrumbs.astro'
-import Link from '@/components/Link.astro'
-import PostHead from '@/components/PostHead.astro'
-import PostNavigation from '@/components/PostNavigation.astro'
-import SubpostsHeader from '@/components/SubpostsHeader.astro'
-import SubpostsSidebar from '@/components/SubpostsSidebar.astro'
-import TOCHeader from '@/components/TOCHeader.astro'
-import TOCSidebar from '@/components/TOCSidebar.astro'
-import { Badge, badgeVariants } from '@/components/ui/badge'
+import Breadcrumbs from '@/components/breadcrumbs.astro'
+import Link from '@/components/link.astro'
+import PostHead from '@/components/post-head.astro'
+import PostNavigation from '@/components/post-navigation.astro'
+import SubpostsHeader from '@/components/subposts-header.astro'
+import SubpostsSidebar from '@/components/subposts-sidebar.astro'
+import TOCHeader from '@/components/toc-header.astro'
+import TOCSidebar from '@/components/toc-sidebar.astro'
+import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import Layout from '@/layouts/Layout.astro'
+import Layout from '@/layouts/layout.astro'
 import {
   getAdjacentPosts,
   getAllPostsAndSubposts,
@@ -26,7 +26,7 @@ import {
 import { formatDate } from '@/lib/utils'
 import { getThumbnailColors } from '@/lib/thumbnail-colors'
 import { TAG_CLASSES } from '@/consts'
-import { Icon } from 'astro-icon/components'
+import { Icon } from '@twodft/astro-icon/components'
 import { Image } from 'astro:assets'
 import { render } from 'astro:content'
 
@@ -40,7 +40,9 @@ export async function getStaticPaths() {
 
 const post = Astro.props
 const currentPostId = Astro.params.id
-const { Content, headings } = await render(post)
+const renderedPost = await render(post)
+const Content = renderedPost?.Content
+const headings = renderedPost?.headings ?? []
 const authors = await parseAuthors(post.data.authors ?? [])
 
 const isCurrentSubpost = isSubpost(currentPostId)
@@ -124,7 +126,8 @@ const cssVars = {
   }
 
   <section
-    class="grid grid-cols-[minmax(0px,1fr)_min(calc(var(--breakpoint-md)-2rem),100%)_minmax(0px,1fr)] gap-y-6"
+    class="grid gap-y-6"
+    style="grid-template-columns: minmax(0, 1fr) min(calc(48rem - 2rem), 100%) minmax(0, 1fr);"
   >
     <div class="col-start-2">
       <Breadcrumbs
@@ -250,13 +253,12 @@ const cssVars = {
             post.data.tags &&
               post.data.tags.length > 0 &&
               post.data.tags.map((tag) => (
-                <a href={`/tags/${tag}`}>
-                  <Badge 
-                    variant="muted" 
-                    classes={getTagClasses(tag)}
-                  >
-                    {tag}
-                  </Badge>
+                <a
+                  href={`/tags/${tag}`}
+                  class={badgeVariants({ variant: 'muted' })}
+                >
+                  <Icon name="lucide:hash" class="size-3" />
+                  {tag}
                 </a>
               ))
           }
@@ -270,27 +272,32 @@ const cssVars = {
       />
     </section>
 
-    {
-      tocSections.length > 0 && (
-        <TOCSidebar sections={tocSections} currentPostId={currentPostId} />
-      )
-    }
+    <div class="col-span-full grid" style="grid-template-columns: minmax(0, 1fr) min(calc(48rem - 2rem), 100%) minmax(0, 1fr);">
+      {
+        tocSections.length > 0 && (
+          <TOCSidebar sections={tocSections} currentPostId={currentPostId} />
+        )
+      }
 
-    <article class="prose col-start-2 max-w-xl">
-    <!-- <article class="prose col-start-2 max-w-xl"> -->
-      <Content />
-    </article>
+      <article class="prose col-start-2 max-w-xl">
+        {
+          Content
+            ? <Content />
+            : <p>This post content could not be rendered.</p>
+        }
+      </article>
 
-    {
-      (hasChildPosts || isCurrentSubpost) && (
-        <SubpostsSidebar
-          parentId={
-            isCurrentSubpost ? getParentId(currentPostId) : currentPostId
-          }
-          className="w-64"
-        />
-      )
-    }
+      {
+        (hasChildPosts || isCurrentSubpost) && (
+          <SubpostsSidebar
+            parentId={
+              isCurrentSubpost ? getParentId(currentPostId) : currentPostId
+            }
+            className="w-64"
+          />
+        )
+      }
+    </div>
 
     <PostNavigation
       newerPost={navigation.newer}
@@ -321,17 +328,20 @@ const cssVars = {
       if (scrollToTopButton && footer) {
         scrollToTopButton.addEventListener('click', () => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
-        })
+        });
 
-        window.addEventListener('scroll', () => {
+        // Clean up previous scroll listener before adding a new one.
+        (window as any).__scrollToTopCleanup?.();
+        const scrollHandler = () => {
           const footerRect = footer.getBoundingClientRect();
           const isFooterVisible = footerRect.top <= window.innerHeight;
-
           scrollToTopButton.classList.toggle(
             'hidden',
             window.scrollY <= 300 || isFooterVisible,
-          )
-        })
+          );
+        };
+        window.addEventListener('scroll', scrollHandler, { passive: true });
+        (window as any).__scrollToTopCleanup = () => window.removeEventListener('scroll', scrollHandler);
       }
     }
 
@@ -426,16 +436,46 @@ const cssVars = {
       };
     }
 
-    // Initialize immediately if DOM ready
+    // Once-guard: reloadScripts re-executes this script on every navigation.
+    // Register document listeners only on the very first execution.
+    const _blogPageFirst = !(window as any).__blogPageInit;
+    (window as any).__blogPageInit = true;
+
+    // Initialize immediately — re-execution happens after container swap, so DOM is correct.
     if (document.readyState !== 'loading') {
       scrollToTop();
-      initScrollProgress();
+      (window as any).__cleanupScrollProgress?.();
+      (window as any).__cleanupScrollProgress = initScrollProgress() ?? undefined;
     }
 
-    // Astro view transitions
-    document.addEventListener('astro:page-load', () => {
-      scrollToTop();
-      initScrollProgress();
-    });
+    if (_blogPageFirst) {
+      document.addEventListener('astro:before-swap', () => {
+        (window as any).__cleanupScrollProgress?.();
+        (window as any).__cleanupScrollProgress = undefined;
+        (window as any).__scrollToTopCleanup?.();
+        (window as any).__scrollToTopCleanup = undefined;
+      });
+
+      document.addEventListener('astro:page-load', () => {
+        scrollToTop();
+        (window as any).__cleanupScrollProgress?.();
+        (window as any).__cleanupScrollProgress = initScrollProgress() ?? undefined;
+      });
+    }
   </script>
 </Layout>
+
+<script>
+  const ensureKatexStyles = () => {
+    if (!document.querySelector('.katex')) return
+    if (document.querySelector('link[href*="katex.min.css"]')) return
+
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css'
+    document.head.appendChild(link)
+  }
+
+  document.addEventListener('astro:page-load', ensureKatexStyles)
+  document.addEventListener('astro:after-swap', ensureKatexStyles)
+</script>

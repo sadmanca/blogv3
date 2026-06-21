@@ -1,0 +1,42 @@
+---
+interface Props {
+  code: string
+  lang?: string
+  title?: string
+  class?: string
+  className?: string
+  frame?: 'code' | 'terminal' | 'none' | 'auto'
+  showLineNumbers?: boolean
+  preserveIndent?: boolean
+  mark?: unknown
+  ins?: unknown
+  del?: unknown
+  collapse?: string
+  wrap?: boolean
+}
+
+const {
+  code,
+  lang,
+  title,
+  class: classProp,
+  className,
+  frame = 'code',
+  showLineNumbers = true,
+  preserveIndent = true,
+  wrap = true,
+} = Astro.props
+
+const containerClass = [classProp, className].filter(Boolean).join(' ')
+---
+
+<div class={containerClass}>
+  {title && <div class="mb-1 text-xs opacity-70 font-mono">{title}</div>}
+  <pre
+    data-language={lang}
+    data-frame={frame}
+    data-show-line-numbers={showLineNumbers ? 'true' : 'false'}
+    data-preserve-indent={preserveIndent ? 'true' : 'false'}
+    data-wrap={wrap ? 'true' : 'false'}
+  ><code>{code}</code></pre>
+</div>

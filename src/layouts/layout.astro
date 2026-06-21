@@ -3,8 +3,8 @@ import '@/styles/global.css'
 import '@/styles/typography.css'
 
 import Footer from '@/components/Footer.astro'
-import Head from '@/components/Head.astro'
-import Header from '@/components/Header.astro'
+import Head from '@/components/head.astro'
+import Header from '@/components/header.astro'
 import MediumZoom from '@/components/MediumZoom.astro'
 import Banner from '@/components/ui/banner.tsx'
 import { SITE } from '@/consts'
@@ -108,8 +108,10 @@ const isDev = import.meta.env.DEV; // true when in development mode
         class="sticky top-0 z-50 divide-y xl:divide-none"
       >
         <Header />
-        <slot name="subposts-navigation" />
-        <slot name="table-of-contents" />
+        <div id="swup-toc-slot">
+          <slot name="subposts-navigation" />
+          <slot name="table-of-contents" />
+        </div>
       </div>
       <main class="grow">
         <div class={cn('mx-auto flex grow flex-col gap-y-6 px-4', className)}>
@@ -133,11 +135,12 @@ const isDev = import.meta.env.DEV; // true when in development mode
         const isBlogTextPage = path.startsWith("/blog/") && !hideBlogListOrNumberRegex.test(path);
 
         if (tocContainer) {
+          const isMobile = window.innerWidth < 1280; // Matches XL breakpoint
           if (isAboutPage || isBlogTextPage) {
-            tocContainer.style.display = '';
+            tocContainer.style.setProperty('display', isMobile ? '' : 'none', 'important');
             console.log('Mobile TOC shown for blog post or about page');
           } else {
-            tocContainer.style.display = 'none';
+            tocContainer.style.setProperty('display', 'none', 'important');
             console.log('Mobile TOC hidden for blog list or numbered pages');
           }
         }
@@ -149,7 +152,20 @@ const isDev = import.meta.env.DEV; // true when in development mode
       }
 
       // Astro view transitions
-      document.addEventListener('astro:page-load', hideMobileTOC);
+      document.addEventListener('astro:page-load', () => {
+        hideMobileTOC();
+        window.addEventListener('resize', hideMobileTOC);
+        // toc-header compiles to an external module inside #swup-toc-slot.
+        // reloadScripts cannot re-execute external modules (module cache).
+        // On the first SPA navigation to a blog post, load it via dynamic import().
+        const tocSlot = document.getElementById('swup-toc-slot');
+        const extScript = tocSlot?.querySelector<HTMLScriptElement>('script[type="module"][src]');
+        if (extScript?.src && !(window as any).MobileTOCController) {
+          import(/* @vite-ignore */ extScript.src)
+            .then(() => (window as any).MobileTOCController?.init())
+            .catch(() => {});
+        }
+      });
   </script>
   </body>
 </html>

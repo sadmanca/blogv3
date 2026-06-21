@@ -1,7 +1,9 @@
 import { glob } from 'astro/loaders'
-import { defineCollection, z } from 'astro:content'
+import { defineCollection } from 'astro:content'
 import { RateLimiter } from 'limiter'
 import { goodreadsLoader } from 'astro-loader-goodreads';
+import { z } from 'astro/zod'
+import { getCachedData } from './lib/cache/api-cache';
 
 const goodreads_read_books = defineCollection({
   loader: goodreadsLoader({
@@ -20,13 +22,14 @@ const goodreads_user_updates = defineCollection({
 
 const TRAKT_WATCHED_URL = `https://api.trakt.tv/users/sadmanca/watched`
 const TRAKT_RATINGS_URL = `https://api.trakt.tv/users/sadmanca/ratings`
-const TRAKT_CLIENT_ID = import.meta.env.TRAKT_CLIENT_ID
-const TMDB_API_KEY = import.meta.env.TMDB_API_KEY
+const TRAKT_CLIENT_ID = import.meta.env.TRAKT_CLIENT_ID || process.env.TRAKT_CLIENT_ID;
+const TMDB_API_KEY = import.meta.env.TMDB_API_KEY || process.env.TMDB_API_KEY;
 
 const limiter_trakt = new RateLimiter({ tokensPerInterval: 1, interval: 'second' })
 const limiter_tmdb = new RateLimiter({ tokensPerInterval: 50, interval: 'second' })
 
 async function fetchWithRetry(url: string, type: string, options = {}) {
+  const start = performance.now();
   let response: Response | undefined;
   let retries = 5;
   let attempt = 0;
@@ -40,6 +43,8 @@ async function fetchWithRetry(url: string, type: string, options = {}) {
 
     response = await fetch(url, options);
     if (response.ok) {
+      const end = performance.now();
+      console.log(`[perf] fetched ${url} in ${(end - start).toFixed(2)}ms`); 
       return response;
     }
 
@@ -80,23 +85,29 @@ const trakt_watched_movies = defineCollection({
     const alt_type2 = 'movie'
 
     try {
-      const watchedResponse = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
-        headers: {
-          'Content-Type': 'application/json',
-          'trakt-api-version': '2',
-          'trakt-api-key': TRAKT_CLIENT_ID,
-        },
+      const watchedData = await getCachedData(`${alt_type}_watched`, async () => {
+        const response = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
+          headers: {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID,
+            'User-Agent': 'blogv3/1.0.0',
+          },
+        });
+        return await response.json();
       });
-      const watchedData = await watchedResponse.json();
 
-      const ratingsResponse = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
-        headers: {
-          'Content-Type': 'application/json',
-          'trakt-api-version': '2',
-          'trakt-api-key': TRAKT_CLIENT_ID,
-        },
+      const ratingsData = await getCachedData(`${alt_type}_ratings`, async () => {
+        const response = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
+          headers: {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID,
+            'User-Agent': 'blogv3/1.0.0',
+          },
+        });
+        return await response.json();
       });
-      const ratingsData = await ratingsResponse.json();
 
       const ratings = ratingsData.reduce(
         (
@@ -111,20 +122,21 @@ const trakt_watched_movies = defineCollection({
 
       const movies = await Promise.all(watchedData.map(async (item: any) => {
         const tmdbId = item[type].ids.tmdb;
-        const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+        return await getCachedData(`tmdb_${alt_type2}_${tmdbId}`, async () => {
+          const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+          const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
+          const tmdbData = await tmdbResponse.json();
 
-        const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
-        const tmdbData = await tmdbResponse.json();
-
-        return {
-          id: item[type].ids.imdb,
-          title: item[type].title,
-          year: item[type].year,
-          rating: ratings[tmdbId] || 0,
-          last_watched_at: item.last_watched_at,
-          poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
-          imdb: item[type].ids.imdb
-        };
+          return {
+            id: item[type].ids.imdb,
+            title: item[type].title,
+            year: item[type].year,
+            rating: ratings[tmdbId] || 0,
+            last_watched_at: item.last_watched_at,
+            poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
+            imdb: item[type].ids.imdb
+          };
+        });
       }));
 
       return movies;
@@ -156,23 +168,29 @@ const trakt_watched_shows = defineCollection({
     const alt_type2 = 'tv'
 
     try {
-      const watchedResponse = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
-        headers: {
-          'Content-Type': 'application/json',
-          'trakt-api-version': '2',
-          'trakt-api-key': TRAKT_CLIENT_ID,
-        },
+      const watchedData = await getCachedData(`${alt_type}_watched`, async () => {
+        const response = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
+          headers: {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID,
+            'User-Agent': 'blogv3/1.0.0',
+          },
+        });
+        return await response.json();
       });
-      const watchedData = await watchedResponse.json();
 
-      const ratingsResponse = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
-        headers: {
-          'Content-Type': 'application/json',
-          'trakt-api-version': '2',
-          'trakt-api-key': TRAKT_CLIENT_ID,
-        },
+      const ratingsData = await getCachedData(`${alt_type}_ratings`, async () => {
+        const response = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
+          headers: {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID,
+            'User-Agent': 'blogv3/1.0.0',
+          },
+        });
+        return await response.json();
       });
-      const ratingsData = await ratingsResponse.json();
 
       const ratings = ratingsData.reduce(
         (
@@ -187,20 +205,21 @@ const trakt_watched_shows = defineCollection({
 
       const shows = await Promise.all(watchedData.map(async (item: any) => {
         const tmdbId = item[type].ids.tmdb;
-        const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+        return await getCachedData(`tmdb_${alt_type2}_${tmdbId}`, async () => {
+          const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+          const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
+          const tmdbData = await tmdbResponse.json();
 
-        const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
-        const tmdbData = await tmdbResponse.json();
-
-        return {
-          id: item[type].ids.imdb,
-          title: item[type].title,
-          year: item[type].year,
-          rating: ratings[tmdbId] || 0,
-          last_watched_at: item.last_watched_at,
-          poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
-          imdb: item[type].ids.imdb
-        };
+          return {
+            id: item[type].ids.imdb,
+            title: item[type].title,
+            year: item[type].year,
+            rating: ratings[tmdbId] || 0,
+            last_watched_at: item.last_watched_at,
+            poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
+            imdb: item[type].ids.imdb
+          };
+        });
       }));
 
       return shows;
@@ -246,14 +265,14 @@ const authors = defineCollection({
   schema: z.object({
     name: z.string(),
     pronouns: z.string().optional(),
-    avatar: z.string().url().or(z.string().startsWith('/')),
+    avatar: z.url().or(z.string().startsWith('/')),
     bio: z.string().optional(),
-    mail: z.string().email().optional(),
-    website: z.string().url().optional(),
-    twitter: z.string().url().optional(),
-    github: z.string().url().optional(),
-    linkedin: z.string().url().optional(),
-    discord: z.string().url().optional(),
+    mail: z.email().optional(),
+    website: z.url().optional(),
+    twitter: z.url().optional(),
+    github: z.url().optional(),
+    linkedin: z.url().optional(),
+    discord: z.url().optional(),
   }),
 })
 
@@ -265,7 +284,7 @@ const projects = defineCollection({
       description: z.string(),
       tags: z.array(z.string()),
       image: image(),
-      link: z.string().url(),
+      link: z.url(),
       startDate: z.coerce.date().optional(),
       endDate: z.coerce.date().optional(),
     }),

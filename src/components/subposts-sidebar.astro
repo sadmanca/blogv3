@@ -1,5 +1,5 @@
 ---
-import Link from '@/components/Link.astro'
+import Link from '@/components/link.astro'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   getCombinedReadingTime,
@@ -10,7 +10,7 @@ import {
   getSubpostsForParent,
   isSubpost,
 } from '@/lib/data-utils'
-import { Icon } from 'astro-icon/components'
+import { Icon } from '@twodft/astro-icon/components'
 
 const { parentId } = Astro.props
 const currentPostId = Astro.params.id as string
@@ -57,7 +57,7 @@ const subpostsWithReadingTime = await Promise.all(
                 <div class="text-foreground bg-muted subposts-sidebar-active-item flex items-center gap-2 rounded-md py-1.5 pr-3 pl-2 text-sm font-medium text-pretty">
                   <Icon
                     name="lucide:book-open-text"
-                    class="size-4 flex-shrink-0"
+                    class="size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <div class="flex flex-col">
@@ -86,7 +86,7 @@ const subpostsWithReadingTime = await Promise.all(
                 >
                   <Icon
                     name="lucide:book-open"
-                    class="size-4 flex-shrink-0"
+                    class="size-4 shrink-0"
                     aria-hidden="true"
                   />
                   <div class="flex flex-col">
@@ -121,7 +121,7 @@ const subpostsWithReadingTime = await Promise.all(
                   <div class="text-foreground bg-muted subposts-sidebar-active-item flex items-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-pretty">
                     <Icon
                       name="lucide:file-text"
-                      class="size-4 flex-shrink-0"
+                      class="size-4 shrink-0"
                       aria-hidden="true"
                     />
                     <div class="flex flex-col">
@@ -140,7 +140,7 @@ const subpostsWithReadingTime = await Promise.all(
                   >
                     <Icon
                       name="lucide:file"
-                      class="size-4 flex-shrink-0"
+                      class="size-4 shrink-0"
                       aria-hidden="true"
                     />
                     <div class="flex flex-col">
@@ -256,12 +256,21 @@ const subpostsWithReadingTime = await Promise.all(
     }
   }
 
-  // Initialize immediately if DOM ready, otherwise wait
+  // Once-guard: reloadScripts re-executes this script on every navigation.
+  // Register document listeners only on the very first execution.
+  const _subpostsSidebarFirst = !(window as any).__subpostsSidebarInit;
+  (window as any).__subpostsSidebarInit = true;
+
+  // Always update global reference so listeners invoke the latest class instance.
+  (window as any).__SidebarController = SidebarController;
+
+  // Initialize immediately — re-execution happens after container swap, so DOM is correct.
   if (document.readyState !== 'loading') {
     SidebarController.init();
   }
 
-  // Astro view transitions
-  document.addEventListener('astro:page-load', () => SidebarController.init());
-  document.addEventListener('astro:before-swap', () => SidebarController.cleanup());
+  if (_subpostsSidebarFirst) {
+    document.addEventListener('astro:page-load', () => (window as any).__SidebarController?.init());
+    document.addEventListener('astro:before-swap', () => (window as any).__SidebarController?.cleanup());
+  }
 </script>

@@ -1,5 +1,5 @@
 ---
-import { Icon } from 'astro-icon/components'
+import { Icon } from '@twodft/astro-icon/components'
 
 interface Props {
   type?: 'default' | 'info' | 'warning' | 'flag' | 'destructive'
@@ -46,10 +46,10 @@ const finalIconColor = customIconColor || iconColor
 ---
 
 <div class={`relative my-6 flex gap-4 rounded-xl border-2 p-4 ${finalClasses}`}>
-  <span class="text-md pointer-events-none select-none relative" style="top: 18px;">
+  <span class="text-md pointer-events-none select-none relative" style="top: 10px;">
     <Icon name={finalIcon} size={27} class={finalIconColor} />
   </span>
-  <div class="-my-4 callout prose-code:break-all">
+  <div class="my-2 callout prose-code:break-all">
     <slot />
   </div>
 </div>

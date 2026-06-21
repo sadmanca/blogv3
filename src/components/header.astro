@@ -1,7 +1,6 @@
 ---
-import Link from '@/components/Link.astro'
+import Link from '@/components/link.astro'
 import ThemeToggle from '@/components/ThemeToggle.astro'
-import MobileMenu from '@/components/ui/mobile-menu'
 import { NAV_LINKS, SITE } from '@/consts'
 import MoreDropdown from '@/components/ui/more-dropdown.astro'
 
@@ -30,15 +29,14 @@ const currentPath = url.pathname
           NAV_LINKS.map((item) => (
             <Link
               href={item.href}
-              class="text-foreground/60 hover:text-foreground/80 capitalize transition-colors"
+              class="text-foreground/60 hover:text-foreground capitalize transition-colors"
             >
               {item.label}
             </Link>
           ))
         }
       </nav>
-      <MobileMenu client:load transition:persist />
-      <MoreDropdown transition:persist />
+      <MoreDropdown />
       <ThemeToggle />
     </div>
   </div>

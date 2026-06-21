@@ -3,21 +3,49 @@ import { defineConfig } from 'astro/config'
 import mdx from '@astrojs/mdx'
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
-import icon from 'astro-icon'
+import icon from '@twodft/astro-icon'
 
-import expressiveCode from 'astro-expressive-code'
 import { rehypeHeadingIds } from '@astrojs/markdown-remark'
+import rehypeExpressiveCode from 'rehype-expressive-code'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeKatex from 'rehype-katex'
 import remarkEmoji from 'remark-emoji'
 import remarkMath from 'remark-math'
 import rehypeDocument from 'rehype-document'
 import swup from '@swup/astro';
+import inspect from 'vite-plugin-inspect';
 
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections'
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
 
 import tailwindcss from '@tailwindcss/vite'
+
+const isDevCommand = process.argv.slice(2).includes('dev')
+
+const expressiveCodePlugin = [
+  rehypeExpressiveCode,
+  {
+    themes: ['catppuccin-macchiato'],
+    defaultProps: {
+      wrap: true,
+      preserveIndent: true,
+      showLineNumbers: true,
+      overridesByLang: {
+        'bash,sh,zsh': { wrap: false },
+      },
+      collapseStyle: 'collapsible-auto',
+    },
+    styleOverrides: {
+      codeFontSize: '0.9rem',
+      codeFontFamily:
+        "Iosevka, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+      uiFontFamily:
+        "Bricolage Grotesque, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
+      borderWidth: '2.5px',
+    },
+    plugins: [pluginCollapsibleSections(), pluginLineNumbers()],
+  },
+] satisfies [typeof rehypeExpressiveCode, NonNullable<Parameters<typeof rehypeExpressiveCode>[0]>]
 
 export default defineConfig({
   trailingSlash: 'ignore',
@@ -30,15 +58,14 @@ export default defineConfig({
     remotePatterns: [{ protocol: 'https' }],
   },
   integrations: [
-    expressiveCode(),
     mdx(),
     react(),
     sitemap(),
     icon(),
     swup({
       animationClass: 'transition-',
-      containers: ['main'],
-      cache: true,
+      containers: ['main', '#swup-toc-slot'],
+      cache: !import.meta.env.DEV,
       preload: {
         hover: true,
         visible: false
@@ -59,23 +86,19 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), ...(isDevCommand ? [inspect()] : [])],
+    ...(isDevCommand
+      ? {
+          optimizeDeps: {
+            include: ['react', 'react-dom', 'lucide-react', 'clsx', 'tailwind-merge'],
+            exclude: ['@astrojs/mdx'],
+          },
+        }
+      : {}),
     ssr: {
       // Remove JSDOM from externals since we no longer use it
     },
     build: {
-      // Optimize bundle splitting
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            // Separate vendor chunks for better caching
-            'vendor-ui': ['class-variance-authority', 'clsx', 'tailwind-merge'],
-            'vendor-react': ['react', 'react-dom'],
-            'vendor-astro': ['@astrojs/markdown-remark', 'astro-icon'],
-            'vendor-utils': ['xml2js', 'limiter']
-          }
-        }
-      },
       // Optimize chunk size
       chunkSizeWarningLimit: 1000,
       // Enable minification
@@ -113,6 +136,7 @@ export default defineConfig({
       ],
       rehypeHeadingIds,
       rehypeKatex,
+      ...(isDevCommand ? [] : [expressiveCodePlugin]),
     ],
     remarkPlugins: [remarkMath, remarkEmoji],
   },
