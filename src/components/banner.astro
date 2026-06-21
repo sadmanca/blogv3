@@ -1,0 +1,98 @@
+---
+interface Props {
+  type: string
+  text: string
+  link: string
+}
+const { type: _type, text, link } = Astro.props
+---
+
+<style>
+  .banner {
+    transform: translateY(0);
+    transition: transform 500ms ease;
+  }
+  @keyframes slide-in {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+  .banner.animate-in {
+    animation: slide-in 500ms ease forwards;
+  }
+  .banner.closing {
+    transform: translateY(-100%);
+  }
+</style>
+
+<div
+  id="banner"
+  data-banner
+  class="banner bg-purple-300 dark:bg-purple-900 text-gray-900 dark:text-white px-2 py-1 relative"
+>
+  <div class="flex items-center justify-center text-sm">
+    <a href={link} id="banner-link" class="flex items-center group">
+      <span class="inline-flex items-center transition-transform duration-300 group-hover:-translate-x-1">
+        <span class="relative flex items-center">
+          <span class="h-1 w-1 bg-red-500 rounded-full animate-ping duration-2000"></span>
+          <span class="h-1 w-1 bg-red-500 rounded-full absolute"></span>
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell ml-1 mr-1 shrink-0 opacity-60" aria-hidden="true">
+          <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
+          <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
+        </svg>
+        <span class="underline">{text}</span>
+      </span>
+      <span class="mx-2">|</span>
+      <span class="inline-flex items-center transition-transform duration-300 group-hover:translate-x-1">
+        <span>Read Now</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right ml-1 inline-flex opacity-60" aria-hidden="true">
+          <path d="M5 12h14"></path>
+          <path d="m12 5 7 7-7 7"></path>
+        </svg>
+      </span>
+    </a>
+  </div>
+  <button id="banner-close" class="absolute top-1/2 right-6 -translate-y-1/2 group size-8 shrink-0 p-0 hover:bg-transparent cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium" aria-label="Close banner">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x opacity-60 group-hover:opacity-100" aria-hidden="true">
+      <path d="M18 6 6 18"></path>
+      <path d="m6 6 12 12"></path>
+    </svg>
+  </button>
+</div>
+
+<script>
+  const banner = document.getElementById('banner');
+  if (banner) {
+    const closeBtn = document.getElementById('banner-close');
+    const linkEl = document.getElementById('banner-link');
+
+    if (localStorage.getItem('bannerClosed') !== 'true' && window.innerWidth > 768) {
+      const close = () => {
+        banner.classList.add('closing');
+        localStorage.setItem('bannerClosed', 'true');
+        setTimeout(() => banner.remove(), 500);
+      };
+
+      if (sessionStorage.getItem('bannerAnimated') !== 'true') {
+        banner.classList.add('animate-in');
+        sessionStorage.setItem('bannerAnimated', 'true');
+        banner.addEventListener('animationend', () => {
+          banner.classList.remove('animate-in');
+        }, { once: true });
+      }
+
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      if (linkEl) linkEl.addEventListener('click', close);
+
+      let resizeTimer: number;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          if (window.innerWidth <= 768) banner.remove();
+        }, 150);
+      });
+    } else {
+      banner.remove();
+    }
+  }
+</script>

@@ -6,8 +6,7 @@ import Footer from '@/components/Footer.astro'
 import Head from '@/components/head.astro'
 import Header from '@/components/header.astro'
 import MediumZoom from '@/components/MediumZoom.astro'
-import Banner from '@/components/ui/banner.tsx'
-import ClientRouter from 'astro/components/ClientRouter.astro'
+import Banner from '@/components/banner.astro'
 import { SITE } from '@/consts'
 import { cn } from '@/lib/utils'
 import { getAllPosts } from '@/lib/data-utils'
@@ -56,17 +55,21 @@ const isDev = import.meta.env.DEV; // true when in development mode
       }
 
       // Load GA after the page becomes interactive
-      document.addEventListener('DOMContentLoaded', function() {
-        // Use requestIdleCallback for modern browsers, or setTimeout as fallback
+      if (document.readyState !== 'loading') {
         if ('requestIdleCallback' in window) {
           requestIdleCallback(() => loadGoogleAnalytics());
         } else {
           setTimeout(loadGoogleAnalytics, 1000);
         }
-      });
-      
-      // Ensure GA loads with Astro view transitions
-      document.addEventListener('astro:page-load', loadGoogleAnalytics);
+      } else {
+        document.addEventListener('DOMContentLoaded', function() {
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => loadGoogleAnalytics());
+          } else {
+            setTimeout(loadGoogleAnalytics, 1000);
+          }
+        });
+      }
     </script>
   )}
   <!-- End Google tag (gtag.js) -->
@@ -91,8 +94,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
     <script src="/performance.js" defer></script>
   )}
   
-  <MediumZoom />  
-  <ClientRouter fallback="animate" />
+  <MediumZoom />
   <Head>
     <slot name="head" />
   </Head>
@@ -100,7 +102,6 @@ const isDev = import.meta.env.DEV; // true when in development mode
     <div class="flex h-fit min-h-screen flex-col gap-y-1 font-sans">
       {latestPost && (
         <Banner
-          client:load
           type={`Latest post: `}
           text={`${latestPost.data.title}`}
           link={`/blog/${latestPost.id}`}
@@ -110,7 +111,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
         class="sticky top-0 z-50 divide-y xl:divide-none"
       >
         <Header />
-        <div id="swup-toc-slot">
+        <div>
           <slot name="subposts-navigation" />
           <slot name="table-of-contents" />
         </div>
@@ -153,21 +154,33 @@ const isDev = import.meta.env.DEV; // true when in development mode
         hideMobileTOC();
       }
 
-      // Astro view transitions
-      document.addEventListener('astro:page-load', () => {
-        hideMobileTOC();
-        window.addEventListener('resize', hideMobileTOC);
-        // toc-header compiles to an external module inside #swup-toc-slot.
-        // reloadScripts cannot re-execute external modules (module cache).
-        // On the first SPA navigation to a blog post, load it via dynamic import().
-        const tocSlot = document.getElementById('swup-toc-slot');
-        const extScript = tocSlot?.querySelector<HTMLScriptElement>('script[type="module"][src]');
-        if (extScript?.src && !(window as any).MobileTOCController) {
-          import(/* @vite-ignore */ extScript.src)
-            .then(() => (window as any).MobileTOCController?.init())
-            .catch(() => {});
-        }
-      });
+      window.addEventListener('resize', hideMobileTOC);
+
+      // Prefetch internal links on hover/touch for instant navigation
+      const _prefetched = new Set()
+      const _prefetch = (url: string) => {
+        if (_prefetched.has(url)) return
+        _prefetched.add(url)
+        const spec = { priority: 'low' } as RequestInit
+        fetch(url, spec).catch(() => {})
+      }
+      const _onLinkEnter = (e: Event) => {
+        const a = (e.target as HTMLElement).closest('a[href]') as HTMLAnchorElement | null
+        if (!a) return
+        try {
+          const u = new URL(a.href, location.origin)
+          if (u.origin === location.origin && u.pathname !== location.pathname) {
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(() => _prefetch(u.pathname))
+            } else {
+              setTimeout(() => _prefetch(u.pathname), 100)
+            }
+          }
+        } catch (_) {}
+      }
+      document.addEventListener('mouseenter', _onLinkEnter, { capture: true, passive: true })
+      document.addEventListener('touchstart', _onLinkEnter, { capture: true, passive: true })
+      document.addEventListener('focusin', _onLinkEnter, { capture: true, passive: true })
   </script>
   </body>
 </html>

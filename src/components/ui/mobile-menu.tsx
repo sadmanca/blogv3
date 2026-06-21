@@ -13,18 +13,14 @@ const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    const handleViewTransitionStart = () => {
-      setIsOpen(false)
+    const handleClick = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest('a')) {
+        setIsOpen(false)
+      }
     }
 
-    document.addEventListener('astro:before-swap', handleViewTransitionStart)
-
-    return () => {
-      document.removeEventListener(
-        'astro:before-swap',
-        handleViewTransitionStart,
-      )
-    }
+    document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
   }, [])
 
   return (

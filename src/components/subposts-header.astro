@@ -303,21 +303,11 @@ const currentSubpostDetails = isCurrentSubpost
     }
   }
 
-  // Once-guard: reloadScripts re-executes this script on every navigation.
-  // Register document listeners only on the very first execution.
-  const _subpostsHeaderFirst = !(window as any).__subpostsHeaderInit;
-  (window as any).__subpostsHeaderInit = true;
-
-  // Always update global reference so listeners invoke the latest class instance.
+  // Always update global reference so callers via window ref work immediately.
   (window as any).__SubpostsController = SubpostsController;
 
-  // Initialize immediately — re-execution happens after container swap, so DOM is correct.
+  // Initialize immediately if DOM ready, otherwise wait
   if (document.readyState !== 'loading') {
     SubpostsController.init();
-  }
-
-  if (_subpostsHeaderFirst) {
-    document.addEventListener('astro:page-load', () => (window as any).__SubpostsController?.init());
-    document.addEventListener('astro:before-swap', () => (window as any).__SubpostsController?.cleanup());
   }
 </script>

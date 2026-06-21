@@ -256,21 +256,11 @@ const subpostsWithReadingTime = await Promise.all(
     }
   }
 
-  // Once-guard: reloadScripts re-executes this script on every navigation.
-  // Register document listeners only on the very first execution.
-  const _subpostsSidebarFirst = !(window as any).__subpostsSidebarInit;
-  (window as any).__subpostsSidebarInit = true;
-
-  // Always update global reference so listeners invoke the latest class instance.
+  // Always update global reference so callers via window ref work immediately.
   (window as any).__SidebarController = SidebarController;
 
-  // Initialize immediately — re-execution happens after container swap, so DOM is correct.
+  // Initialize immediately if DOM ready, otherwise wait
   if (document.readyState !== 'loading') {
     SidebarController.init();
-  }
-
-  if (_subpostsSidebarFirst) {
-    document.addEventListener('astro:page-load', () => (window as any).__SidebarController?.init());
-    document.addEventListener('astro:before-swap', () => (window as any).__SidebarController?.cleanup());
   }
 </script>

@@ -344,7 +344,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       setTimeout(TOCScrollMask.update, 100)
 
       // scrollArea is populated by React (Radix UI) hydration which may run
-      // after astro:page-load. Watch for it so scroll mask and auto-scroll work.
+      // after page load. Watch for it so scroll mask and auto-scroll work.
       const tocContainer = document.getElementById('toc-sidebar-container')
       if (tocContainer && !state.scrollArea) {
         // Disconnect any previous observer before creating a new one (guards against double-init).
@@ -388,22 +388,12 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     }
   }
 
-  // Once-guard: reloadScripts re-executes this script on every navigation.
-  // Register document listeners only on the very first execution.
-  const _tocSidebarFirst = !(window as any).__tocSidebarInit;
-  (window as any).__tocSidebarInit = true;
-
-  // Always update global reference so listeners invoke the latest class instance.
+  // Always update global reference so callers via window ref work immediately.
   window.TOCController = TOCController;
 
-  // Initialize immediately — re-execution happens after container swap, so DOM is correct.
+  // Initialize immediately if DOM ready, otherwise wait
   if (document.readyState !== 'loading') {
     TOCController.init();
-  }
-
-  if (_tocSidebarFirst) {
-    document.addEventListener('astro:page-load', () => window.TOCController?.init());
-    document.addEventListener('astro:before-swap', () => window.TOCController?.cleanup());
   }
 </script>
 

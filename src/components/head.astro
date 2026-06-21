@@ -28,14 +28,22 @@ import Favicons from './favicons.astro'
   <link rel="preload" href="/fonts/IosevkaFixedSS03-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/IosevkaFixedSS03-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
   
+  <!-- Preconnect / DNS prefetch for external resources (must come early) -->
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="dns-prefetch" href="//www.googletagmanager.com">
+  
   <!-- Prefetch commonly accessed pages -->
   <link rel="prefetch" href="/blog">
   <link rel="prefetch" href="/projects">
   <link rel="prefetch" href="/about">
+  <link rel="prefetch" href="/tags">
+  <link rel="prefetch" href="/reading">
+  <link rel="prefetch" href="/uses">
+  <link rel="prefetch" href="/authors">
   
-  <!-- DNS prefetch for external resources -->
-  <link rel="dns-prefetch" href="//fonts.gstatic.com">
-  <link rel="dns-prefetch" href="//www.googletagmanager.com">
+  <!-- Prerender top pages (Chromium will fully render in background for instant nav) -->
+  <link rel="prerender" href="/blog">
+  <link rel="prerender" href="/about">
 
   <meta name="HandheldFriendly" content="True" />
   <meta name="mobile-web-app-capable" content="yes" />

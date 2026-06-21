@@ -385,7 +385,7 @@ const { headings } = Astro.props
       ProgressCircle.update()
 
       // scrollArea is populated by React (Radix UI) hydration which may run
-      // after astro:page-load. Watch for it so scroll mask and auto-scroll work.
+      // after page load. Watch for it so scroll mask and auto-scroll work.
       const tocContainer = document.getElementById('mobile-toc-container')
       if (tocContainer && !state.scrollArea) {
         const observer = new MutationObserver(() => {
@@ -423,8 +423,4 @@ const { headings } = Astro.props
   if (document.readyState !== 'loading') {
     MobileTOCController.init();
   }
-
-  // Astro view transitions
-  document.addEventListener('astro:page-load', () => MobileTOCController.init());
-  document.addEventListener('astro:before-swap', () => MobileTOCController.cleanup());
 </script>

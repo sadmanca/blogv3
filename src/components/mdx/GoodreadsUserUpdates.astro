@@ -502,8 +502,4 @@ const formatDate = (dateString: string) => {
 
   // Run on initial page load
   updateTimeAgo();
-
-  // Run after navigation with Astro's view transitions
-  document.addEventListener('astro:page-load', updateTimeAgo);
-  document.addEventListener('astro:after-swap', updateTimeAgo);
 </script>

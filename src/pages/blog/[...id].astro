@@ -436,27 +436,13 @@ const cssVars = {
       };
     }
 
-    // Once-guard: reloadScripts re-executes this script on every navigation.
-    // Register document listeners only on the very first execution.
-    const _blogPageFirst = !(window as any).__blogPageInit;
-    (window as any).__blogPageInit = true;
-
-    // Initialize immediately — re-execution happens after container swap, so DOM is correct.
+    // Initialize immediately if DOM ready
     if (document.readyState !== 'loading') {
       scrollToTop();
       (window as any).__cleanupScrollProgress?.();
       (window as any).__cleanupScrollProgress = initScrollProgress() ?? undefined;
-    }
-
-    if (_blogPageFirst) {
-      document.addEventListener('astro:before-swap', () => {
-        (window as any).__cleanupScrollProgress?.();
-        (window as any).__cleanupScrollProgress = undefined;
-        (window as any).__scrollToTopCleanup?.();
-        (window as any).__scrollToTopCleanup = undefined;
-      });
-
-      document.addEventListener('astro:page-load', () => {
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
         scrollToTop();
         (window as any).__cleanupScrollProgress?.();
         (window as any).__cleanupScrollProgress = initScrollProgress() ?? undefined;
@@ -466,7 +452,7 @@ const cssVars = {
 </Layout>
 
 <script>
-  const ensureKatexStyles = () => {
+  (() => {
     if (!document.querySelector('.katex')) return
     if (document.querySelector('link[href*="katex.min.css"]')) return
 
@@ -474,8 +460,5 @@ const cssVars = {
     link.rel = 'stylesheet'
     link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css'
     document.head.appendChild(link)
-  }
-
-  document.addEventListener('astro:page-load', ensureKatexStyles)
-  document.addEventListener('astro:after-swap', ensureKatexStyles)
+  })()
 </script>

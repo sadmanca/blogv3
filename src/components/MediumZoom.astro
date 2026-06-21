@@ -85,12 +85,6 @@
         } else {
           initZoom();
         }
-        
-        // Astro navigation events
-        document.addEventListener('astro:page-load', initZoom);
-        
-        // Clean up before navigation
-        document.addEventListener('astro:before-swap', cleanupAllZoom);
       }
     })();
   </script>
