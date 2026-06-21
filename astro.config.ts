@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config'
+import cloudflare from '@astrojs/cloudflare'
 
 import mdx from '@astrojs/mdx'
 import react from '@astrojs/react'
@@ -51,6 +52,7 @@ export default defineConfig({
   trailingSlash: 'ignore',
   site: 'https://sadman.ca',
   output: 'static',
+  adapter: cloudflare(),
   
   image: {
     // Enable modern image formats with fallbacks
@@ -86,7 +88,7 @@ export default defineConfig({
     }),
   ],
   vite: {
-    plugins: [tailwindcss(), ...(isDevCommand ? [inspect()] : [])],
+    plugins: [tailwindcss(), ...(isDevCommand ? [inspect()] : [])] as any,
     ...(isDevCommand
       ? {
           optimizeDeps: {

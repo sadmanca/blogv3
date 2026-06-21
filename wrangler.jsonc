@@ -1,0 +1,9 @@
+{
+  "name": "blogv3",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2025-06-20",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  }
+}
