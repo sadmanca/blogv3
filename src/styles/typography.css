@@ -573,18 +573,19 @@ figcaption:not(.header) {
   @apply border border-[#723c0c]/25 dark:border-[#fcf9e6]/25 bg-[#fcf9e6] dark:bg-[#723c0c]/60 text-[#723c0c] dark:text-[#fcf9e6] hover:bg-[#723c0c] dark:hover:bg-[#fcf9e6] hover:text-[#fcf9e6] dark:hover:text-[#723c0c] transition-colors duration-200 rounded px-1;
 }
 
-.swup-progress-bar {
+.progress-bar {
   height: 3px;
   mix-blend-mode: difference;
   background-color: white;
 }
 
 /* Swup page transition: crossfade */
-.swup-fade {
-  transition: opacity 0.2s ease-in-out;
-  opacity: 1;
+html.is-changing #swup-toc-slot,
+html.is-changing .swup-transition-main {
+  transition: opacity var(--swup-fade-theme-duration, 0.4s);
 }
-html.swup-is-animating .swup-fade {
+html.is-animating #swup-toc-slot,
+html.is-animating .swup-transition-main {
   opacity: 0;
 }
 
