@@ -75,7 +75,7 @@
         });
       }
       
-      // Set up one-time event listeners
+      // Set up event listeners
       if (!isInitialized) {
         isInitialized = true;
         
@@ -85,6 +85,9 @@
         } else {
           initZoom();
         }
+
+        // Re-initialize zoom after View Transitions navigation
+        document.addEventListener('astro:after-swap', initZoom);
       }
     })();
   </script>

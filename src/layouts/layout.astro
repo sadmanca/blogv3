@@ -70,6 +70,16 @@ const isDev = import.meta.env.DEV; // true when in development mode
           }
         });
       }
+
+      // Track pageviews on View Transitions navigation
+      document.addEventListener('astro:after-swap', function() {
+        if (typeof gtag !== 'undefined') {
+          gtag('config', 'G-Q095PB1G6R', {
+            page_path: window.location.pathname,
+            page_title: document.title,
+          });
+        }
+      });
     </script>
   )}
   <!-- End Google tag (gtag.js) -->
@@ -116,7 +126,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
           <slot name="table-of-contents" />
         </div>
       </div>
-      <main class="grow">
+      <main class="grow" transition:animate="none">
         <div class={cn('mx-auto flex grow flex-col gap-y-6 px-4', className)}>
           <slot />
         </div>
@@ -156,31 +166,8 @@ const isDev = import.meta.env.DEV; // true when in development mode
 
       window.addEventListener('resize', hideMobileTOC);
 
-      // Prefetch internal links on hover/touch for instant navigation
-      const _prefetched = new Set()
-      const _prefetch = (url: string) => {
-        if (_prefetched.has(url)) return
-        _prefetched.add(url)
-        const spec = { priority: 'low' } as RequestInit
-        fetch(url, spec).catch(() => {})
-      }
-      const _onLinkEnter = (e: Event) => {
-        const a = (e.target as HTMLElement).closest('a[href]') as HTMLAnchorElement | null
-        if (!a) return
-        try {
-          const u = new URL(a.href, location.origin)
-          if (u.origin === location.origin && u.pathname !== location.pathname) {
-            if ('requestIdleCallback' in window) {
-              requestIdleCallback(() => _prefetch(u.pathname))
-            } else {
-              setTimeout(() => _prefetch(u.pathname), 100)
-            }
-          }
-        } catch (_) {}
-      }
-      document.addEventListener('mouseenter', _onLinkEnter, { capture: true, passive: true })
-      document.addEventListener('touchstart', _onLinkEnter, { capture: true, passive: true })
-      document.addEventListener('focusin', _onLinkEnter, { capture: true, passive: true })
+      // Re-run TOC visibility check after View Transitions navigation
+      document.addEventListener('astro:after-swap', hideMobileTOC);
   </script>
   </body>
 </html>
