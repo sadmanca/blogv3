@@ -9,8 +9,8 @@ const { type: _type, text, link } = Astro.props
 
 <style>
   .banner {
-    transform: translateY(0);
-    transition: transform 500ms ease;
+    transform: translateY(-100%);
+    transition: none;
   }
   @keyframes slide-in {
     from { transform: translateY(-100%); }
@@ -18,9 +18,6 @@ const { type: _type, text, link } = Astro.props
   }
   .banner.animate-in {
     animation: slide-in 500ms ease forwards;
-  }
-  .banner.closing {
-    transform: translateY(-100%);
   }
 </style>
 
@@ -68,7 +65,8 @@ const { type: _type, text, link } = Astro.props
 
     if (localStorage.getItem('bannerClosed') !== 'true' && window.innerWidth > 768) {
       const close = () => {
-        banner.classList.add('closing');
+        banner.style.transition = 'transform 500ms ease';
+        banner.style.transform = 'translateY(-100%)';
         localStorage.setItem('bannerClosed', 'true');
         setTimeout(() => banner.remove(), 500);
       };
@@ -77,8 +75,11 @@ const { type: _type, text, link } = Astro.props
         banner.classList.add('animate-in');
         sessionStorage.setItem('bannerAnimated', 'true');
         banner.addEventListener('animationend', () => {
+          banner.style.transform = 'translateY(0)';
           banner.classList.remove('animate-in');
         }, { once: true });
+      } else {
+        banner.style.transform = 'translateY(0)';
       }
 
       if (closeBtn) closeBtn.addEventListener('click', close);
