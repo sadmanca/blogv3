@@ -152,6 +152,7 @@ a[rel~="nofollow"]::after {
 }
 
 :root {
+  color-scheme: light;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
@@ -178,6 +179,7 @@ a[rel~="nofollow"]::after {
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
@@ -211,6 +213,14 @@ a[rel~="nofollow"]::after {
   ::file-selector-button {
     @apply border-border outline-ring/50 tracking-tight;
   }
+}
+
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+  animation: none !important;
 }
 
 @layer base {
