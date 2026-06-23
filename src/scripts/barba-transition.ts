@@ -80,13 +80,19 @@ barba.init({
         // Dispatch immediately for already-loaded modules (theme, GA, zoom, etc.)
         window.dispatchEvent(new CustomEvent('barba:after'))
 
-        // Deferred re-dispatch for async modules that may still be loading
-        // (e.g., toc-header module loaded via <script type="module"> inside the new container)
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('barba:after'))
-          }, 60)
-        })
+        // Poll for late-loading async modules (e.g., toc-header loads via
+        // <script type="module"> inside the new container — modules are async
+        // and may resolve after barba:after fires the first time).
+        const pollForTOC = (attempts = 0) => {
+          if (attempts > 20) return
+          const ctrl = (window as any).MobileTOCController
+          if (ctrl && document.getElementById('mobile-toc-container')) {
+            ctrl.init()
+          } else if (document.getElementById('mobile-toc-container')) {
+            setTimeout(() => pollForTOC(attempts + 1), 50)
+          }
+        }
+        pollForTOC()
       },
     },
   ],

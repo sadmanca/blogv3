@@ -128,11 +128,11 @@ const isDev = import.meta.env.DEV; // true when in development mode
         <div class={cn('mx-auto flex grow flex-col gap-y-6 px-4', className)}>
           <slot />
         </div>
+        <Footer />
+        <div class="mb-4"/>
       </main>
-      <Footer />
       <div aria-hidden="true" class="z-20 pointer-events-none fixed inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-b from-transparent to-[var(--background))] dark:bg-gradient-to-b dark:from-transparent dark:to-[var(--background))]"></div>
     </div>
-    <div class="mb-4"/>
   <script>
     import '@/scripts/barba-transition'
   </script>
