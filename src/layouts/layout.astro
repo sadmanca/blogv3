@@ -109,7 +109,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
     <slot name="head" />
   </Head>
   <body>
-    <div data-barba="wrapper" class="flex h-fit min-h-screen flex-col gap-y-1 font-sans">
+    <div data-barba="wrapper" class="relative flex h-fit min-h-screen flex-col gap-y-1 font-sans">
       {latestPost && (
         <Banner
           type={`Latest post: `}

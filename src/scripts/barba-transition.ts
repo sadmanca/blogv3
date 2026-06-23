@@ -11,7 +11,17 @@ barba.init({
   transitions: [
     {
       name: 'default-transition',
-      beforeLeave() {
+      beforeLeave(data: ITransitionData) {
+        // Take old container out of flex flow so new container fills its place.
+        // Without this, both <main> elements stack vertically as siblings and
+        // the enter animation plays hidden below the old one.
+        const old = data.current.container as HTMLElement
+        old.style.position = 'absolute'
+        old.style.top = `${old.offsetTop}px`
+        old.style.left = `${old.offsetLeft}px`
+        old.style.width = `${old.offsetWidth}px`
+        old.style.pointerEvents = 'none'
+
         window.dispatchEvent(new CustomEvent('barba:before'))
       },
       leave(data: ITransitionData) {
@@ -67,7 +77,16 @@ barba.init({
           document.title = newTitle.textContent || ''
         }
 
+        // Dispatch immediately for already-loaded modules (theme, GA, zoom, etc.)
         window.dispatchEvent(new CustomEvent('barba:after'))
+
+        // Deferred re-dispatch for async modules that may still be loading
+        // (e.g., toc-header module loaded via <script type="module"> inside the new container)
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('barba:after'))
+          }, 60)
+        })
       },
     },
   ],

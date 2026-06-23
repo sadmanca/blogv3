@@ -342,6 +342,8 @@ const { headings } = Astro.props
   }
 
   class MobileTOCController {
+    static _initialized = false;
+
     static handleScroll() {
       const newActiveIds = HeadingRegions.getVisibleIds()
 
@@ -366,10 +368,15 @@ const { headings } = Astro.props
     }
 
     static init() {
+      if (this._initialized) return
+      this._initialized = true
       state.reset()
       HeadingRegions.build()
 
-      if (!state.currentSectionText) return
+      if (!state.currentSectionText) {
+        this._initialized = false
+        return
+      }
 
       if (state.headings.length === 0) {
         state.currentSectionText.textContent = INITIAL_OVERVIEW_TEXT
@@ -407,6 +414,7 @@ const { headings } = Astro.props
     }
 
     static cleanup() {
+      this._initialized = false
       window.removeEventListener('scroll', this.handleScroll)
       window.removeEventListener('scroll', ProgressCircle.update)
       window.removeEventListener('resize', this.handleResize)
