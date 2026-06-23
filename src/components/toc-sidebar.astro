@@ -308,6 +308,8 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
   }
 
   class TOCController {
+    static _initialized = false;
+
     static handleScroll() {
       const newActiveIds = HeadingRegions.getVisibleIds()
 
@@ -332,6 +334,8 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     }
 
     static init() {
+      if (this._initialized) return
+      this._initialized = true
       state.reset()
       HeadingRegions.build()
 
@@ -372,6 +376,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     }
 
     static cleanup() {
+      this._initialized = false
       state.scrollObserver?.disconnect()
       window.removeEventListener('scroll', this.handleScroll)
       window.removeEventListener('resize', this.handleResize)
@@ -395,6 +400,10 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
   if (document.readyState !== 'loading') {
     TOCController.init();
   }
+
+  // Barba lifecycle: clean up on navigation, reinit on new page
+  document.addEventListener('barba:before', () => TOCController.cleanup())
+  document.addEventListener('barba:after', () => TOCController.init())
 </script>
 
 <style>
