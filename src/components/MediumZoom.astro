@@ -86,8 +86,8 @@
           initZoom();
         }
 
-        // Re-initialize zoom after View Transitions navigation
-        document.addEventListener('astro:after-swap', initZoom);
+        // Re-initialize zoom after Barba navigation
+        document.addEventListener('barba:after', initZoom);
       }
     })();
   </script>

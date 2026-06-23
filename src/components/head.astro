@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions'
 import { SITE } from '@/consts'
 import Favicons from './favicons.astro'
 ---
@@ -15,7 +14,7 @@ import Favicons from './favicons.astro'
       document.documentElement.setAttribute('data-theme', theme)
     }
     applyTheme()
-    document.addEventListener('astro:after-swap', applyTheme)
+    document.addEventListener('barba:after', applyTheme)
   </script>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -24,9 +23,6 @@ import Favicons from './favicons.astro'
     content="width=device-width, initial-scale=1.0, user-scalable=yes"
   />
   <meta name="generator" content={Astro.generator} />
-
-  <!-- View Transitions: SPA-like navigation without full page reloads -->
-  <ClientRouter />
 
   <!-- Performance optimization: preload critical resources -->
   <link rel="preload" href="/fonts/BricolageGrotesque.woff2" as="font" type="font/woff2" crossorigin>
