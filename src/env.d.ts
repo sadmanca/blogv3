@@ -21,10 +21,11 @@ declare module '@barba/core' {
     to?: { namespace?: string | string[] }
     leave?(data: ITransitionData): any
     enter?(data: ITransitionData): any
-    beforeLeave?(data: ITransitionData): void
     afterLeave?(data: ITransitionData): void
+    beforeLeave?(data: ITransitionData): void
     beforeEnter?(data: ITransitionData): void
     afterEnter?(data: ITransitionData): void
+    after?(data: ITransitionData): void
   }
 
   interface IView {

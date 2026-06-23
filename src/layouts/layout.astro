@@ -118,15 +118,13 @@ const isDev = import.meta.env.DEV; // true when in development mode
         />
       )}
       <div
-        class="sticky top-0 z-50 divide-y xl:divide-none"
+        class="sticky top-0 z-50"
       >
         <Header />
-        <div>
-          <slot name="subposts-navigation" />
-          <slot name="table-of-contents" />
-        </div>
       </div>
       <main class="grow" data-barba="container" data-barba-namespace="page">
+        <slot name="subposts-navigation" />
+        <slot name="table-of-contents" />
         <div class={cn('mx-auto flex grow flex-col gap-y-6 px-4', className)}>
           <slot />
         </div>
@@ -135,40 +133,6 @@ const isDev = import.meta.env.DEV; // true when in development mode
       <div aria-hidden="true" class="z-20 pointer-events-none fixed inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-b from-transparent to-[var(--background))] dark:bg-gradient-to-b dark:from-transparent dark:to-[var(--background))]"></div>
     </div>
     <div class="mb-4"/>
-    <script>
-      function hideMobileTOC() {
-        const tocContainer = document.getElementById('mobile-toc-container');
-        const path = window.location.pathname;
-
-        // Matches /blog or /blog/ or /blog/123 or /blog/123/
-        const hideBlogListOrNumberRegex = /^\/blog(\/(\d+)\/?)?$/;
-
-        // Show TOC only if NOT blog listing/numbered page AND it's /blog/some-text or /about
-        const isAboutPage = path === "/about";
-        const isBlogTextPage = path.startsWith("/blog/") && !hideBlogListOrNumberRegex.test(path);
-
-        if (tocContainer) {
-          const isMobile = window.innerWidth < 1280; // Matches XL breakpoint
-          if (isAboutPage || isBlogTextPage) {
-            tocContainer.style.setProperty('display', isMobile ? '' : 'none', 'important');
-            console.log('Mobile TOC shown for blog post or about page');
-          } else {
-            tocContainer.style.setProperty('display', 'none', 'important');
-            console.log('Mobile TOC hidden for blog list or numbered pages');
-          }
-        }
-      }
-
-      // Initialize immediately if DOM ready
-      if (document.readyState !== 'loading') {
-        hideMobileTOC();
-      }
-
-      window.addEventListener('resize', hideMobileTOC);
-
-      // Re-run TOC visibility check after Barba navigation
-      document.addEventListener('barba:after', hideMobileTOC);
-  </script>
   <script>
     import '@/scripts/barba-transition'
   </script>

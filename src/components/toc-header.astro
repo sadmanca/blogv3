@@ -13,7 +13,7 @@ const { headings } = Astro.props
 
 {
   headings && headings.length > 0 && (
-    <div id="mobile-toc-container" class="w-full xl:hidden z-50 bg-background/50 backdrop-blur-lg">
+    <div id="mobile-toc-container" class="w-full xl:hidden z-50 bg-background/50 backdrop-blur-lg sticky top-12">
       <details class="group">
         <summary class="flex w-full cursor-pointer items-center justify-between">
           <div class="mx-auto flex w-full max-w-3xl items-center px-4 py-2">
@@ -423,4 +423,8 @@ const { headings } = Astro.props
   if (document.readyState !== 'loading') {
     MobileTOCController.init();
   }
+
+  // Barba lifecycle: clean up on navigation, reinit on new page
+  document.addEventListener('barba:before', () => MobileTOCController.cleanup())
+  document.addEventListener('barba:after', () => MobileTOCController.init())
 </script>
