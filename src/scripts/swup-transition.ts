@@ -1,5 +1,4 @@
 import Swup from 'swup'
-import SwupScriptsPlugin from '@swup/scripts-plugin'
 import SwupPreloadPlugin from '@swup/preload-plugin'
 import SwupProgressPlugin from '@swup/progress-plugin'
 
@@ -10,7 +9,6 @@ const swup = new Swup({
   linkToSelf: 'scroll',
   plugins: [
     new SwupPreloadPlugin(),
-    new SwupScriptsPlugin(),
     new SwupProgressPlugin({
       className: 'swup-progress-bar',
       delay: 0,
@@ -32,5 +30,9 @@ swup.hooks.on(
 
 swup.hooks.on('page:view', () => {
   window.scrollTo({ top: 0, behavior: 'instant' })
+  ;(window as any).MobileTOCController?.init()
+  ;(window as any).TOCController?.init()
+  ;(window as any).__SubpostsController?.init()
+  ;(window as any).__SidebarController?.init()
   window.dispatchEvent(new CustomEvent('swup:page:view'))
 })

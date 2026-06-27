@@ -36,7 +36,6 @@
     "@swup/parallel-plugin": "^0.4",
     "@swup/preload-plugin": "^3.2.11",
     "@swup/progress-plugin": "^3",
-    "@swup/scripts-plugin": "^2.1.0",
     "@tailwindcss/vite": "^4.0.7",
     "@twodft/astro-icon": "^1.2.4",
     "@types/react": "^19.1.8",
