@@ -71,8 +71,8 @@ const isDev = import.meta.env.DEV; // true when in development mode
         });
       }
 
-      // Track pageviews on Barba navigation
-      document.addEventListener('barba:after', function() {
+      // Track pageviews on swup navigation
+      document.addEventListener('swup:page:view', function() {
         if (typeof gtag !== 'undefined') {
           gtag('config', 'G-Q095PB1G6R', {
             page_path: window.location.pathname,
@@ -109,7 +109,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
     <slot name="head" />
   </Head>
   <body>
-    <div data-barba="wrapper" class="flex h-fit min-h-screen flex-col gap-y-1 font-sans">
+    <div class="flex h-fit min-h-screen flex-col gap-y-1 font-sans">
       {latestPost && (
         <Banner
           type={`Latest post: `}
@@ -121,12 +121,12 @@ const isDev = import.meta.env.DEV; // true when in development mode
         class="sticky top-0 z-50 divide-y xl:divide-none"
       >
         <Header />
-        <div>
+        <div id="swup-toc-slot">
           <slot name="subposts-navigation" />
           <slot name="table-of-contents" />
         </div>
       </div>
-      <main class="grow" data-barba="container" data-barba-namespace="page">
+      <main class="grow" id="swup">
         <div class={cn('mx-auto flex grow flex-col gap-y-6 px-4', className)}>
           <slot />
         </div>
@@ -166,11 +166,11 @@ const isDev = import.meta.env.DEV; // true when in development mode
 
       window.addEventListener('resize', hideMobileTOC);
 
-      // Re-run TOC visibility check after Barba navigation
-      document.addEventListener('barba:after', hideMobileTOC);
+      // Re-run TOC visibility check after swup navigation
+      document.addEventListener('swup:page:view', hideMobileTOC);
   </script>
   <script>
-    import '@/scripts/barba-transition'
+    import '@/scripts/swup-transition'
   </script>
   </body>
 </html>

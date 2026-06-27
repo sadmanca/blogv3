@@ -14,7 +14,7 @@ import Favicons from './favicons.astro'
       document.documentElement.setAttribute('data-theme', theme)
     }
     applyTheme()
-    document.addEventListener('barba:after', applyTheme)
+    document.addEventListener('swup:page:view', applyTheme)
   </script>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
