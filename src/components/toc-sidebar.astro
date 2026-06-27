@@ -1,5 +1,4 @@
 ---
-import { ScrollArea } from '@/components/ui/scroll-area'
 import type { TOCSection } from '@/lib/data-utils'
 import { getParentId, isSubpost } from '@/lib/data-utils'
 import { cn, getHeadingMargin } from '@/lib/utils'
@@ -20,10 +19,9 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       id="toc-sidebar-container"
       class="sticky top-20 col-start-1 row-span-1 mr-8 ml-auto hidden h-[calc(100vh-5rem)] max-w-md xl:block z-10"
     >
-      <ScrollArea
-        client:load
-        className="flex max-h-[calc(100vh-8rem)] flex-col overflow-y-auto"
-        type="hover"
+      <div
+        class="flex max-h-[calc(100vh-8rem)] flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        data-scroll-container
         data-toc-scroll-area
       >
         <div class="flex flex-col gap-2 px-4">
@@ -140,7 +138,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
             )
           })}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   )
 }
@@ -162,7 +160,6 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     regions: { id: string; start: number; end: number }[] = []
     scrollArea: HTMLElement | null = null
     tocScrollArea: HTMLElement | null = null
-    scrollObserver: MutationObserver | null = null
 
     reset() {
       this.links = document.querySelectorAll(
@@ -173,7 +170,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       this.regions = []
       const tocContainer = document.getElementById('toc-sidebar-container')
       this.scrollArea =
-        tocContainer?.querySelector('[data-radix-scroll-area-viewport]') || null
+        tocContainer?.querySelector('[data-scroll-container]') || null
       this.tocScrollArea =
         tocContainer?.querySelector('[data-toc-scroll-area]') || null
     }
@@ -344,28 +341,9 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
       this.handleScroll()
       setTimeout(TOCScrollMask.update, 100)
 
-      // scrollArea is populated by React (Radix UI) hydration which may run
-      // after page load. Watch for it so scroll mask and auto-scroll work.
-      const tocContainer = document.getElementById('toc-sidebar-container')
-      if (tocContainer && !state.scrollArea) {
-        // Disconnect any previous observer before creating a new one (guards against double-init).
-        state.scrollObserver?.disconnect()
-        state.scrollObserver = new MutationObserver(() => {
-          const el = tocContainer.querySelector<HTMLElement>(
-            '[data-radix-scroll-area-viewport]',
-          )
-          if (el) {
-            state.scrollArea = el
-            el.addEventListener('scroll', this.handleTOCScroll, { passive: true })
-            TOCScrollMask.update()
-            state.scrollObserver?.disconnect()
-            state.scrollObserver = null
-          }
-        })
-        state.scrollObserver.observe(tocContainer, { childList: true, subtree: true })
-      } else if (state.scrollArea) {
-        state.scrollArea.addEventListener('scroll', this.handleTOCScroll, { passive: true })
-      }
+      if (!state.scrollArea) return
+
+      state.scrollArea.addEventListener('scroll', this.handleTOCScroll, { passive: true })
 
       const options = { passive: true }
       window.addEventListener('scroll', this.handleScroll, options)
@@ -373,7 +351,6 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     }
 
     static cleanup() {
-      state.scrollObserver?.disconnect()
       window.removeEventListener('scroll', this.handleScroll)
       window.removeEventListener('resize', this.handleResize)
       state.scrollArea?.removeEventListener('scroll', this.handleTOCScroll)
@@ -384,7 +361,6 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
         regions: [],
         scrollArea: null,
         tocScrollArea: null,
-        scrollObserver: null,
       })
     }
   }

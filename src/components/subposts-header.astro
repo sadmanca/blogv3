@@ -1,5 +1,4 @@
 ---
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   getCombinedReadingTime,
   getParentId,
@@ -77,9 +76,9 @@ const currentSubpostDetails = isCurrentSubpost
           </div>
         </summary>
 
-        <ScrollArea
-          client:load
-          className="mx-auto max-w-3xl"
+        <div
+          class="mx-auto max-w-3xl overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          data-scroll-container
           data-subposts-header-scroll
         >
           <div class="max-h-[30vh]">
@@ -185,7 +184,7 @@ const currentSubpostDetails = isCurrentSubpost
               )}
             </ul>
           </div>
-        </ScrollArea>
+        </div>
       </details>
     </div>
   )
@@ -251,7 +250,7 @@ const currentSubpostDetails = isCurrentSubpost
       if (!container) return
 
       state.scrollArea = container.querySelector(
-        '[data-radix-scroll-area-viewport]',
+        '[data-scroll-container]',
       )
       state.detailsElement = container.querySelector('details')
       state.headerScrollArea = container.querySelector(

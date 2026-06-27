@@ -1,5 +1,4 @@
 ---
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn, getHeadingMargin } from '@/lib/utils'
 import type { MarkdownHeading } from 'astro'
 import { Icon } from '@twodft/astro-icon/components'
@@ -58,9 +57,9 @@ const { headings } = Astro.props
           </div>
         </summary>
 
-        <ScrollArea
-          client:load
-          className="mx-auto max-w-3xl"
+        <div
+          class="mx-auto max-w-3xl overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          data-scroll-container
           data-toc-header-scroll
         >
           <div class="max-h-[30vh]">
@@ -87,7 +86,7 @@ const { headings } = Astro.props
               ))}
             </ul>
           </div>
-        </ScrollArea>
+        </div>
       </details>
     </div>
   )
@@ -127,7 +126,7 @@ const { headings } = Astro.props
       this.listElement = document.getElementById('mobile-table-of-contents')
       const tocContainer = document.getElementById('mobile-toc-container')
       this.scrollArea =
-        tocContainer?.querySelector('[data-radix-scroll-area-viewport]') || null
+        tocContainer?.querySelector('[data-scroll-container]') || null
       this.headings = []
       this.regions = []
       this.activeIds = []
@@ -385,21 +384,8 @@ const { headings } = Astro.props
       MobileTOCLinks.update(state.activeIds)
       ProgressCircle.update()
 
-      // scrollArea is populated by React (Radix UI) hydration which may run
-      // after page load. Watch for it so scroll mask and auto-scroll work.
-      const tocContainer = document.getElementById('mobile-toc-container')
-      if (tocContainer && !state.scrollArea) {
-        const observer = new MutationObserver(() => {
-          const el = tocContainer.querySelector<HTMLElement>(
-            '[data-radix-scroll-area-viewport]',
-          )
-          if (el) {
-            state.scrollArea = el
-            TOCHeaderScrollMask.update()
-            observer.disconnect()
-          }
-        })
-        observer.observe(tocContainer, { childList: true, subtree: true })
+      if (state.scrollArea) {
+        TOCHeaderScrollMask.update()
       }
 
       MobileTOCLinks.setupInteraction()

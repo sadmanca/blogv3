@@ -1,6 +1,5 @@
 ---
 import Link from '@/components/link.astro'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   getCombinedReadingTime,
   getParentId,
@@ -43,9 +42,9 @@ const subpostsWithReadingTime = await Promise.all(
   id="subposts-sidebar-container"
   class="sticky top-20 col-start-3 row-span-1 mr-auto ml-8 hidden h-[calc(100vh-5rem)] max-w-md xl:block"
 >
-  <ScrollArea
-    client:load
-    className="flex max-h-[calc(100vh-8rem)] flex-col overflow-y-auto"
+  <div
+    class="flex max-h-[calc(100vh-8rem)] flex-col overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    data-scroll-container
     data-subposts-sidebar-scroll
   >
     <div class="px-4">
@@ -159,7 +158,7 @@ const subpostsWithReadingTime = await Promise.all(
         }
       </ul>
     </div>
-  </ScrollArea>
+  </div>
 </div>
 
 <script>
@@ -228,7 +227,7 @@ const subpostsWithReadingTime = await Promise.all(
       )
       if (sidebarContainer) {
         state.scrollArea = sidebarContainer.querySelector(
-          '[data-radix-scroll-area-viewport]',
+          '[data-scroll-container]',
         )
         state.sidebarScrollArea = sidebarContainer.querySelector(
           '[data-subposts-sidebar-scroll]',

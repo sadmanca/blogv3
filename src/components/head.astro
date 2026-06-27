@@ -35,13 +35,13 @@ import Favicons from './favicons.astro'
   <link rel="dns-prefetch" href="//www.googletagmanager.com">
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
 
-  <!-- Speculation Rules: prefetch and prerender pages on hover for instant navigation -->
+  <!-- Speculation Rules: prefetch eagerly, prerender on hover for instant navigation -->
   <script type="speculationrules">
   {
     "prefetch": [{
       "source": "document",
       "where": { "href_matches": "/*" },
-      "eagerness": "moderate"
+      "eagerness": "eager"
     }],
     "prerender": [{
       "source": "document",

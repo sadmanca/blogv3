@@ -12,6 +12,7 @@ const swup = new Swup({
     new SwupProgressPlugin({
       className: 'swup-progress-bar',
       delay: 0,
+      transition: 150,
       finishAnimation: false,
     }),
   ],

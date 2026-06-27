@@ -31,13 +31,19 @@ self.addEventListener('install', (event) => {
 // Clean up old caches on activate
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
+    (async () => {
+      // Enable navigation preload for faster cold navigations
+      if (self.registration.navigationPreload) {
+        await self.registration.navigationPreload.enable()
+      }
+      const cacheNames = await caches.keys()
+      await Promise.all(
         cacheNames
           .filter((cacheName) => cacheName !== CACHE)
           .map((cacheName) => caches.delete(cacheName))
       )
-    ).then(() => self.clients.claim())
+      await self.clients.claim()
+    })()
   )
 })
 
