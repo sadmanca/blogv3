@@ -54,34 +54,25 @@ const card  = (() => {
   }
 })()
 
-const cssVars = {
-  bgLight: card.light,
-  bgDark:  card.dark,
-  thumbIconLight: thumb.iconLight,
-  thumbIconDark:  thumb.iconDark,
-  thumbBgLight:   thumb.bgLight,
-  thumbBgDark:    thumb.bgDark,
-}
 ---
 
 
-<style define:vars={cssVars}>
-  /* card background */
-  .blog-card-bg         { background-color: var(--bgLight); }
+<style is:global>
+  .blog-card-bg         { background-color: var(--bl-card-bg); }
   :root[data-theme='dark']
-  .blog-card-bg         { background-color: var(--bgDark); }
+  .blog-card-bg         { background-color: var(--bl-card-bg-dark); }
 
-  /* thumbnail */
-  .thumbnail            { background: var(--thumbBgLight); }
-  .thumbnail-icon       { color: var(--thumbIconLight); }
+  .thumbnail            { background-color: var(--bl-thumb-bg); }
+  .thumbnail-icon       { color: var(--bl-thumb-icon); }
   :root[data-theme='dark']
-  .thumbnail            { background: var(--thumbBgDark); }
+  .thumbnail            { background-color: var(--bl-thumb-bg-dark); }
   :root[data-theme='dark']
-  .thumbnail-icon       { color: var(--thumbIconDark); }
+  .thumbnail-icon       { color: var(--bl-thumb-icon-dark); }
 </style>
 
 <div
   class={`hover:bg-secondary/50 hover-card rounded-xl border border-border/50 hover:border-tertiary/30 p-4 transition-all ease-in-out hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] ${card.hasBg ? 'blog-card-bg' : ''} relative overflow-hidden group`}
+  style={`--bl-thumb-bg: ${thumb.bgLight}; --bl-thumb-bg-dark: ${thumb.bgDark}; --bl-thumb-icon: ${thumb.iconLight}; --bl-thumb-icon-dark: ${thumb.iconDark};` + (card.hasBg ? ` --bl-card-bg: ${card.light}; --bl-card-bg-dark: ${card.dark};` : '')}
 >
   <div class="absolute inset-0 bg-gradient-to-br from-tertiary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
   <Link

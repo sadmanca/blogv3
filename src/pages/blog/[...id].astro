@@ -79,22 +79,16 @@ const getTagClasses = (tag: string) => {
 }
 
 const thumb = getThumbnailColors(post.data);
-const cssVars = {
-  thumbIconLight: thumb.iconLight,
-  thumbIconDark:  thumb.iconDark,
-  thumbBgLight:   thumb.bgLight,
-  thumbBgDark:    thumb.bgDark,
-};
 ---
 
-<style define:vars={cssVars}>
-  .post-thumbnail          { background-color: var(--thumbBgLight); }
-  .post-thumbnail-icon     { color:            var(--thumbIconLight); }
+<style is:global>
+  .post-thumbnail          { background-color: var(--pt-thumb-bg); }
+  .post-thumbnail-icon     { color:            var(--pt-thumb-icon); }
 
   :root[data-theme='dark']
-  .post-thumbnail          { background-color: var(--thumbBgDark); }
+  .post-thumbnail          { background-color: var(--pt-thumb-bg-dark); }
   :root[data-theme='dark']
-  .post-thumbnail-icon     { color:            var(--thumbIconDark); }
+  .post-thumbnail-icon     { color:            var(--pt-thumb-icon-dark); }
 </style>
 
 <Layout>
@@ -126,7 +120,7 @@ const cssVars = {
   }
 
   <section
-    class="grid gap-y-6"
+    class="grid gap-y-6 mt-4"
     style="grid-template-columns: minmax(0, 1fr) min(calc(48rem - 2rem), 100%) minmax(0, 1fr);"
   >
     <div class="col-start-2">
@@ -160,7 +154,7 @@ const cssVars = {
     {
     post.data.thumbnailIcon && 
       (
-        <div class="relative col-span-full mx-auto w-full max-w-[150px] px-0">
+        <div class="relative col-span-full mx-auto w-full max-w-[150px] px-0" style={`--pt-thumb-bg: ${thumb.bgLight}; --pt-thumb-bg-dark: ${thumb.bgDark}; --pt-thumb-icon: ${thumb.iconLight}; --pt-thumb-icon-dark: ${thumb.iconDark};`}>
           <div class="aspect-[300/157.5] rounded-xl flex items-center justify-center post-thumbnail">
             <Icon
               name={post.data.thumbnailIcon}

@@ -366,6 +366,7 @@ const { headings } = Astro.props
     }
 
     static init() {
+      this.cleanup()
       state.reset()
       HeadingRegions.build()
 

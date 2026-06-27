@@ -332,6 +332,7 @@ const parentId = isCurrentSubpost ? getParentId(currentPostId) : currentPostId
     }
 
     static init() {
+      this.cleanup()
       state.reset()
       HeadingRegions.build()
 

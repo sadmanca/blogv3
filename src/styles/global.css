@@ -217,33 +217,21 @@ a[rel~="nofollow"]::after {
 }
 
 /* swup page transitions */
-#swup {
-  opacity: 1;
-  transform: translateY(0);
+html.is-changing #swup {
+  transition: opacity 300ms cubic-bezier(0.45, 0, 0.55, 1),
+    transform 300ms cubic-bezier(0.45, 0, 0.55, 1);
 }
-
 html.is-animating.is-leaving #swup {
-  animation: swup-leave 300ms cubic-bezier(0.45, 0, 0.55, 1) forwards;
+  opacity: 0;
+  transform: translateY(-15px);
+}
+html.is-rendering #swup {
+  opacity: 0;
+  transform: translateY(15px);
 }
 html.is-animating.is-rendering #swup {
-  animation: swup-enter 300ms cubic-bezier(0.45, 0, 0.55, 1) forwards;
-}
-
-@keyframes swup-leave {
-  to {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-}
-@keyframes swup-enter {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .theme-switching,

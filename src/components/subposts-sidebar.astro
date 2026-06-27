@@ -220,6 +220,7 @@ const subpostsWithReadingTime = await Promise.all(
 
   class SidebarController {
     static init() {
+      this.cleanup()
       state.reset()
 
       const sidebarContainer = document.getElementById(

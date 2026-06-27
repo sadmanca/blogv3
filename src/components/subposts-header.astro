@@ -288,6 +288,7 @@ const currentSubpostDetails = isCurrentSubpost
 
   class SubpostsController {
     static init() {
+      this.cleanup()
       state.reset()
       SubpostsScroll.setupInteraction()
     }

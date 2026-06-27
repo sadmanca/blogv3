@@ -24,4 +24,8 @@ swup.hooks.on(
 swup.hooks.on('page:view', () => {
   window.scrollTo({ top: 0, behavior: 'instant' })
   window.dispatchEvent(new CustomEvent('swup:page:view'))
+  ;(window as any).MobileTOCController?.init()
+  ;(window as any).TOCController?.init()
+  ;(window as any).__SubpostsController?.init()
+  ;(window as any).__SidebarController?.init()
 })
