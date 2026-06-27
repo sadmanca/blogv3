@@ -218,16 +218,17 @@ a[rel~="nofollow"]::after {
 
 /* swup page transitions */
 html.is-changing #swup {
-  transition: opacity 300ms cubic-bezier(0.45, 0, 0.55, 1),
-    transform 300ms cubic-bezier(0.45, 0, 0.55, 1);
+  transition: opacity 200ms cubic-bezier(0.45, 0, 0.55, 1),
+    transform 200ms cubic-bezier(0.45, 0, 0.55, 1);
 }
 html.is-animating.is-leaving #swup {
   opacity: 0;
-  transform: translateY(-15px);
+  transform: translateY(-12px);
 }
 html.is-rendering #swup {
   opacity: 0;
-  transform: translateY(15px);
+  transform: translateY(12px);
+  transition: none;
 }
 html.is-animating.is-rendering #swup {
   opacity: 1;

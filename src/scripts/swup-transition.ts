@@ -1,12 +1,13 @@
 import Swup from 'swup'
 import SwupScriptsPlugin from '@swup/scripts-plugin'
+import SwupPreloadPlugin from '@swup/preload-plugin'
 
 const swup = new Swup({
   containers: ['#swup', '#swup-toc-slot'],
   animateHistoryBrowsing: false,
   cache: true,
   linkToSelf: 'scroll',
-  plugins: [new SwupScriptsPlugin()],
+  plugins: [new SwupPreloadPlugin(), new SwupScriptsPlugin()],
 })
 
 // Clean up TOC/subpost controllers before content is replaced
