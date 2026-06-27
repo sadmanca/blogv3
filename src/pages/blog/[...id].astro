@@ -81,16 +81,6 @@ const getTagClasses = (tag: string) => {
 const thumb = getThumbnailColors(post.data);
 ---
 
-<style is:global>
-  .post-thumbnail          { background-color: var(--pt-thumb-bg); }
-  .post-thumbnail-icon     { color:            var(--pt-thumb-icon); }
-
-  :root[data-theme='dark']
-  .post-thumbnail          { background-color: var(--pt-thumb-bg-dark); }
-  :root[data-theme='dark']
-  .post-thumbnail-icon     { color:            var(--pt-thumb-icon-dark); }
-</style>
-
 <Layout>
   <!-- Scroll Progress Bar - Optimized Implementation -->
   <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-800 z-[100] pointer-events-none overflow-hidden">

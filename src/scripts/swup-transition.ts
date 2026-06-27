@@ -1,17 +1,29 @@
 import Swup from 'swup'
 import SwupScriptsPlugin from '@swup/scripts-plugin'
 import SwupPreloadPlugin from '@swup/preload-plugin'
+import SwupParallelPlugin from '@swup/parallel-plugin'
+import SwupProgressPlugin from '@swup/progress-plugin'
 
 const swup = new Swup({
   containers: ['#swup', '#swup-toc-slot'],
   animateHistoryBrowsing: false,
   cache: true,
   linkToSelf: 'scroll',
-  animationSelector: '#swup, #swup-toc-slot',
-  plugins: [new SwupPreloadPlugin(), new SwupScriptsPlugin()],
+  plugins: [
+    new SwupPreloadPlugin(),
+    new SwupScriptsPlugin(),
+    new SwupParallelPlugin({
+      containers: ['#swup'],
+      keep: 0,
+    }),
+    new SwupProgressPlugin({
+      className: 'swup-progress-bar',
+      delay: 200,
+      transition: 300,
+    }),
+  ],
 })
 
-// Clean up TOC/subpost controllers before content is replaced
 swup.hooks.on(
   'content:replace',
   () => {

@@ -216,36 +216,70 @@ a[rel~="nofollow"]::after {
   }
 }
 
-/* swup page transitions */
-html.is-changing #swup,
-html.is-changing #swup-toc-slot {
-  transition: opacity 200ms ease;
+/* ── swup parallel crossfade transitions ── */
+
+/* Overlap children during transition so incoming/outgoing sit on top of each other */
+html.is-changing #swup {
+  display: grid;
+}
+#swup > * {
+  grid-area: 1 / 1;
+  transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1),
+              transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Leaving page: fade out */
-html.is-animating.is-leaving #swup,
-html.is-animating.is-leaving #swup-toc-slot {
+/* Incoming container: starts invisible and slightly below, transitions to default */
+.is-next-container {
   opacity: 0;
+  transform: translateY(10px);
 }
 
-/* Entering page: hidden before content replace */
-html.is-animating.is-rendering #swup,
+/* Outgoing container: fades out and slides up */
+.is-previous-container {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+/* ── TOC-slot: simple fade (handled by swup default animation, not parallel) ── */
+html.is-changing #swup-toc-slot {
+  transition: opacity 300ms ease;
+}
+html.is-animating.is-leaving #swup-toc-slot,
 html.is-animating.is-rendering #swup-toc-slot {
   opacity: 0;
 }
-
-/* Entering page: fade in */
-html.is-rendering #swup,
 html.is-rendering #swup-toc-slot {
   opacity: 1;
 }
 
+/* ── swup progress bar ── */
+.swup-progress-bar {
+  height: 3px;
+  background: linear-gradient(90deg, var(--tertiary), var(--primary));
+  box-shadow: 0 0 6px rgba(0,0,0,.15);
+}
+
+/* ── reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  html.is-changing #swup,
-  html.is-changing #swup-toc-slot {
+  html.is-changing #swup > *,
+  html.is-changing #swup-toc-slot,
+  .is-next-container,
+  .is-previous-container {
     transition: none;
+    transform: none;
+    opacity: 1;
   }
 }
+
+/* ── post thumbnail colours (needs to be global for swup nav) ── */
+.post-thumbnail          { background-color: var(--pt-thumb-bg); }
+.post-thumbnail-icon     { color:            var(--pt-thumb-icon); }
+
+:root[data-theme='dark']
+.post-thumbnail          { background-color: var(--pt-thumb-bg-dark); }
+:root[data-theme='dark']
+.post-thumbnail-icon     { color:            var(--pt-thumb-icon-dark); }
 
 .theme-switching,
 .theme-switching *,
