@@ -7,6 +7,7 @@ const swup = new Swup({
   animateHistoryBrowsing: false,
   cache: true,
   linkToSelf: 'scroll',
+  animationSelector: '#swup, #swup-toc-slot',
   plugins: [new SwupPreloadPlugin(), new SwupScriptsPlugin()],
 })
 
