@@ -1,7 +1,10 @@
 // Core Web Vitals monitoring (lightweight)
 (function() {
   'use strict';
-  
+
+  if (window.__perfInitialized) return
+  window.__perfInitialized = true
+
   // Only run in modern browsers
   if (!window.PerformanceObserver || !window.requestIdleCallback) return;
   

@@ -119,13 +119,13 @@ a[rel~="nofollow"]::after {
   font-family: 'Inter Variable Arrow', 'Inter Variable', sans-serif;
 }
 
-/* Optimized font loading - reduced to essential weights only */
+/* Monospace font: non-critical, use optional to not block render */
 @font-face {
   font-family: 'Iosevka';
   src: url('/fonts/IosevkaFixedSS03-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 @font-face {
@@ -133,7 +133,7 @@ a[rel~="nofollow"]::after {
   src: url('/fonts/IosevkaFixedSS03-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
-  font-display: swap;
+  font-display: optional;
 }
 
 @font-face {
@@ -141,7 +141,7 @@ a[rel~="nofollow"]::after {
   src: url('/fonts/IosevkaFixedSS03-SemiBold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 @font-face {
@@ -149,7 +149,7 @@ a[rel~="nofollow"]::after {
   src: url('/fonts/IosevkaFixedSS03-SemiBoldItalic.woff2') format('woff2');
   font-weight: 600;
   font-style: italic;
-  font-display: swap;
+  font-display: optional;
 }
 
 :root {
