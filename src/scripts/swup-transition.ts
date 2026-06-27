@@ -1,7 +1,6 @@
 import Swup from 'swup'
 import SwupScriptsPlugin from '@swup/scripts-plugin'
 import SwupPreloadPlugin from '@swup/preload-plugin'
-import SwupParallelPlugin from '@swup/parallel-plugin'
 import SwupProgressPlugin from '@swup/progress-plugin'
 
 const swup = new Swup({
@@ -12,14 +11,10 @@ const swup = new Swup({
   plugins: [
     new SwupPreloadPlugin(),
     new SwupScriptsPlugin(),
-    new SwupParallelPlugin({
-      containers: ['#swup'],
-      keep: 0,
-    }),
     new SwupProgressPlugin({
       className: 'swup-progress-bar',
-      delay: 200,
-      transition: 300,
+      delay: 0,
+      finishAnimation: false,
     }),
   ],
 })
