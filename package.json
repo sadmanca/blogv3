@@ -33,7 +33,7 @@
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@shikijs/rehype": "^3.4.0",
-    "@swup/parallel-plugin": "^0.4",
+    "@swup/head-plugin": "^2.3.1",
     "@swup/preload-plugin": "^3.2.11",
     "@swup/progress-plugin": "^3",
     "@tailwindcss/vite": "^4.0.7",

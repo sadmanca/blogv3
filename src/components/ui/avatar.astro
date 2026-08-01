@@ -1,0 +1,70 @@
+---
+import { cn } from '@/lib/utils'
+
+interface Props {
+  src?: string
+  alt?: string
+  fallback: string
+  class?: string
+}
+
+const { src, alt, fallback, class: className } = Astro.props
+---
+
+{/*
+  Plain-HTML replacement for the Radix avatar island. Radix renders the image
+  only once its client-side loading state flips to 'loaded', so the SSR output
+  is fallback-only and it needs hydration to ever show a face — which never
+  happens on a page reached by swup navigation. The fallback/image stack here
+  reuses the media-grid controller's .placeholder + .zoomable-image contract.
+*/}
+<span
+  data-slot="avatar"
+  class={cn(
+    'relative flex size-8 shrink-0 overflow-hidden rounded-full',
+    className,
+  )}
+>
+  <span
+    data-slot="avatar-fallback"
+    class="placeholder bg-muted rounded-full text-lg font-medium"
+  >
+    {fallback}
+  </span>
+  {
+    src && (
+      <img
+        data-slot="avatar-image"
+        class="zoomable-image aspect-square size-full object-cover"
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+      />
+    )
+  }
+</span>
+
+<style>
+  .placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+  /* Applied by the media-grid controller once the avatar has decoded. */
+  .placeholder.is-loaded {
+    display: none;
+  }
+  .zoomable-image {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    position: relative;
+    z-index: 2;
+  }
+  .zoomable-image.loaded {
+    opacity: 1;
+  }
+</style>
