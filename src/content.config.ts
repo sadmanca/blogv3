@@ -3,7 +3,7 @@ import { defineCollection } from 'astro:content'
 import { RateLimiter } from 'limiter'
 import { goodreadsLoader } from 'astro-loader-goodreads';
 import { z } from 'astro/zod'
-import { getCachedData } from './lib/cache/api-cache';
+import { getCachedData, isDevCommand } from './lib/cache/api-cache';
 
 const goodreads_read_books = defineCollection({
   loader: goodreadsLoader({
@@ -44,7 +44,7 @@ async function fetchWithRetry(url: string, type: string, options = {}) {
     response = await fetch(url, options);
     if (response.ok) {
       const end = performance.now();
-      console.log(`[perf] fetched ${url} in ${(end - start).toFixed(2)}ms`); 
+      console.log(`[perf] fetched ${url} in ${(end - start).toFixed(2)}ms`);
       return response;
     }
 
@@ -59,176 +59,169 @@ async function fetchWithRetry(url: string, type: string, options = {}) {
     await new Promise((resolve) => setTimeout(resolve, backoffMs));
   }
 
+  // Report the actual status. A 403 here means a revoked/unauthorised Trakt
+  // client id, which is a very different problem from the 429 this used to
+  // claim every failure was.
   throw new Error(
-    `Too many requests or invalid response format (${response?.status ?? 'no status'} ${response?.statusText ?? ''})`,
+    `${type} request failed: ${response!.status} ${response!.statusText} — ${url}`,
   );
 }
 
-const trakt_watched_movies = defineCollection({
-  schema: z.object({
-    id: z.string(),
-    title: z.string(),
-    year: z.number(),
-    rating: z.number(),
-    last_watched_at: z.string(),
-    poster: z.string(),
-    imdb: z.string(),
-  }),
-  loader: async () => {
-    if (!TRAKT_CLIENT_ID || !TMDB_API_KEY) {
-      console.warn('[content] Skipping trakt_watched_movies: missing TRAKT_CLIENT_ID or TMDB_API_KEY');
-      return [];
-    }
+const TRAKT_HEADERS = () => ({
+  'Content-Type': 'application/json',
+  'trakt-api-version': '2',
+  'trakt-api-key': TRAKT_CLIENT_ID,
+  'User-Agent': 'blogv3/1.0.0',
+});
 
-    const type = 'movie'
-    const alt_type = 'movies'
-    const alt_type2 = 'movie'
+/**
+ * Trakt paginates the `watched` endpoints (440 movies arrive 100 at a time by
+ * default), so a single request silently truncates the collection. 250 is the
+ * documented maximum page size; X-Pagination-Page-Count tells us the rest.
+ * The `ratings` endpoints send no pagination headers and come back whole,
+ * where this harmlessly reads a page count of 1.
+ */
+async function fetchTraktAll(url: string) {
+  const paged = (page: number) => `${url}?limit=250&page=${page}`;
 
-    try {
-      const watchedData = await getCachedData(`${alt_type}_watched`, async () => {
-        const response = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
-          headers: {
-            'Content-Type': 'application/json',
-            'trakt-api-version': '2',
-            'trakt-api-key': TRAKT_CLIENT_ID,
-            'User-Agent': 'blogv3/1.0.0',
+  const first = await fetchWithRetry(paged(1), 'trakt', { headers: TRAKT_HEADERS() });
+  const items = await first.json();
+
+  const pageCount = Number(first.headers.get('x-pagination-page-count') ?? 1);
+  if (!Number.isFinite(pageCount) || pageCount <= 1) {
+    return items;
+  }
+
+  for (let page = 2; page <= pageCount; page += 1) {
+    const response = await fetchWithRetry(paged(page), 'trakt', { headers: TRAKT_HEADERS() });
+    items.push(...(await response.json()));
+  }
+
+  console.log(`[content] ${url} — fetched ${items.length} items across ${pageCount} pages`);
+  return items;
+}
+
+/**
+ * The two Trakt collections differ only in these three strings. `type` keys
+ * into each Trakt record (`item.movie` / `item.show`), `altType` is the Trakt
+ * URL segment, and `tmdbType` is TMDB's.
+ */
+function createTraktCollection({
+  name,
+  type,
+  altType,
+  tmdbType,
+}: {
+  name: string
+  type: 'movie' | 'show'
+  altType: 'movies' | 'shows'
+  tmdbType: 'movie' | 'tv'
+}) {
+  return defineCollection({
+    schema: z.object({
+      id: z.string(),
+      title: z.string(),
+      year: z.number(),
+      rating: z.number(),
+      last_watched_at: z.string(),
+      // Null when TMDB has no artwork, or when its lookup failed for this one
+      // title. TraktGrid renders its placeholder in that case.
+      poster: z.string().nullable(),
+      imdb: z.string(),
+    }),
+    loader: async () => {
+      try {
+        if (!TRAKT_CLIENT_ID || !TMDB_API_KEY) {
+          throw new Error('missing TRAKT_CLIENT_ID or TMDB_API_KEY');
+        }
+
+        const watchedData = await getCachedData(`${altType}_watched`, () =>
+          fetchTraktAll(`${TRAKT_WATCHED_URL}/${altType}`),
+        );
+
+        const ratingsData = await getCachedData(`${altType}_ratings`, () =>
+          fetchTraktAll(`${TRAKT_RATINGS_URL}/${altType}`),
+        );
+
+        const ratings = ratingsData.reduce(
+          (
+            acc: { [x: string]: any },
+            item: { [x: string]: { ids: { tmdb: string | number } }; rating: any },
+          ) => {
+            acc[item[type].ids.tmdb] = item.rating
+            return acc
           },
-        });
-        return await response.json();
-      });
+          {},
+        );
 
-      const ratingsData = await getCachedData(`${alt_type}_ratings`, async () => {
-        const response = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
-          headers: {
-            'Content-Type': 'application/json',
-            'trakt-api-version': '2',
-            'trakt-api-key': TRAKT_CLIENT_ID,
-            'User-Agent': 'blogv3/1.0.0',
-          },
-        });
-        return await response.json();
-      });
+        let posterFailures = 0;
 
-      const ratings = ratingsData.reduce(
-        (
-          acc: { [x: string]: any },
-          item: { [x: string]: { ids: { tmdb: string | number } }; rating: any },
-        ) => {
-          acc[item[type].ids.tmdb] = item.rating
-          return acc
-        },
-        {},
-      );
-
-      const movies = await Promise.all(watchedData.map(async (item: any) => {
-        const tmdbId = item[type].ids.tmdb;
-        return await getCachedData(`tmdb_${alt_type2}_${tmdbId}`, async () => {
-          const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
-          const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
-          const tmdbData = await tmdbResponse.json();
-
-          return {
+        const entries = await Promise.all(watchedData.map(async (item: any) => {
+          const tmdbId = item[type].ids.tmdb;
+          const base = {
             id: item[type].ids.imdb,
             title: item[type].title,
             year: item[type].year,
             rating: ratings[tmdbId] || 0,
             last_watched_at: item.last_watched_at,
-            poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
-            imdb: item[type].ids.imdb
+            imdb: item[type].ids.imdb,
           };
-        });
-      }));
 
-      return movies;
-    } catch (error) {
-      console.warn(`[content] trakt_watched_movies failed; returning empty list. ${(error as Error).message}`);
-      return [];
+          // One flaky poster lookup out of ~500 must not fail the whole build —
+          // only a Trakt-level failure is fatal.
+          try {
+            return await getCachedData(`tmdb_${tmdbType}_${tmdbId}`, async () => {
+              const image_api_request = `https://api.themoviedb.org/3/${tmdbType}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
+              const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
+              const tmdbData = await tmdbResponse.json();
+
+              return {
+                ...base,
+                poster: tmdbData.poster_path
+                  ? `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`
+                  : null,
+              };
+            });
+          } catch (error) {
+            posterFailures += 1;
+            return { ...base, poster: null };
+          }
+        }));
+
+        if (posterFailures > 0) {
+          console.warn(`[content] ${name}: ${posterFailures}/${entries.length} poster lookups failed; those render a placeholder`);
+        }
+
+        return entries;
+      } catch (error) {
+        const message = (error as Error).message;
+
+        // In dev, degrade to an empty collection so the server still boots
+        // offline. On a build, fail loudly rather than deploying empty grids.
+        if (!isDevCommand) {
+          throw new Error(`[content] ${name} failed: ${message}`);
+        }
+
+        console.warn(`[content] ${name} failed; returning empty list. ${message}`);
+        return [];
+      }
     }
-  }
-});
+  });
+}
 
-const trakt_watched_shows = defineCollection({
-  schema: z.object({
-    id: z.string(),
-    title: z.string(),
-    year: z.number(),
-    rating: z.number(),
-    last_watched_at: z.string(),
-    poster: z.string(),
-    imdb: z.string(),
-  }),
-  loader: async () => {
-    if (!TRAKT_CLIENT_ID || !TMDB_API_KEY) {
-      console.warn('[content] Skipping trakt_watched_shows: missing TRAKT_CLIENT_ID or TMDB_API_KEY');
-      return [];
-    }
-    
-    const type = 'show'
-    const alt_type = 'shows'
-    const alt_type2 = 'tv'
+const trakt_watched_movies = createTraktCollection({
+  name: 'trakt_watched_movies',
+  type: 'movie',
+  altType: 'movies',
+  tmdbType: 'movie',
+})
 
-    try {
-      const watchedData = await getCachedData(`${alt_type}_watched`, async () => {
-        const response = await fetchWithRetry(`${TRAKT_WATCHED_URL}/${alt_type}`, "trakt", {
-          headers: {
-            'Content-Type': 'application/json',
-            'trakt-api-version': '2',
-            'trakt-api-key': TRAKT_CLIENT_ID,
-            'User-Agent': 'blogv3/1.0.0',
-          },
-        });
-        return await response.json();
-      });
-
-      const ratingsData = await getCachedData(`${alt_type}_ratings`, async () => {
-        const response = await fetchWithRetry(`${TRAKT_RATINGS_URL}/${alt_type}`, "trakt", {
-          headers: {
-            'Content-Type': 'application/json',
-            'trakt-api-version': '2',
-            'trakt-api-key': TRAKT_CLIENT_ID,
-            'User-Agent': 'blogv3/1.0.0',
-          },
-        });
-        return await response.json();
-      });
-
-      const ratings = ratingsData.reduce(
-        (
-          acc: { [x: string]: any },
-          item: { [x: string]: { ids: { tmdb: string | number } }; rating: any },
-        ) => {
-          acc[item[type].ids.tmdb] = item.rating
-          return acc
-        },
-        {},
-      );
-
-      const shows = await Promise.all(watchedData.map(async (item: any) => {
-        const tmdbId = item[type].ids.tmdb;
-        return await getCachedData(`tmdb_${alt_type2}_${tmdbId}`, async () => {
-          const image_api_request = `https://api.themoviedb.org/3/${alt_type2}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`;
-          const tmdbResponse = await fetchWithRetry(image_api_request, "tmdb");
-          const tmdbData = await tmdbResponse.json();
-
-          return {
-            id: item[type].ids.imdb,
-            title: item[type].title,
-            year: item[type].year,
-            rating: ratings[tmdbId] || 0,
-            last_watched_at: item.last_watched_at,
-            poster: `https://image.tmdb.org/t/p/w200${tmdbData.poster_path}`,
-            imdb: item[type].ids.imdb
-          };
-        });
-      }));
-
-      return shows;
-    } catch (error) {
-      console.warn(`[content] trakt_watched_shows failed; returning empty list. ${(error as Error).message}`);
-      return [];
-    }
-  }
-});
+const trakt_watched_shows = createTraktCollection({
+  name: 'trakt_watched_shows',
+  type: 'show',
+  altType: 'shows',
+  tmdbType: 'tv',
+})
 
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
