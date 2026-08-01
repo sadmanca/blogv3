@@ -95,6 +95,12 @@ function formatDate(dateString: any) {
     position: relative;
     z-index: 1;
   }
+  /* Applied by the media-grid controller once the poster has decoded. Must live
+     in this stylesheet: Tailwind's .hidden sits in @layer utilities and loses to
+     the unlayered .placeholder rule above. */
+  .placeholder.is-loaded {
+    display: none;
+  }
   .zoomable-image {
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
@@ -126,7 +132,6 @@ function formatDate(dateString: any) {
             <div class="relative h-full w-full transform transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-130 origin-bottom z-10 group-hover:z-11">
               <div
                 class="placeholder rounded-lg bg-gray-200 dark:bg-gray-900"
-                id={`placeholder-${item.data.imdb}`}
               >
                 <div class="h-12 w-12 rounded-xl flex items-center justify-center ">
                   <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
@@ -139,7 +144,6 @@ function formatDate(dateString: any) {
                 title={`${item.data.title}`}
                 width={101}
                 height={150}
-                onload={`document.getElementById('placeholder-${item.data.imdb}').classList.add('hidden'); this.classList.add('loaded');`}
               />
             </div>
           </a>

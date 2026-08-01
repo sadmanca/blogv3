@@ -26,7 +26,6 @@ const { project } = Astro.props
       <div class="relative max-w-[200px] sm:flex-shrink-0 relative">
           <div
             class="placeholder rounded-xl bg-gray-200 dark:bg-gray-900"
-            id={`placeholder-${project.data.name}`}
           >
             <div class="h-[105px] w-[200px] rounded-xl bg-gray-200 dark:bg-gray-900 flex items-center justify-center ">
               <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
@@ -39,7 +38,6 @@ const { project } = Astro.props
             height={630}
             class="zoomable-image object-cover rounded-xl absolute top-0 left-0"
             loading="lazy"
-            onload={`this.classList.add('loaded');`}
           />
         </div>
       )

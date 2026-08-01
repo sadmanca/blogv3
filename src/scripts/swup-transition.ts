@@ -1,6 +1,9 @@
-import Swup from 'swup'
+import SwupHeadPlugin from '@swup/head-plugin'
 import SwupPreloadPlugin from '@swup/preload-plugin'
 import SwupProgressPlugin from '@swup/progress-plugin'
+import Swup from 'swup'
+
+import { cleanupAll, initAll } from './controllers'
 
 const swup = new Swup({
   containers: ['#swup', '#swup-toc-slot'],
@@ -9,6 +12,13 @@ const swup = new Swup({
   linkToSelf: 'scroll',
   plugins: [
     new SwupPreloadPlugin(),
+    // Without this, <head> is never swapped: page-specific styles (Astro hoists
+    // scoped component CSS into <head>) plus meta/OG/canonical stay stuck on
+    // whichever page was hard-loaded first.
+    new SwupHeadPlugin({
+      awaitAssets: true,
+      persistAssets: true,
+    }),
     new SwupProgressPlugin({
       className: 'swup-progress-bar',
       delay: 0,
@@ -18,22 +28,17 @@ const swup = new Swup({
   ],
 })
 
-swup.hooks.on(
-  'content:replace',
-  () => {
-    ;(window as any).TOCController?.cleanup()
-    ;(window as any).MobileTOCController?.cleanup()
-    ;(window as any).__SubpostsController?.cleanup()
-    ;(window as any).__SidebarController?.cleanup()
-  },
-  { before: true },
-)
+swup.hooks.on('content:replace', cleanupAll, { before: true })
 
 swup.hooks.on('page:view', () => {
   window.scrollTo({ top: 0, behavior: 'instant' })
-  ;(window as any).MobileTOCController?.init()
-  ;(window as any).TOCController?.init()
-  ;(window as any).__SubpostsController?.init()
-  ;(window as any).__SidebarController?.init()
-  window.dispatchEvent(new CustomEvent('swup:page:view'))
+  initAll()
 })
+
+// Controllers live outside the swup containers, so nothing initialises them on
+// a hard load except this.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAll, { once: true })
+} else {
+  initAll()
+}
