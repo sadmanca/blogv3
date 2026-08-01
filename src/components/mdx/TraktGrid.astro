@@ -10,7 +10,7 @@ type TraktItem = {
     rating: number
     year: number
     last_watched_at: string
-    poster: string
+    poster: string | null
     imdb: string
   }
 }
@@ -137,14 +137,18 @@ function formatDate(dateString: any) {
                   <Icon name="lucide:image" class="h-10 w-10 text-gray-400 dark:text-gray-700" />
                 </div>
               </div>
-              <Image
-                src={item.data.poster}
-                alt={item.data.title}
-                class="mt-0 zoomable-image h-full w-full rounded-md object-cover"
-                title={`${item.data.title}`}
-                width={101}
-                height={150}
-              />
+              {/* No poster means TMDB has no artwork for this title (or its
+                  lookup failed) — leave the placeholder above uncovered. */}
+              {item.data.poster && (
+                <Image
+                  src={item.data.poster}
+                  alt={item.data.title}
+                  class="mt-0 zoomable-image h-full w-full rounded-md object-cover"
+                  title={`${item.data.title}`}
+                  width={101}
+                  height={150}
+                />
+              )}
             </div>
           </a>
           <div class={`mt-${titleMarginTop} text-center`}>

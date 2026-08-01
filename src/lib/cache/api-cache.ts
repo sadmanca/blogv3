@@ -2,7 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const CACHE_DIR = path.resolve('.cache');
-const shouldUseDevCache = process.argv.slice(2).includes('dev');
+
+/**
+ * True under `astro dev`. Gates the on-disk cache below, and lets content
+ * loaders degrade to empty collections in dev while failing the build in CI.
+ */
+export const isDevCommand = process.argv.slice(2).includes('dev');
+const shouldUseDevCache = isDevCommand;
 
 function ensureCacheDir() {
   if (!fs.existsSync(CACHE_DIR)) {

@@ -165,14 +165,19 @@ export default defineConfig({
     '/categories': '/tags',
     '/archives': '/blog',
 
-    '/magellan-101/': '/posts/uoft-ece-upper-year-course-reviews/',
+    '/magellan-101/': '/blog/uoft-ece-upper-year-course-reviews/',
 
-    '/uoft-pey-coop-jobs-2023': '/uoft-pey-coop-jobs-2023.html',
-    '/uoft-work-study-2025': '/uoft-work-study-2025-summer.html',
-    '/uoft-work-study-jobs-2025': '/uoft-work-study-2025-summer.html',
-    '/uoft-work-study-2024': '/uoft-work-study-2024.html',
-    '/uoft-work-study-jobs-2024': '/uoft-work-study-2024.html',
-    '/work-study': '/uoft-work-study-2024.html',
-    '/uoft-work-study': '/uoft-work-study-2024.html',    
+    // Aliases for the standalone dashboards in public/*.html.
+    //
+    // Do NOT redirect these to `*.html`. Cloudflare Workers static assets
+    // (html_handling: "auto-trailing-slash") already serves `/foo` from
+    // `foo.html` and 307s `/foo.html` back to `/foo` — so a `/foo` -> `/foo.html`
+    // rule is an infinite redirect loop. Aliases must target the extension-less
+    // path, and a page's own slug needs no rule at all.
+    '/uoft-work-study-2025': '/uoft-work-study-2025-summer',
+    '/uoft-work-study-jobs-2025': '/uoft-work-study-2025-summer',
+    '/uoft-work-study-jobs-2024': '/uoft-work-study-2024',
+    '/work-study': '/uoft-work-study-2024',
+    '/uoft-work-study': '/uoft-work-study-2024',
   },
 })
