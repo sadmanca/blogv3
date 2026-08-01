@@ -1,4 +1,4 @@
-const CACHE = 'sadman-blog-v3'
+const CACHE = 'sadman-blog-v4'
 
 const ROUTES = [
   '/',
