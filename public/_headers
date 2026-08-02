@@ -1,0 +1,6 @@
+# Stable, versionless assets get a week of browser cache (Cloudflare revalidates in background).
+# /_astro/* hashed assets are handled by the Astro Cloudflare adapter (immutable, 1 year).
+/fonts/*
+  Cache-Control: public, max-age=604800, must-revalidate
+/performance.js
+  Cache-Control: public, max-age=604800, must-revalidate
