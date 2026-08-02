@@ -30,7 +30,7 @@ const typeMapping = {
   flag: {
     icon: 'lucide:flag',
     classes: 'bg-primary/20 justify-center',
-    iconColor: 'text-primary/20',
+    iconColor: 'text-primary',
   },
   destructive: {
     icon: 'lucide:alert-octagon',
@@ -45,11 +45,23 @@ const finalClasses = customClasses || classes
 const finalIconColor = customIconColor || iconColor
 ---
 
-<div class={`relative my-6 flex gap-4 rounded-xl border-2 p-4 ${finalClasses}`}>
-  <span class="text-md pointer-events-none select-none relative" style="top: 10px;">
+{/* `items-start` and the icon's `h-[1lh]` are what align the icon to the
+    first line of text: 1lh resolves to the inherited prose line-height, the
+    same one the first paragraph uses, so the icon centres on that line box
+    whether the callout is one line or twenty. Both live in the hard-coded
+    half of the class string — `classes` replaces the type defaults, so a
+    call site can never strip them. Interior spacing comes from the
+    `.callout` contract in typography.css, not from margins here. */}
+<div class={`relative my-6 flex items-start gap-4 rounded-xl border-2 p-4 ${finalClasses}`}>
+  <span
+    class="pointer-events-none flex h-[1lh] shrink-0 items-center justify-center select-none"
+    aria-hidden="true"
+  >
     <Icon name={finalIcon} size={27} class={finalIconColor} />
   </span>
-  <div class="my-2 callout prose-code:break-all">
+  {/* `flex-1` is withheld from `flag`, whose default classes add
+      `justify-center` to centre the icon+content pair as a group. */}
+  <div class:list={['callout min-w-0', type !== 'flag' && 'flex-1']}>
     <slot />
   </div>
 </div>

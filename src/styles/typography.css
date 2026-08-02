@@ -31,6 +31,10 @@
     @apply text-foreground text-lg leading-[1.65rem] tracking-[0.3px];
     @apply [&>link[rel="stylesheet"]+*]:mt-0! [&>link[rel="stylesheet"]+*>*]:mt-0!;
 
+    /* The `callout` negation here is redundant for the margin (the
+       `.callout` rules at the end of this block outrank it), but it still
+       suppresses `text-foreground/80` — callout body text stays full
+       contrast against the tinted background. Don't drop it. */
     :where(p):not(:where([class~='callout'], [class~='callout'] *, [class~='not-prose'], [class~='not-prose'] *)) {
       @apply text-foreground/80 my-8;
     }
@@ -418,16 +422,64 @@
       @apply max-h-[min(68vh,1000px)]! overflow-y-auto [&::-webkit-scrollbar-corner]:hidden;
     }
 
-    :where(summary):not(:where(.not-prose, .not-prose *)) {
-      @apply [&~*]:small [&~*>*]:first:mt-0! [&~*>*]:last:mb-0!;
-    }
-
     :where(kbd):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
       @apply text-foreground bg-muted rounded-lg border px-2 py-1 text-xs font-medium;
     }
 
     :where(.katex-display):not(:where(.not-prose, .not-prose *)) {
       @apply text-foreground/80 my-6 overflow-x-auto overflow-y-hidden py-2 tracking-normal;
+    }
+
+    /* ── Callout spacing contract ──────────────────────────────────────
+       Callout content is a self-contained rhythm: flush against the box's
+       padding edges, tighter than the 2rem prose rhythm in between. Lives
+       here rather than as utilities on the component because (a) markdown-
+       generated children aren't reachable from markup, (b) Callout.astro
+       and callout.astro share one source of truth, and (c) specificity
+       lands at (0,2,x) — enough to beat every `.prose :where(...)` rule
+       above without a single `!important`. Must stay last in `.prose` so
+       it wins (0,2,0) ties against `:first-child` on source order. */
+    .callout {
+      --callout-gap: 1rem;
+      --callout-list-gap: 0.5rem;
+    }
+
+    /* Nested blocks (wrapper divs, <details> bodies). Excludes list-item
+       internals so the `:where(li) [&>p]:my-0` and nested-list rules keep
+       working. */
+    .callout
+      :where(
+        p, ul, ol, blockquote, figure, hr, video, details, table,
+        .table-container, .expressive-code, .katex-display, .asciicast
+      ):not(:where(li *)) {
+      margin-block: var(--callout-gap);
+    }
+
+    /* Direct children: owl pattern. Exact gaps (no margin collapsing) and
+       no first/last asymmetry by construction. `:not(link, style)` stops
+       KaTeX's injected <link> and Expressive Code's <style> from swallowing
+       the first gap — the same hazard the `.prose > link[rel=stylesheet] + *`
+       rule near the top of this block works around. */
+    .callout > * {
+      margin-block: 0;
+    }
+
+    .callout > :not(link, style) ~ :not(link, style) {
+      margin-top: var(--callout-gap);
+    }
+
+    .callout :where(ul, ol) > li + li {
+      margin-top: var(--callout-list-gap);
+    }
+
+    /* A callout is a fixed-width container — nothing inside it bleeds out
+       the way `.wide-img` / `.expressive-code` do at article level (they get
+       width:130% there, which overflows every callout containing a code
+       block). */
+    .callout :where(.expressive-code, .wide-img, .table-container, table, .asciicast) {
+      width: 100%;
+      max-width: 100%;
+      margin-inline: 0;
     }
   }
 
