@@ -6,6 +6,7 @@ import Footer from '@/components/Footer.astro'
 import Head from '@/components/head.astro'
 import Header from '@/components/header.astro'
 import MediumZoom from '@/components/MediumZoom.astro'
+import StarSprite from '@/components/StarSprite.astro'
 import Banner from '@/components/banner.astro'
 import { SITE } from '@/consts'
 import { cn } from '@/lib/utils'
@@ -109,6 +110,7 @@ const isDev = import.meta.env.DEV; // true when in development mode
     <slot name="head" />
   </Head>
   <body>
+    <StarSprite />
     <div class="flex h-fit min-h-screen flex-col gap-y-1 font-sans">
       {latestPost && (
         <Banner

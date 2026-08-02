@@ -20,7 +20,6 @@ import CodeToggle from '@/components/mdx/CodeToggle.astro';
 import GoodreadsGrid from '@/components/mdx/GoodreadsGrid.astro';
 import Code from '@/components/mdx/Code.astro';
 
-import rssInBrowserFull from './rss-in-browser-full.jpg';
 import sadmanRss from './sadman-rss-sample.xml?raw';
 
 import goodreadsUnstyledImg from './goodreads-unstyled.jpg';
@@ -112,7 +111,7 @@ RSS feeds are just urls to raw XML files, so you can open them up in your browse
 Of course, Goodreads RSS feeds use no stylesheets whatsoever, so parsing through the unformatted text is unwieldy.
 
   <figure class="flex-1 m-0">
-    <Image src={rssInBrowserFull} alt="Goodreads RSS Feed formatting in FireFox" class="zoom-image" />
+    <Image src="/blog/2025-01-31-goodreads-component-in-astro/rss-in-browser-full.webp" alt="Goodreads RSS Feed formatting in FireFox" class="zoom-image" width={1200} />
     <figcaption>Goodreads RSS Feed formatting in FireFox</figcaption>
   </figure>
 
