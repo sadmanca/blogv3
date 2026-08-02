@@ -1,19 +1,23 @@
-const KATEX_HREF =
-  'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css'
+const KATEX_HREF = '/katex/katex.min.css'
 
 /**
  * KaTeX CSS is only pulled in for posts that actually render math. The link is
  * injected at runtime rather than shipped in every page's head, so it has to be
- * re-checked on each navigation.
+ * re-checked on each navigation. It's loaded asynchronously (preload, then
+ * promoted to a stylesheet) so math posts don't block first paint on the CSS.
  */
 export function init() {
   if (!document.querySelector('.katex')) return
   if (document.querySelector(`link[href="${KATEX_HREF}"]`)) return
 
-  const link = document.createElement('link')
-  link.rel = 'stylesheet'
-  link.href = KATEX_HREF
-  document.head.appendChild(link)
+  const preload = document.createElement('link')
+  preload.rel = 'preload'
+  preload.as = 'style'
+  preload.href = KATEX_HREF
+  preload.onload = () => {
+    preload.rel = 'stylesheet'
+  }
+  document.head.appendChild(preload)
 }
 
 export function cleanup() {

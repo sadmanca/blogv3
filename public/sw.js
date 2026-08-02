@@ -1,4 +1,4 @@
-const CACHE = 'sadman-blog-v4'
+const CACHE = 'sadman-blog-v5'
 
 const ROUTES = [
   '/',
@@ -13,8 +13,8 @@ const ROUTES = [
 ]
 
 const CRITICAL_ASSETS = [
-  '/fonts/BricolageGrotesque.woff2',
-  '/fonts/InterVariable.woff2',
+  '/fonts/BricolageGrotesque-latin.woff2',
+  '/fonts/InterVariable-latin.woff2',
   '/fonts/IosevkaFixedSS03-Regular.woff2',
   '/fonts/IosevkaFixedSS03-SemiBold.woff2',
 ]
