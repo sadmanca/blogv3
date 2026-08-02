@@ -78,6 +78,8 @@ export const TAG_CLASSES: Record<string, string> = {
     'bg-purple-500 text-white hover:bg-purple-600 flex items-center gap-x-1 text-xs',
   'blog-challenge':
     'bg-slate-300 text-secondary-foreground dark:bg-slate-700/80 flex items-center gap-x-1 text-xs',
+  'blaugust-2026':
+    'bg-slate-300/60 text-secondary-foreground dark:bg-slate-800 flex items-center gap-x-1 text-xs',
   'blaugust-2025':
     'bg-slate-300/60 text-secondary-foreground dark:bg-slate-800 flex items-center gap-x-1 text-xs',
   'blaugust':
