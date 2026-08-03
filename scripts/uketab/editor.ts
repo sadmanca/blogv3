@@ -66,7 +66,7 @@ export interface RenderState {
 }
 
 export function render(tab: UkeTab, name: string): RenderState {
-  const colsShown = Math.max(8, tab.width)
+  const colsShown = Math.max(4, tab.width)
   const bar = Math.floor(tab.col / tab.beatsPerBar) + 1
 
   const title =
@@ -87,13 +87,17 @@ export function render(tab: UkeTab, name: string): RenderState {
     rulerRow(tab, colsShown),
     '',
     ANSI.dim +
-      'arrows/hjkl move · 0-9 fret · - sustain · space/x clear · u undo · s save · I/D insert/delete col · q quit' +
+      'arrows/hjkl move (→ adds a column) · 0-9 fret · - sustain · space/x clear · u undo · s save · I/D insert/delete col · q quit' +
       ANSI.reset,
     tab.message ? ANSI.green + tab.message + ANSI.reset : '',
   ]
 
   const cursorRow = 3 + tab.row
-  const cursorCol = 4 + tab.col * (CELL_WIDTH + 1) + 1
+  const cursorCol =
+    4 +
+    tab.col * (CELL_WIDTH + 1) +
+    Math.floor(tab.col / tab.beatsPerBar) * 2 +
+    1
   return { lines, cursorRow, cursorCol }
 }
 

@@ -115,7 +115,11 @@ export class UkeTab {
 
   move(dRow: number, dCol: number): void {
     this.row = Math.max(0, Math.min(NUM_STRINGS - 1, this.row + dRow))
-    this.col = Math.max(0, Math.min(this.width - 1, this.col + dCol))
+    // Moving right past the last column creates a new column, so the grid
+    // grows as you navigate and type. Home/end (large dCol) stay clamped.
+    const target = this.col + dCol
+    if (dCol === 1 && target >= this.width) ensureColumns(this.grid, target + 1)
+    this.col = Math.max(0, Math.min(this.width - 1, target))
   }
 
   /** Type a fret digit. Appends to a single-digit cell to make two-digit

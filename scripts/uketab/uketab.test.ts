@@ -5,6 +5,7 @@ import {
   gridToLilypond,
   gridToNotes,
 } from './convert.ts'
+import { render } from './editor.ts'
 import { UkeTab, emptyGrid, fretPitch, pitchName } from './model.ts'
 
 describe('pitchName', () => {
@@ -242,5 +243,52 @@ describe('UkeTab editor', () => {
       tab.typeFret('0')
     }
     expect(tab.width).toBe(6)
+  })
+
+  test('moving right past the last column creates a new column', () => {
+    const tab = new UkeTab()
+    expect(tab.width).toBe(4)
+    tab.move(0, 99)
+    expect(tab.width).toBe(4)
+    tab.col = 3
+    tab.move(0, 1)
+    expect(tab.width).toBe(5)
+    expect(tab.col).toBe(4)
+    tab.move(0, 1)
+    expect(tab.width).toBe(6)
+    expect(tab.col).toBe(5)
+  })
+
+  test('typing a chord at the last column wraps into a new column', () => {
+    const tab = new UkeTab()
+    tab.col = 3
+    for (let i = 0; i < 4; i++) {
+      tab.row = i
+      tab.typeFret('0')
+    }
+    expect(tab.width).toBe(5)
+    expect([tab.row, tab.col]).toEqual([0, 4])
+  })
+})
+
+describe('render', () => {
+  test('shows exactly the columns that exist', () => {
+    const tab = new UkeTab()
+    const strip = (s: string): string => s.replace(/\x1b\[[0-9;]*m/g, '')
+    expect(strip(render(tab, 'song').lines[2])).toBe('G |             | ')
+    tab.typeFret('0')
+    expect(strip(render(tab, 'song').lines[2])).toBe('G | 0           | ')
+  })
+
+  test('cursor column accounts for bar lines', () => {
+    const tab = new UkeTab()
+    tab.col = 0
+    expect(render(tab, 'song').cursorCol).toBe(5)
+    tab.col = 3
+    expect(render(tab, 'song').cursorCol).toBe(14)
+    tab.col = 4
+    expect(render(tab, 'song').cursorCol).toBe(19)
+    tab.col = 7
+    expect(render(tab, 'song').cursorCol).toBe(28)
   })
 })
