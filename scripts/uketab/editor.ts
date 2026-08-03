@@ -36,11 +36,41 @@ function styleCell(cell: string, cursor: boolean): string {
   return style + text + ANSI.reset
 }
 
-export function stringRow(tab: UkeTab, row: number, colsShown: number): string {
+/** Width in characters of the row prefix, e.g. "G | ". */
+export const ROW_PREFIX_WIDTH = 4
+
+/** Truncate a styled string to `max` visible characters without breaking
+ *  ANSI escape sequences; always ends with a reset. */
+export function clipStyled(text: string, max: number): string {
+  let out = ''
+  let visible = 0
+  for (let i = 0; i < text.length && visible < max; ) {
+    if (text[i] === '\x1b') {
+      const m = text.slice(i).match(/^\x1b\[[0-9;]*m/)
+      if (m) {
+        out += m[0]
+        i += m[0].length
+        continue
+      }
+      i += 1
+      continue
+    }
+    out += text[i]
+    visible += 1
+    i += 1
+  }
+  return out + ANSI.reset
+}
+
+export function stringRow(
+  tab: UkeTab,
+  row: number,
+  viewStart: number,
+  colsShown: number,
+): string {
   const name = ANSI.bold + STRINGS[row] + ANSI.reset
-  const prefix = `${name} | `
-  let line = prefix
-  for (let c = 0; c < colsShown; c++) {
+  let line = `${name} | `
+  for (let c = viewStart; c < viewStart + colsShown; c++) {
     const cursor = tab.row === row && tab.col === c
     line += styleCell(tab.cell(row, c), cursor) + ' '
     if ((c + 1) % tab.beatsPerBar === 0)
@@ -49,9 +79,13 @@ export function stringRow(tab: UkeTab, row: number, colsShown: number): string {
   return line
 }
 
-export function rulerRow(tab: UkeTab, colsShown: number): string {
+export function rulerRow(
+  tab: UkeTab,
+  viewStart: number,
+  colsShown: number,
+): string {
   let line = '    '
-  for (let c = 0; c < colsShown; c++) {
+  for (let c = viewStart; c < viewStart + colsShown; c++) {
     const beat = (c % tab.beatsPerBar) + 1
     line += ANSI.dim + pad(String(beat), CELL_WIDTH) + ' ' + ANSI.reset
     if ((c + 1) % tab.beatsPerBar === 0) line += ANSI.dim + '| ' + ANSI.reset
@@ -65,39 +99,72 @@ export interface RenderState {
   cursorCol: number // 1-based terminal column
 }
 
-export function render(tab: UkeTab, name: string): RenderState {
-  const colsShown = Math.max(4, tab.width)
+/** How many grid columns fit in `termCols` characters. */
+export function columnsThatFit(termCols: number, beatsPerBar: number): number {
+  let cols = Math.max(1, Math.floor((termCols - ROW_PREFIX_WIDTH) / 3))
+  while (
+    ROW_PREFIX_WIDTH + cols * 3 + Math.floor(cols / beatsPerBar) * 2 >
+    termCols
+  ) {
+    cols -= 1
+  }
+  return Math.max(1, cols)
+}
+
+export function render(
+  tab: UkeTab,
+  name: string,
+  termCols = process.stdout.columns ?? 80,
+): RenderState {
+  const colsShown = columnsThatFit(termCols, tab.beatsPerBar)
+  // Horizontal viewport: keep the cursor's column visible, scrolling the
+  // window right as you type past the terminal width.
+  const viewStart = Math.max(
+    0,
+    Math.min(tab.col - colsShown + 1, Math.max(0, tab.width - colsShown)),
+  )
   const bar = Math.floor(tab.col / tab.beatsPerBar) + 1
 
-  const title =
+  const title = clipStyled(
     ANSI.cyan +
-    ANSI.bold +
-    'uketab' +
-    ANSI.reset +
-    ` · ${name}${tab.dirty ? ANSI.yellow + ' *' + ANSI.reset : ''}` +
-    `   ${tab.beatsPerBar}/4 · bar ${bar}`
+      ANSI.bold +
+      'uketab' +
+      ANSI.reset +
+      ` · ${name}${tab.dirty ? ANSI.yellow + ' *' + ANSI.reset : ''}` +
+      `   ${tab.beatsPerBar}/4 · bar ${bar}`,
+    termCols,
+  )
+
+  const help = clipStyled(
+    ANSI.dim +
+      'arrows/hjkl move · 0-9 fret (advances right, ↓ stacks chords) · - sustain · space/x clear · u undo · s save · q quit' +
+      ANSI.reset,
+    termCols,
+  )
 
   const lines: string[] = [
     title,
     '',
-    stringRow(tab, 0, colsShown),
-    stringRow(tab, 1, colsShown),
-    stringRow(tab, 2, colsShown),
-    stringRow(tab, 3, colsShown),
-    rulerRow(tab, colsShown),
+    stringRow(tab, 0, viewStart, colsShown),
+    stringRow(tab, 1, viewStart, colsShown),
+    stringRow(tab, 2, viewStart, colsShown),
+    stringRow(tab, 3, viewStart, colsShown),
+    rulerRow(tab, viewStart, colsShown),
     '',
-    ANSI.dim +
-      'arrows/hjkl move · 0-9 fret (advances right, ↓ stacks chords) · - sustain · space/x clear · u undo · s save · q quit' +
-      ANSI.reset,
-    tab.message ? ANSI.green + tab.message + ANSI.reset : '',
+    help,
+    tab.message
+      ? clipStyled(ANSI.green + tab.message + ANSI.reset, termCols)
+      : '',
   ]
 
   const cursorRow = 3 + tab.row
   const cursorCol =
-    4 +
-    tab.col * (CELL_WIDTH + 1) +
-    Math.floor(tab.col / tab.beatsPerBar) * 2 +
-    1
+    ROW_PREFIX_WIDTH +
+    1 +
+    (tab.col - viewStart) * (CELL_WIDTH + 1) +
+    (Math.floor(tab.col / tab.beatsPerBar) -
+      Math.floor(viewStart / tab.beatsPerBar)) *
+      2
   return { lines, cursorRow, cursorCol }
 }
 

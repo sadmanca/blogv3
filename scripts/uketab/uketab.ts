@@ -127,13 +127,20 @@ interface Session {
 
 function promptLines(session: Session): RenderState {
   const base = render(session.tab, session.name)
+  const termCols = process.stdout.columns ?? 80
   base.lines[base.lines.length - 1] = ''
   const mode = session.mode
   if (mode.kind === 'prompt') {
     base.lines[base.lines.length - 1] =
-      `${mode.label} [${session.input}${'\u2588'}] (enter ok, ctrl-c cancel)`
+      `${mode.label} [${session.input}${'\u2588'}] (enter ok, ctrl-c cancel)`.slice(
+        0,
+        termCols,
+      )
     base.cursorRow = base.lines.length
-    base.cursorCol = mode.label.length + session.input.length + 3
+    base.cursorCol = Math.min(
+      mode.label.length + session.input.length + 3,
+      termCols,
+    )
   } else if (mode.kind === 'confirm-quit') {
     base.lines[base.lines.length - 1] =
       'Unsaved changes — press y to quit, any other key to keep editing'
@@ -319,9 +326,12 @@ async function main(): Promise<void> {
     quitting = true
     stdin.removeListener('data', onData)
     stdin.removeListener('end', onEnd)
+    process.stdout.removeListener('resize', onResize)
     cleanup()
     process.exit(0)
   }
+
+  const redraw = (): void => draw(promptLines(session))
 
   const onData = (chunk: string): void => {
     const { keys, pending } = parseKeys(chunk, session.pending)
@@ -333,7 +343,13 @@ async function main(): Promise<void> {
         return
       }
     }
-    draw(promptLines(session))
+    redraw()
+  }
+
+  const onResize = (): void => {
+    // The terminal width changed: re-render so lines clip at the new width
+    // instead of wrapping.
+    redraw()
   }
 
   const onEnd = (): void => {
@@ -346,6 +362,7 @@ async function main(): Promise<void> {
 
   stdin.on('data', onData)
   stdin.on('end', onEnd)
+  process.stdout.on('resize', onResize)
 
   process.stdout.write('\x1b[?1049h') // alternate screen
   showCursor(false)

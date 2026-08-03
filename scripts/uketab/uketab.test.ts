@@ -5,7 +5,7 @@ import {
   gridToLilypond,
   gridToNotes,
 } from './convert.ts'
-import { render } from './editor.ts'
+import { clipStyled, render } from './editor.ts'
 import { UkeTab, emptyGrid, fretPitch, pitchName } from './model.ts'
 
 describe('pitchName', () => {
@@ -289,28 +289,71 @@ describe('UkeTab editor', () => {
 })
 
 describe('render', () => {
-  test('shows exactly the columns that exist', () => {
+  const strip = (s: string): string => s.replace(/\x1b\[[0-9;]*m/g, '')
+
+  test('renders the tab rows with the typed notes in place', () => {
     const tab = new UkeTab()
-    const strip = (s: string): string => s.replace(/\x1b\[[0-9;]*m/g, '')
-    expect(strip(render(tab, 'song').lines[2])).toBe('G |             | ')
     tab.typeFret('0')
     tab.typeFret('1')
-    expect(strip(render(tab, 'song').lines[2])).toBe('G | 0  1        | ')
     tab.typeFret('2')
     tab.typeFret('3')
-    expect(tab.width).toBe(5)
-    expect(strip(render(tab, 'song').lines[2])).toBe('G | 0  1  2  3  |    ')
+    const lines = render(tab, 'song', 80).lines
+    expect(strip(lines[2])).toMatch(/^G \| 0  1  2  3/)
+    expect(strip(lines[3])).toMatch(/^C \|/)
+    expect(strip(lines[4])).toMatch(/^E \|/)
+    expect(strip(lines[5])).toMatch(/^A \|/)
   })
 
   test('cursor column accounts for bar lines', () => {
     const tab = new UkeTab()
     tab.col = 0
-    expect(render(tab, 'song').cursorCol).toBe(5)
+    expect(render(tab, 'song', 80).cursorCol).toBe(5)
     tab.col = 3
-    expect(render(tab, 'song').cursorCol).toBe(14)
+    expect(render(tab, 'song', 80).cursorCol).toBe(14)
     tab.col = 4
-    expect(render(tab, 'song').cursorCol).toBe(19)
+    expect(render(tab, 'song', 80).cursorCol).toBe(19)
     tab.col = 7
-    expect(render(tab, 'song').cursorCol).toBe(28)
+    expect(render(tab, 'song', 80).cursorCol).toBe(28)
+  })
+
+  test('no line ever wraps: every row fits the terminal width', () => {
+    const tab = new UkeTab()
+    for (let i = 0; i < 60; i++) tab.typeFret('0')
+    tab.move(0, 40)
+    const state = render(tab, 'song', 40)
+    for (const line of state.lines) {
+      expect(strip(line).length).toBeLessThanOrEqual(40)
+    }
+    expect(state.cursorCol).toBeLessThanOrEqual(40)
+  })
+
+  test('a wide grid scrolls the viewport to keep the cursor visible', () => {
+    const tab = new UkeTab()
+    for (let i = 0; i < 60; i++) tab.typeFret('0')
+    tab.col = 59
+    const state = render(tab, 'song', 40)
+    // The cursor's column is visible, on screen, within the width.
+    expect(state.cursorCol).toBeGreaterThan(4)
+    expect(state.cursorCol).toBeLessThanOrEqual(40)
+    // The last visible cell is the cursor's column: the viewport scrolled.
+    expect(strip(state.lines[2]).endsWith('0  | ')).toBe(true)
+  })
+
+  test('a narrow terminal shows fewer columns without breaking', () => {
+    const tab = new UkeTab()
+    for (let i = 0; i < 20; i++) tab.typeFret('0')
+    const state = render(tab, 'song', 20)
+    for (const line of state.lines) {
+      expect(strip(line).length).toBeLessThanOrEqual(20)
+    }
+    expect(state.cursorCol).toBeLessThanOrEqual(20)
+  })
+
+  test('clipping keeps ANSI codes intact', () => {
+    const clipped = clipStyled('\x1b[36m\x1b[1muketab\x1b[0m', 5)
+    expect(clipped).toContain('\x1b[36m')
+    expect(clipped).toContain('\x1b[1m')
+    expect(clipped.endsWith('\x1b[0m')).toBe(true)
+    expect(clipped.replace(/\x1b\[[0-9;]*m/g, '')).toBe('uketa')
   })
 })
