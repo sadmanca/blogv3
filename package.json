@@ -12,6 +12,8 @@
     "preview": "astro build && wrangler dev",
     "deploy": "astro build && wrangler deploy",
     "astro": "astro",
+    "uketab": "bun scripts/uketab/uketab.ts",
+    "uketab:test": "bun test scripts/uketab",
     "prettier": "prettier --write **/*.{ts,tsx,css,astro} --ignore-path .gitignore",
     "perf": "bash scripts/perf-audit.sh"
   },
