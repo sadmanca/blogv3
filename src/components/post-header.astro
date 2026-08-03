@@ -1,0 +1,133 @@
+---
+import { badgeVariants } from '@/components/ui/badge'
+import Link from '@/components/link.astro'
+import { Icon } from '@twodft/astro-icon/components'
+import { Image } from 'astro:assets'
+
+interface MetaItem {
+  icon?: string
+  label: string
+  href?: string
+  external?: boolean
+}
+
+interface Author {
+  id: string
+  name: string
+  avatar: string
+  isRegistered: boolean
+}
+
+interface Props {
+  title: string
+  pill: string
+  authors?: Author[]
+  meta?: MetaItem[]
+  tags?: string[]
+  tagHref?: (tag: string) => string | null
+}
+
+const {
+  title,
+  pill,
+  authors = [],
+  meta = [],
+  tags = [],
+  tagHref = (tag: string) => `/tags/${tag}`,
+} = Astro.props
+
+const metaItemClass =
+  'flex w-full items-center justify-center gap-x-1.5 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0'
+---
+
+<div class="flex flex-col">
+  <h1
+    class="mb-2 scroll-mt-31 text-6xl leading-none font-black sm:text-4xl"
+    id="post-title"
+  >
+    {title}
+  </h1>
+
+  <span
+    class="text-primary bg-ring/30 rounded-full text-lg font-normal leading-6 mx-auto w-fit px-6 py-3 mb-4"
+  >
+    {pill}
+  </span>
+
+  <div
+    class="text-muted-foreground divide-border mb-4 flex flex-col items-center justify-center divide-y text-xs sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 sm:text-sm"
+  >
+    {
+      authors.length > 0 && (
+        <div class="flex w-full items-center justify-center gap-x-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0">
+          {authors.map((author) => (
+            <div class="flex items-center gap-x-1.5">
+              <Image
+                src={author.avatar}
+                alt={author.name}
+                width={20}
+                height={20}
+                class="rounded-full"
+              />
+              {author.isRegistered ? (
+                <Link
+                  href={`/authors/${author.id}`}
+                  underline
+                  class="text-foreground"
+                >
+                  <span>{author.name}</span>
+                </Link>
+              ) : (
+                <span>{author.name}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      meta.map((item) => (
+        <div class={metaItemClass}>
+          {item.icon && <Icon name={item.icon} class="size-3" />}
+          {item.href ? (
+            <Link
+              href={item.href}
+              external={item.external}
+              underline
+              class="text-foreground"
+            >
+              {item.label}
+            </Link>
+          ) : (
+            <span>{item.label}</span>
+          )}
+        </div>
+      ))
+    }
+  </div>
+
+  {
+    tags.length > 0 && (
+      <div class="flex flex-wrap justify-center gap-2">
+        {
+          tags.map((tag) => {
+            const href = tagHref(tag)
+            const classes = badgeVariants({ variant: 'muted' })
+            return href ? (
+              <a href={href} class={classes}>
+                <Icon name="lucide:hash" class="size-3" />
+                {tag}
+              </a>
+            ) : (
+              <span class={classes}>
+                <Icon name="lucide:hash" class="size-3" />
+                {tag}
+              </span>
+            )
+          })
+        }
+      </div>
+    )
+  }
+</div>
