@@ -1,0 +1,65 @@
+---
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Icon } from '@twodft/astro-icon/components'
+import type { CollectionEntry } from 'astro:content'
+import { render as renderScore } from 'astro-lilypond'
+
+interface Props {
+  entry: CollectionEntry<'scores'>
+  title: string
+  artist: string
+  key?: string
+  difficulty?: string
+}
+
+const { entry, title, artist, key, difficulty } = Astro.props
+
+const score = await renderScore(
+  { ...entry.data, sourceName: entry.data.sourceName ?? entry.id },
+  { crop: true, pdf: true },
+)
+const Score = score.Score as import('astro/runtime/server/index.js').AstroComponentFactory
+const pdf = score.pdf
+---
+
+<div class="overflow-hidden rounded-xl border border-border/50 bg-card">
+  <div class="flex items-center justify-between gap-2 border-b border-border/50 px-4 py-2.5">
+    <div class="flex min-w-0 items-center gap-2">
+      <span class="flex size-7 shrink-0 items-center justify-center rounded-md bg-ring/30 text-secondary-foreground">
+        <Icon name="lucide:music-4" class="size-4" />
+      </span>
+      <div class="min-w-0">
+        <p class="truncate text-sm font-bold">{title}</p>
+        <p class="truncate text-xs text-muted-foreground">{artist}</p>
+      </div>
+    </div>
+    <div class="flex shrink-0 items-center gap-2">
+      {key && (
+        <Badge variant="muted" classes="hidden sm:inline-flex">
+          <Icon name="lucide:music" class="size-3" />
+          Key of {key}
+        </Badge>
+      )}
+      {difficulty && (
+        <Badge variant="muted" classes="hidden sm:inline-flex capitalize">
+          <Icon name="lucide:gauge" class="size-3" />
+          {difficulty}
+        </Badge>
+      )}
+      {
+        pdf && (
+          <Button variant="outline" size="sm" asChild>
+            <a href={pdf.src} download>
+              <Icon name="lucide:file-down" class="size-4" />
+              PDF
+            </a>
+          </Button>
+        )
+      }
+    </div>
+  </div>
+  <div class="p-4">
+    <Score />
+  </div>
+</div>

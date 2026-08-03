@@ -2,11 +2,11 @@
 import Breadcrumbs from '@/components/breadcrumbs.astro'
 import Link from '@/components/link.astro'
 import PageHead from '@/components/page-head.astro'
+import UkuleleScore from '@/components/ukulele-score.astro'
 import Layout from '@/layouts/layout.astro'
 import { formatDate } from '@/lib/utils'
 import { Icon } from '@twodft/astro-icon/components'
 import { getCollection, getEntry, render as renderContent } from 'astro:content'
-import { render as renderScore } from 'astro-lilypond'
 
 export async function getStaticPaths() {
   const songs = await getCollection('ukulele')
@@ -20,17 +20,6 @@ const song = Astro.props
 const { Content } = await renderContent(song)
 
 const scoreEntry = await getEntry('scores', song.data.score)
-const score = scoreEntry
-  ? await renderScore(
-      { ...scoreEntry.data, sourceName: scoreEntry.data.sourceName ?? scoreEntry.id },
-      { pdf: true },
-    )
-  : null
-// AstroComponentFactory is a valid template tag; the cast just removes
-// the `| undefined` union that `score?.Score` would produce. Rendered only
-// when `score` is non-null below.
-const Score = score?.Score as import('astro/runtime/server/index.js').AstroComponentFactory
-const pdf = score?.pdf
 
 const songs = (await getCollection('ukulele')).sort((a, b) => {
   const orderDiff = (a.data.order ?? Number.MAX_SAFE_INTEGER) - (b.data.order ?? Number.MAX_SAFE_INTEGER)
@@ -103,23 +92,15 @@ const nextSong = currentIndex < songs.length - 1 ? songs[currentIndex + 1] : nul
     }
 
     {
-      score ? (
+      scoreEntry ? (
         <div class="mt-8">
-          <Score />
-          {
-            pdf && (
-              <div class="mt-4 flex justify-center">
-                <a
-                  href={pdf.src}
-                  download
-                  class="inline-flex items-center gap-x-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary/50"
-                >
-                  <Icon name="lucide:file-down" class="size-4" />
-                  Download PDF
-                </a>
-              </div>
-            )
-          }
+          <UkuleleScore
+            entry={scoreEntry}
+            title={song.data.title}
+            artist={song.data.artist}
+            key={song.data.key}
+            difficulty={song.data.difficulty}
+          />
         </div>
       ) : (
         <p class="text-muted-foreground mt-8 text-center text-sm">
