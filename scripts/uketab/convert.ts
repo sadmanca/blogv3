@@ -89,7 +89,15 @@ export function gridToLilypond(
   beatsPerBar: number,
 ): ConversionResult {
   const { notes, warnings } = gridToNotes(grid)
-  const cols = gridWidth(grid)
+  // Trim trailing all-empty columns so the auto-created column after the
+  // last typed note doesn't render as a stray rest. Sustains (`-`) count.
+  let cols = gridWidth(grid)
+  while (
+    cols > 1 &&
+    !STRINGS.some((_, s) => (grid[s][cols - 1] ?? '') !== '')
+  ) {
+    cols -= 1
+  }
 
   const byStart = new Map<number, Note[]>()
   for (const note of notes) {

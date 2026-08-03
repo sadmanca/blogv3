@@ -51,10 +51,11 @@ function usage(): string {
     '  --help          show this help',
     '',
     'Keys:',
-    '  arrows / hjkl   move (→ adds a column)  0-9   type fret',
-    '  -               sustain note              space/x  clear cell (rest)',
-    '  u               undo                     s     save',
-    '  I / D           insert / delete col      q     quit',
+    '  arrows / hjkl   move            0-9   type fret (advances right)',
+    '  -               sustain note    ↓     move down between chord notes',
+    '  u               undo            space/x  clear cell (rest)',
+    '  s               save            I / D  insert / delete col',
+    '  q               quit',
   ].join('\n')
 }
 

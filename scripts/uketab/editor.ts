@@ -87,7 +87,7 @@ export function render(tab: UkeTab, name: string): RenderState {
     rulerRow(tab, colsShown),
     '',
     ANSI.dim +
-      'arrows/hjkl move (→ adds a column) · 0-9 fret · - sustain · space/x clear · u undo · s save · I/D insert/delete col · q quit' +
+      'arrows/hjkl move · 0-9 fret (advances right, ↓ stacks chords) · - sustain · space/x clear · u undo · s save · q quit' +
       ANSI.reset,
     tab.message ? ANSI.green + tab.message + ANSI.reset : '',
   ]

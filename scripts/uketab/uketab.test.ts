@@ -90,7 +90,23 @@ describe('gridToLilypond', () => {
     grid[2][0] = '1' // E string
     const { music, warnings } = gridToLilypond(grid, 4)
     expect(warnings).toHaveLength(0)
-    expect(music).toBe("<c'\\2 f'\\3 a'\\1>4 r4 r4 r4")
+    expect(music).toBe("<c'\\2 f'\\3 a'\\1>4")
+  })
+
+  test('rests fill empty columns between notes', () => {
+    const grid = emptyGrid(6)
+    grid[1][0] = '0' // c' on beat one
+    grid[1][3] = '0' // c' on beat four
+    const { music } = gridToLilypond(grid, 4)
+    expect(music).toBe("c'4\\2 r4 r4 c'4\\2")
+  })
+
+  test('a trailing empty column is trimmed, but not trailing sustains', () => {
+    const grid = emptyGrid(6)
+    grid[0][0] = '0'
+    grid[0][1] = '-'
+    const { music } = gridToLilypond(grid, 4)
+    expect(music).toBe("g'2\\1")
   })
 
   test('twinkle twinkle melody in first position', () => {
@@ -123,7 +139,7 @@ describe('gridToLilypond', () => {
     const grid = emptyGrid(4)
     grid[0][0] = '12'
     const { music } = gridToLilypond(grid, 4)
-    expect(music).toBe("g''4\\1 r4 r4 r4")
+    expect(music).toBe("g''4\\1")
   })
 
   test('sustain produces whole/half/dotted durations', () => {
@@ -171,7 +187,7 @@ describe('buildLy', () => {
     expect(ly).toContain("stringTunings = \\stringTuning <a' e' c' g'>")
     expect(ly).toContain('\\time 4/4')
     expect(ly).toContain('\\tempo 4 = 120')
-    expect(ly).toContain("<c'\\2 f'\\3 a'\\1>4 r4 r4 r4")
+    expect(ly).toContain("<c'\\2 f'\\3 a'\\1>4")
     expect(ly).toContain(
       '\\context {\n      \\TabVoice\n      \\omit StringNumber\n    }',
     )
@@ -185,15 +201,28 @@ describe('buildLy', () => {
 })
 
 describe('UkeTab editor', () => {
-  test('typing frets auto-advances down strings and wraps columns', () => {
+  test('typing frets auto-advances to the next column', () => {
     const tab = new UkeTab()
     tab.typeFret('2')
-    expect([tab.row, tab.col]).toEqual([1, 0])
+    expect([tab.row, tab.col]).toEqual([0, 1])
     expect(tab.grid[0][0]).toBe('2')
     tab.typeFret('0')
     tab.typeFret('1')
+    expect(tab.grid[0][1]).toBe('0')
+    expect(tab.grid[0][2]).toBe('1')
+    expect([tab.row, tab.col]).toEqual([0, 3])
+  })
+
+  test('a chord is stacked in one column by moving down-left between notes', () => {
+    const tab = new UkeTab()
+    tab.typeFret('2') // G string, col 0
+    tab.move(1, -1) // C string, col 0
     tab.typeFret('0')
-    expect([tab.row, tab.col]).toEqual([0, 1])
+    tab.move(1, -1) // E string, col 0
+    tab.typeFret('1')
+    tab.move(1, -1) // A string, col 0
+    tab.typeFret('0')
+    expect(tab.grid[0][0]).toBe('2')
     expect(tab.grid[1][0]).toBe('0')
     expect(tab.grid[2][0]).toBe('1')
     expect(tab.grid[3][0]).toBe('0')
@@ -202,7 +231,7 @@ describe('UkeTab editor', () => {
   test('two-digit frets append to the current cell', () => {
     const tab = new UkeTab()
     tab.typeFret('1')
-    tab.move(-1, 0)
+    tab.move(0, -1)
     tab.typeFret('2')
     expect(tab.grid[0][0]).toBe('12')
   })
@@ -210,7 +239,7 @@ describe('UkeTab editor', () => {
   test('typing a digit over a two-digit fret replaces it', () => {
     const tab = new UkeTab()
     tab.typeFret('1')
-    tab.move(-1, 0)
+    tab.move(0, -1)
     tab.typeFret('2')
     tab.typeFret('3')
     expect(tab.grid[0][0]).toBe('3')
@@ -222,12 +251,13 @@ describe('UkeTab editor', () => {
     tab.typeFret('0')
     tab.undo()
     expect(tab.grid[0][0]).toBe('2')
-    expect(tab.grid[1][0]).toBe('')
+    expect(tab.grid[0][1]).toBe('')
   })
 
   test('insert and delete columns', () => {
     const tab = new UkeTab()
     tab.typeFret('2')
+    tab.col = 0
     tab.insertColumn()
     expect(tab.grid[0][0]).toBe('')
     expect(tab.grid[0][1]).toBe('2')
@@ -235,14 +265,12 @@ describe('UkeTab editor', () => {
     expect(tab.grid[0][0]).toBe('2')
   })
 
-  test('grid auto-extends when typing past the last column', () => {
+  test('grid auto-extends as you type past the last column', () => {
     const tab = new UkeTab()
-    for (let i = 0; i < 6; i++) {
-      tab.row = 0
-      tab.col = i
-      tab.typeFret('0')
-    }
-    expect(tab.width).toBe(6)
+    expect(tab.width).toBe(4)
+    for (let i = 0; i < 6; i++) tab.typeFret('0')
+    expect(tab.width).toBe(7)
+    expect(tab.col).toBe(6)
   })
 
   test('moving right past the last column creates a new column', () => {
@@ -258,17 +286,6 @@ describe('UkeTab editor', () => {
     expect(tab.width).toBe(6)
     expect(tab.col).toBe(5)
   })
-
-  test('typing a chord at the last column wraps into a new column', () => {
-    const tab = new UkeTab()
-    tab.col = 3
-    for (let i = 0; i < 4; i++) {
-      tab.row = i
-      tab.typeFret('0')
-    }
-    expect(tab.width).toBe(5)
-    expect([tab.row, tab.col]).toEqual([0, 4])
-  })
 })
 
 describe('render', () => {
@@ -277,7 +294,12 @@ describe('render', () => {
     const strip = (s: string): string => s.replace(/\x1b\[[0-9;]*m/g, '')
     expect(strip(render(tab, 'song').lines[2])).toBe('G |             | ')
     tab.typeFret('0')
-    expect(strip(render(tab, 'song').lines[2])).toBe('G | 0           | ')
+    tab.typeFret('1')
+    expect(strip(render(tab, 'song').lines[2])).toBe('G | 0  1        | ')
+    tab.typeFret('2')
+    tab.typeFret('3')
+    expect(tab.width).toBe(5)
+    expect(strip(render(tab, 'song').lines[2])).toBe('G | 0  1  2  3  |    ')
   })
 
   test('cursor column accounts for bar lines', () => {

@@ -135,12 +135,9 @@ export class UkeTab {
     }
     this.snapshot()
     this.setCell(this.row, this.col, digit)
-    this.row += 1
-    if (this.row >= NUM_STRINGS) {
-      this.row = 0
-      this.col += 1
-      ensureColumns(this.grid, this.col + 1)
-    }
+    // Advance to the next column, creating it as needed.
+    this.col += 1
+    ensureColumns(this.grid, this.col + 1)
     this.mutate()
   }
 
