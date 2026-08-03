@@ -84,6 +84,20 @@ export function durationToken(beats: number): string {
     .join('~')
 }
 
+/** Repeat an inner token (a pitch or chord) over beat groups joined by
+ *  ties, so notes longer than a whole rest emit valid `c'1~c'4` syntax. */
+function durationGroups(inner: string, beats: number): string {
+  if (beats <= 4) return inner + durationToken(beats)
+  const parts: number[] = []
+  let rem = beats
+  while (rem > 4) {
+    parts.push(4)
+    rem -= 4
+  }
+  parts.push(rem)
+  return parts.map((p) => `${inner}${durationToken(p)}`).join('~')
+}
+
 export function gridToLilypond(
   grid: Grid,
   beatsPerBar: number,
@@ -112,13 +126,13 @@ export function gridToLilypond(
     const sounding = notes.some((n) => n.start <= c && c < n.start + n.beats)
     if (struck.length > 0) {
       const beats = Math.min(...struck.map((n) => n.beats))
-      const dur = durationToken(beats)
       const byPitch = (n: Note): number =>
         STRING_PITCH[STRINGS[n.string] as StringName] + n.fret
       if (struck.length === 1) {
         const n = struck[0]
         tokens.push(
-          `${fretPitch(STRINGS[n.string], n.fret)}${dur}\\${n.string + 1}`,
+          durationGroups(fretPitch(STRINGS[n.string], n.fret), beats) +
+            `\\${n.string + 1}`,
         )
       } else {
         const chordInner = [...struck]
@@ -127,7 +141,7 @@ export function gridToLilypond(
             (n) => `${fretPitch(STRINGS[n.string], n.fret)}\\${n.string + 1}`,
           )
           .join(' ')
-        tokens.push(`<${chordInner}>${dur}`)
+        tokens.push(durationGroups(`<${chordInner}>`, beats))
       }
     } else if (!sounding) {
       tokens.push('r4')

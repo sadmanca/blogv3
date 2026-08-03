@@ -6,11 +6,12 @@
  * Usage: bun uketab [name] [--title X] [--artist Y] [--beats N] [--tempo N]
  */
 
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { UkeTab } from './model.ts'
 import { buildLy } from './convert.ts'
+import { parseLy } from './parse.ts'
 import {
   draw,
   parseKeys,
@@ -42,6 +43,9 @@ function usage(): string {
     'uketab — ukulele tab editor',
     '',
     '  bun uketab [name] [options]',
+    '',
+    'Opens an existing score from src/content/scores/<name>.ly for editing',
+    'when it exists; otherwise starts a new song with that name.',
     '',
     'Options:',
     '  --title TITLE   title for the score header',
@@ -303,6 +307,27 @@ async function main(): Promise<void> {
     input: '',
     pending: '',
     quitting: false,
+  }
+
+  // Opening an existing score: load it back into the grid for editing.
+  if (session.name) {
+    const path = join(SCORES_DIR, `${session.name}.ly`)
+    if (existsSync(path)) {
+      try {
+        const parsed = parseLy(readFileSync(path, 'utf8'))
+        session.tab.grid = parsed.grid
+        session.tab.beatsPerBar = parsed.meta.beatsPerBar ?? opts.beats
+        opts.beats = session.tab.beatsPerBar
+        opts.tempo = parsed.meta.tempo ?? opts.tempo
+        session.title = parsed.meta.title ?? session.title
+        session.artist = parsed.meta.artist ?? session.artist
+        session.tab.message =
+          `loaded ${path}` +
+          (parsed.warnings.length > 0 ? ` — ${parsed.warnings.join('; ')}` : '')
+      } catch (err) {
+        session.tab.message = `couldn't load ${path}: ${err}`
+      }
+    }
   }
 
   const stdin = process.stdin
