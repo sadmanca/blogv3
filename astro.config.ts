@@ -5,6 +5,9 @@ import mdx from '@astrojs/mdx'
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
 import icon from '@twodft/astro-icon'
+import lilypond from 'astro-lilypond'
+
+import { unified } from '@astrojs/markdown-remark'
 
 import { rehypeHeadingIds } from '@astrojs/markdown-remark'
 import rehypeExpressiveCode from 'rehype-expressive-code'
@@ -51,6 +54,11 @@ export default defineConfig({
   output: 'static',
   adapter: cloudflare({
     imageService: 'compile',
+    // Prerender in Node instead of workerd so build-time code can use Node
+    // APIs (astro-lilypond spawns the lilypond binary to compile scores).
+    // Output is identical static HTML; the workerd prerender server would
+    // otherwise reject node:fs / node:child_process imports.
+    prerenderEnvironment: 'node',
   }),
   
   image: {
@@ -63,9 +71,29 @@ export default defineConfig({
     react(),
     sitemap(),
     icon(),
+    lilypond(),
   ],
   vite: {
-    plugins: [tailwindcss()] as any,
+    plugins: [
+      tailwindcss() as any,
+      {
+        // astro-lilypond eagerly chunks its dynamic `satteri` import, which
+        // resolves to a WASI package (`@bruits/satteri-wasm32-wasi`) that is
+        // an optional dependency skipped on non-wasm32 platforms. That chunk
+        // is never executed (the satteri path is build-time only, and this
+        // site uses the unified processor), so leave the import unresolved
+        // instead of failing the build. A resolveId plugin is used because
+        // Astro replaces per-environment rolldown config for prerendered
+        // builds, so `build.rolldownOptions.external` never applies.
+        name: 'externalize-satteri-wasi',
+        enforce: 'pre',
+        async resolveId(id: string) {
+          if (id === '@bruits/satteri-wasm32-wasi') {
+            return { id, external: true }
+          }
+        },
+      },
+    ],
     ...(isDevCommand
       ? {
           optimizeDeps: {
@@ -97,21 +125,23 @@ export default defineConfig({
   },
   markdown: {
     syntaxHighlight: false,
-    rehypePlugins: [
-      [
-        rehypeExternalLinks,
-        {
-          target: '_blank',
-          rel: ['nofollow', 'noreferrer', 'noopener'],
-          content: { type: "text", value: " ↗" }, // ⤴
-          contentProperties: { "aria-hidden": true, class: "no-select" },
-        },
+    processor: unified({
+      rehypePlugins: [
+        [
+          rehypeExternalLinks,
+          {
+            target: '_blank',
+            rel: ['nofollow', 'noreferrer', 'noopener'],
+            content: { type: "text", value: " ↗" }, // ⤴
+            contentProperties: { "aria-hidden": true, class: "no-select" },
+          },
+        ],
+        rehypeHeadingIds,
+        rehypeKatex,
+        ...(isDevCommand ? [] : [expressiveCodePlugin]),
       ],
-      rehypeHeadingIds,
-      rehypeKatex,
-      ...(isDevCommand ? [] : [expressiveCodePlugin]),
-    ],
-    remarkPlugins: [remarkMath, remarkEmoji],
+      remarkPlugins: [remarkMath, remarkEmoji],
+    }),
   },
   redirects: {
 

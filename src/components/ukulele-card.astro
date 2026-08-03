@@ -1,0 +1,60 @@
+---
+import { Badge } from '@/components/ui/badge'
+import { Icon } from '@twodft/astro-icon/components'
+import type { CollectionEntry } from 'astro:content'
+import Link from './link.astro'
+
+interface Props {
+  entry: CollectionEntry<'ukulele'>
+}
+
+const { entry } = Astro.props
+---
+
+<div
+  class="hover:bg-secondary/50 hover-card rounded-xl border border-border/50 hover:border-tertiary/30 p-4 transition-all ease-in-out hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] relative overflow-hidden group"
+>
+  <div class="absolute inset-0 bg-gradient-to-br from-tertiary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+  <Link
+    href={`/ukulele/${entry.id}`}
+    class="relative z-10 flex flex-col gap-2"
+  >
+    <div class="flex items-start justify-between gap-2">
+      <h3 class="text-xl font-extrabold leading-none mb-1">
+        {entry.data.title}
+      </h3>
+      {
+        entry.data.key && (
+          <span class="text-muted-foreground text-sm font-semibold shrink-0">
+            Key of {entry.data.key}
+          </span>
+        )
+      }
+    </div>
+    <p class="text-muted-foreground mb-1 text-sm font-medium leading-tight">
+      {entry.data.artist}
+    </p>
+    {
+      entry.data.description && (
+        <p class="text-muted-foreground/80 text-sm leading-snug">
+          {entry.data.description}
+        </p>
+      )
+    }
+    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+      {
+        entry.data.difficulty && (
+          <Badge variant="muted">
+            <Icon name="lucide:music-4" class="mr-1 size-3" />
+            {entry.data.difficulty}
+          </Badge>
+        )
+      }
+      {
+        entry.data.tags?.map((tag) => (
+          <Badge variant="muted" classes="capitalize">{tag}</Badge>
+        ))
+      }
+    </div>
+  </Link>
+</div>
