@@ -3,7 +3,7 @@ name: "Sadman Hossain"
 full_name: 'Sadman Hossain'
 pronouns: 'he/him'
 avatar: '/static/profile.jpg'
-bio: '4th year Computer Engineering student at the University of Toronto. Likes reading (a lot).'
+bio: 'Software Engineer at CPP Investments. Likes reading (a lot).'
 website: 'https://sadman.ca'
 github: 'https://github.com/sadmanca'
 linkedin: 'https://www.linkedin.com/in/sadmanca'

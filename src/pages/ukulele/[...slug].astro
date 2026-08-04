@@ -1,0 +1,126 @@
+---
+import Breadcrumbs from '@/components/breadcrumbs.astro'
+import Link from '@/components/link.astro'
+import PageHead from '@/components/page-head.astro'
+import PostHeader from '@/components/post-header.astro'
+import UkuleleScore from '@/components/ukulele-score.astro'
+import Layout from '@/layouts/layout.astro'
+import { formatDate } from '@/lib/utils'
+import { getCollection, getEntry, render as renderContent } from 'astro:content'
+
+export async function getStaticPaths() {
+  const songs = await getCollection('ukulele')
+  return songs.map((song) => ({
+    params: { slug: song.id },
+    props: song,
+  }))
+}
+
+const song = Astro.props
+const { Content } = await renderContent(song)
+
+const scoreEntry = await getEntry('scores', song.data.score)
+
+const songs = (await getCollection('ukulele')).sort((a, b) => {
+  const orderDiff = (a.data.order ?? Number.MAX_SAFE_INTEGER) - (b.data.order ?? Number.MAX_SAFE_INTEGER)
+  if (orderDiff !== 0) return orderDiff
+  if (a.data.date && b.data.date) return b.data.date.valueOf() - a.data.date.valueOf()
+  return a.data.title.localeCompare(b.data.title)
+})
+const currentIndex = songs.findIndex((s) => s.id === song.id)
+const prevSong = currentIndex > 0 ? songs[currentIndex - 1] : null
+const nextSong = currentIndex < songs.length - 1 ? songs[currentIndex + 1] : null
+
+const metaItems: { icon?: string; label: string; href?: string; external?: boolean }[] = [
+  ...(song.data.difficulty
+    ? [{ icon: 'lucide:music-4', label: song.data.difficulty }]
+    : []),
+  ...(song.data.key
+    ? [{ icon: 'lucide:music', label: `Key of ${song.data.key}` }]
+    : []),
+  ...(song.data.date
+    ? [{ icon: 'lucide:calendar', label: formatDate(song.data.date) }]
+    : []),
+  ...(song.data.youtube
+    ? [
+        {
+          icon: 'lucide:youtube',
+          label: 'Listen',
+          href: song.data.youtube,
+          external: true,
+        },
+      ]
+    : []),
+]
+---
+
+<Layout>
+  <PageHead slot="head" title={song.data.title} description={song.data.description} />
+
+  <section
+    class="grid gap-y-6 mt-4"
+    style="grid-template-columns: minmax(0, 1fr) min(calc(48rem - 2rem), 100%) minmax(0, 1fr);"
+  >
+    <div class="col-start-2">
+      <Breadcrumbs
+        items={[
+          { href: '/ukulele', label: 'Ukulele', icon: 'lucide:music-4' },
+          { href: `/ukulele/${song.id}`, label: song.data.title, icon: 'lucide:music' },
+        ]}
+      />
+    </div>
+
+    <section class="col-start-2 flex flex-col gap-y-6 text-center">
+      <PostHeader
+        title={song.data.title}
+        pill={song.data.artist}
+        meta={metaItems}
+        tags={song.data.tags ?? []}
+        tagHref={() => null}
+      />
+    </section>
+
+    {
+      Content && (
+        <article class="prose col-start-2 max-w-xl">
+          <Content />
+        </article>
+      )
+    }
+
+    {
+      scoreEntry ? (
+        <div class="col-start-2">
+          <UkuleleScore
+            entry={scoreEntry}
+            title={song.data.title}
+            artist={song.data.artist}
+            key={song.data.key}
+            difficulty={song.data.difficulty}
+          />
+        </div>
+      ) : (
+        <p class="text-muted-foreground col-start-2 text-center text-sm">
+          Tablature for this song hasn't been added yet.
+        </p>
+      )
+    }
+
+    <div class="col-start-2 mt-12 flex items-center justify-between border-t pt-6 text-sm">
+      {prevSong ? (
+        <Link href={`/ukulele/${prevSong.id}`} class="text-muted-foreground hover:text-foreground transition-colors">
+          ← {prevSong.data.title}
+        </Link>
+      ) : (
+        <span />
+      )}
+      {nextSong ? (
+        <Link href={`/ukulele/${nextSong.id}`} class="text-muted-foreground hover:text-foreground transition-colors">
+          {nextSong.data.title} →
+        </Link>
+      ) : (
+        <span />
+      )}
+    </div>
+  </section>
+</Layout>

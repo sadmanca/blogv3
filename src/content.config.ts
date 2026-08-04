@@ -2,6 +2,7 @@ import { glob } from 'astro/loaders'
 import { defineCollection } from 'astro:content'
 import { RateLimiter } from 'limiter'
 import { goodreadsLoader } from 'astro-loader-goodreads';
+import { lilypondLoader } from 'astro-lilypond/loader'
 import { z } from 'astro/zod'
 import { getCachedData, isDevCommand } from './lib/cache/api-cache';
 
@@ -283,10 +284,33 @@ const projects = defineCollection({
     }),
 })
 
+const scores = defineCollection({
+  loader: lilypondLoader({ base: './src/content/scores' }),
+})
+
+const ukulele = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/ukulele' }),
+  schema: z.object({
+    title: z.string(),
+    artist: z.string(),
+    description: z.string().optional(),
+    // id of the entry in the `scores` collection holding this song's tab
+    score: z.string(),
+    difficulty: z.enum(['beginner', 'easy', 'medium', 'hard']).optional(),
+    key: z.string().optional(),
+    date: z.coerce.date().optional(),
+    order: z.number().optional(),
+    youtube: z.url().optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+})
+
 export const collections = { 
   blog, 
   authors, 
   projects, 
+  scores,
+  ukulele,
   goodreads_read_books, 
   goodreads_user_updates,
   trakt_watched_movies,

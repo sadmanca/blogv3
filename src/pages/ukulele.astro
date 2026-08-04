@@ -1,0 +1,42 @@
+---
+import Breadcrumbs from '@/components/breadcrumbs.astro'
+import Link from '@/components/link.astro'
+import PageHead from '@/components/page-head.astro'
+import UkuleleCard from '@/components/ukulele-card.astro'
+import Layout from '@/layouts/layout.astro'
+import { getCollection } from 'astro:content'
+
+const songs = (await getCollection('ukulele')).sort((a, b) => {
+  const orderDiff = (a.data.order ?? Number.MAX_SAFE_INTEGER) - (b.data.order ?? Number.MAX_SAFE_INTEGER)
+  if (orderDiff !== 0) return orderDiff
+  if (a.data.date && b.data.date) return b.data.date.valueOf() - a.data.date.valueOf()
+  return a.data.title.localeCompare(b.data.title)
+})
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="Ukulele" description="Ukulele tabs and arrangements" />
+  <Breadcrumbs items={[{ label: 'Ukulele', icon: 'lucide:music-4' }]} />
+
+  <section>
+    <div class="min-w-full">
+      <h1 class="mb-4 text-6xl font-black">Ukulele</h1>
+      <p class="text-muted-foreground mb-6">
+        Ukulele tabs, rendered from LilyPond. Click a song to see the tablature
+        and notes.
+      </p>
+
+      {
+        songs.length > 0 ? (
+          <div class="grid gap-4 sm:grid-cols-2">
+            {songs.map((song) => <UkuleleCard entry={song} />)}
+          </div>
+        ) : (
+          <p class="text-muted-foreground">
+            No songs yet — check back soon!
+          </p>
+        )
+      }
+    </div>
+  </section>
+</Layout>

@@ -242,6 +242,37 @@ a[rel~="nofollow"]::after {
   box-shadow: 0 0 6px rgba(0,0,0,.15);
 }
 
+/* ── lilypond scores ── */
+[data-lilypond-image] {
+  background-color: white;
+  border-radius: 0.5rem;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-inline: auto;
+}
+
+/* Render notation white-on-dark so scores blend into the dark theme.
+   Standard invert trick: black ink -> white, white paper -> dark. */
+:root[data-theme='dark']
+[data-lilypond-image] {
+  filter: invert(0.92) hue-rotate(180deg);
+}
+
+[data-lilypond-group] {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+[data-lilypond-group] li {
+  margin: 0;
+}
+
 /* ── post thumbnail colours (needs to be global for swup nav) ── */
 .post-thumbnail          { background-color: var(--pt-thumb-bg); }
 .post-thumbnail-icon     { color:            var(--pt-thumb-icon); }

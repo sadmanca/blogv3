@@ -1,13 +1,12 @@
 ---
 import Breadcrumbs from '@/components/breadcrumbs.astro'
-import Link from '@/components/link.astro'
 import PostHead from '@/components/post-head.astro'
+import PostHeader from '@/components/post-header.astro'
 import PostNavigation from '@/components/post-navigation.astro'
 import SubpostsHeader from '@/components/subposts-header.astro'
 import SubpostsSidebar from '@/components/subposts-sidebar.astro'
 import TOCHeader from '@/components/toc-header.astro'
 import TOCSidebar from '@/components/toc-sidebar.astro'
-import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Layout from '@/layouts/layout.astro'
 import {
@@ -25,9 +24,7 @@ import {
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
 import { getThumbnailColors } from '@/lib/thumbnail-colors'
-import { TAG_CLASSES } from '@/consts'
 import { Icon } from '@twodft/astro-icon/components'
-import { Image } from 'astro:assets'
 import { render } from 'astro:content'
 
 export async function getStaticPaths() {
@@ -61,24 +58,12 @@ const combinedReadingTime =
 
 const tocSections = await getTOCSections(currentPostId)
 
-/* ---------- tag styling helper ---------- */
-const getTagClasses = (tag: string) => {
-  const tagLower = tag.toLowerCase()
-  // Check for exact matches first
-  if (TAG_CLASSES[tagLower]) {
-    return TAG_CLASSES[tagLower]
-  }
-  // Check for partial matches
-  for (const [key, classes] of Object.entries(TAG_CLASSES)) {
-    if (tagLower.includes(key)) {
-      return classes
-    }
-  }
-  // Default classes
-  return 'flex items-center gap-x-1 text-xs'
-}
-
 const thumb = getThumbnailColors(post.data);
+
+const readingTimeLabel =
+  combinedReadingTime && combinedReadingTime !== postReadingTime
+    ? `${postReadingTime} (${combinedReadingTime} total)`
+    : postReadingTime
 ---
 
 <Layout>
@@ -157,97 +142,24 @@ const thumb = getThumbnailColors(post.data);
     }    
 
     <section class="col-start-2 flex flex-col gap-y-6 text-center">
-      <div class="flex flex-col">
-        <h1
-          class="mb-2 scroll-mt-31 text-6xl leading-none font-black sm:text-4xl"
-          id="post-title"
-        >
-          {post.data.title}
-        </h1>
-        <span class="text-primary bg-ring/30 lg:rounded-full rounded-xl text-lg font-normal leading-6 mx-14 px-6 py-3 mb-4">
-          {post.data.description}
-        </span>        
-
-        <div
-          class="text-muted-foreground divide-border mb-4 flex flex-col items-center justify-center divide-y text-xs sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 sm:text-sm"
-        >
-          {
-            authors.length > 0 && (
-              <div class="flex w-full items-center justify-center gap-x-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0">
-                {authors.map((author) => (
-                  <div class="flex items-center gap-x-1.5">
-                    <Image
-                      src={author.avatar}
-                      alt={author.name}
-                      width={20}
-                      height={20}
-                      class="rounded-full"
-                    />
-                    {author.isRegistered ? (
-                      <Link
-                        href={`/authors/${author.id}`}
-                        underline
-                        class="text-foreground"
-                      >
-                        <span>{author.name}</span>
-                      </Link>
-                    ) : (
-                      <span>{author.name}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )
-          }
-
-          <div
-            class="flex w-full items-center justify-center gap-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0"
-          >
-            <span>{formatDate(post.data.date)}</span>
-          </div>
-
-          <div
-            class="flex w-full items-center justify-center gap-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0"
-          >
-            <span>
-              {postReadingTime}
-              {
-                combinedReadingTime &&
-                  combinedReadingTime !== postReadingTime && (
-                    <span class="text-muted-foreground">
-                      {' '}
-                      ({combinedReadingTime} total)
-                    </span>
-                  )
-              }
-            </span>
-          </div>
-
-          {
-            subpostCount > 0 && (
-              <div class="flex w-full items-center justify-center gap-1 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0">
-                <Icon name="lucide:file-text" class="size-3" />
-                {subpostCount} subpost{subpostCount === 1 ? '' : 's'}
-              </div>
-            )
-          }
-        </div>
-        <div class="flex flex-wrap justify-center gap-2">
-          {
-            post.data.tags &&
-              post.data.tags.length > 0 &&
-              post.data.tags.map((tag) => (
-                <a
-                  href={`/tags/${tag}`}
-                  class={badgeVariants({ variant: 'muted' })}
-                >
-                  <Icon name="lucide:hash" class="size-3" />
-                  {tag}
-                </a>
-              ))
-          }
-        </div>
-      </div>
+      <PostHeader
+        title={post.data.title}
+        pill={post.data.description}
+        authors={authors}
+        meta={[
+          { label: formatDate(post.data.date) },
+          { label: readingTimeLabel },
+          ...(subpostCount > 0
+            ? [
+                {
+                  icon: 'lucide:file-text',
+                  label: `${subpostCount} subpost${subpostCount === 1 ? '' : 's'}`,
+                },
+              ]
+            : []),
+        ]}
+        tags={post.data.tags ?? []}
+      />
 
       <PostNavigation
         newerPost={navigation.newer}
