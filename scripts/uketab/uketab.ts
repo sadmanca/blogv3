@@ -55,10 +55,11 @@ function usage(): string {
     '  --help          show this help',
     '',
     'Keys:',
-    '  arrows / hjkl   move            0-9   type fret (advances right)',
-    '  -               sustain note    ↓     move down between chord notes',
-    '  u               undo            space/x  clear cell (rest)',
-    '  s               save            I / D  insert / delete col',
+    '  arrows / hjkl   move                space  insert column at cursor',
+    '  0-9             type fret (right)   backspace  delete column at cursor',
+    '  -               sustain note        ↓      move down between chord notes',
+    '  x               clear cell (rest)   I / D  insert / delete column',
+    '  u               undo                s      save',
     '  q               quit',
   ].join('\n')
 }
@@ -208,7 +209,7 @@ function onKey(session: Session, key: Key): void {
       tab.move(0, tab.width)
       break
     case 'backspace':
-      tab.backspace()
+      tab.deleteColumn()
       break
     case 'delete':
       tab.clearCell()
@@ -217,6 +218,8 @@ function onKey(session: Session, key: Key): void {
       tab.sustain()
       break
     case ' ':
+      tab.insertColumn()
+      break
     case 'x':
       tab.clearCell()
       break

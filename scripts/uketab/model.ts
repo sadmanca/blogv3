@@ -156,14 +156,7 @@ export class UkeTab {
     this.mutate()
   }
 
-  backspace(): void {
-    if (this.cell(this.row, this.col) !== '') {
-      this.clearCell()
-    } else if (this.col > 0) {
-      this.col -= 1
-    }
-  }
-
+  /** Insert an empty column at the cursor; everything to the right shifts. */
   insertColumn(): void {
     this.snapshot()
     for (const row of this.grid) row.splice(this.col, 0, '')

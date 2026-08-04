@@ -137,7 +137,7 @@ export function render(
 
   const help = clipStyled(
     ANSI.dim +
-      'arrows/hjkl move · 0-9 fret (advances right, ↓ stacks chords) · - sustain · space/x clear · u undo · s save · q quit' +
+      'arrows/hjkl move · 0-9 fret (advances right, ↓ stacks chords) · space insert col · backspace delete col · x clear · - sustain · u undo · s save · q quit' +
       ANSI.reset,
     termCols,
   )

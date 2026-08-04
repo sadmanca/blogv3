@@ -265,6 +265,26 @@ describe('UkeTab editor', () => {
     expect(tab.grid[0][0]).toBe('2')
   })
 
+  test('space-style insert at the cursor shifts everything right', () => {
+    const tab = new UkeTab()
+    tab.typeFret('2') // col 0
+    tab.typeFret('0') // col 1
+    tab.typeFret('1') // col 2
+    tab.col = 1
+    tab.insertColumn()
+    expect(tab.grid[0].slice(0, 4)).toEqual(['2', '', '0', '1'])
+  })
+
+  test('backspace-style delete removes the column and shifts the rest left', () => {
+    const tab = new UkeTab()
+    tab.typeFret('2') // col 0
+    tab.typeFret('0') // col 1
+    tab.typeFret('1') // col 2
+    tab.col = 1
+    tab.deleteColumn()
+    expect(tab.grid[0].slice(0, 2)).toEqual(['2', '1'])
+  })
+
   test('grid auto-extends as you type past the last column', () => {
     const tab = new UkeTab()
     expect(tab.width).toBe(4)
